@@ -1,0 +1,12 @@
+path = input("Enter file path: ")
+
+with open(path, encoding="utf-8") as f:
+    lines = f.readlines()
+
+lines_count = len(lines)
+words_count = sum(len(line.split()) for line in lines)
+chars_count = sum(len(line) for line in lines)
+
+print("lines_count :", lines_count)
+print("words_count :", words_count)
+print("chars_count :", chars_count)

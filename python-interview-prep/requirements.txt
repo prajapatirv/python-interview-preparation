@@ -1,0 +1,22 @@
+# Core language / concurrency / coding challenges folders need nothing beyond stdlib.
+# Install everything below only when you get to the folder that needs it.
+
+# 03_pandas_data_handling
+pandas>=2.2
+
+# 04_testing_tdd
+pytest>=8.0
+pytest-asyncio>=0.24
+
+# 05_web_apis_fastapi
+fastapi>=0.115
+uvicorn[standard]>=0.30
+pydantic>=2.8
+pydantic-settings>=2.4
+httpx>=0.27
+
+# 06_kafka (only needed if you run against a real broker; see 06_kafka/README.md)
+confluent-kafka>=2.5
+
+# 07_caching_queues (optional real-Redis mode; simulated mode needs nothing extra)
+redis>=5.0
