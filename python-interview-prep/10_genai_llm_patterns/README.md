@@ -37,3 +37,7 @@ Swap `02_rag_pipeline_concept.py`'s keyword-overlap retriever for a real embeddi
 (e.g. using any small sentence-transformer, or even just TF-IDF cosine similarity via
 `scikit-learn`) and confirm the rest of the pipeline (prompt assembly, mocked generation, source
 citation) needs zero changes — that decoupling is the actual architectural point of RAG.
+
+> **Deep dive**: [20 — AI-first technologies](../deep_dive/20_ai_first_technologies.md) — RAG
+> architecture and what actually drives its quality, RAG vs fine-tuning, agents and tool calling,
+> semantic caching, evaluation in CI, cost observability and the failure modes.

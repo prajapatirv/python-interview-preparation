@@ -32,3 +32,7 @@ dependent — run the race-condition demo several times, not once, to actually s
 | `03_asyncio_demo.py` | coroutines, `gather`, `Semaphore`, timeout/cancellation, producer/consumer `asyncio.Queue` |
 | `04_sync_primitives.py` | `Event`, `Semaphore`, deadlock reproduced then fixed |
 | `benchmark_concurrency_models.py` | same I/O-bound task timed sequentially vs threads vs asyncio |
+
+> **Deep dive**: [07 — Concurrency](../deep_dive/07_concurrency.md) — GIL internals, the cost table
+> (process vs thread vs coroutine), `TaskGroup` vs `gather`, cancellation rules, and why a bare
+> `counter += 1` no longer reproduces the race on CPython 3.13+ (but is still unsafe).

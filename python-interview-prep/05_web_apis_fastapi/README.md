@@ -68,3 +68,7 @@ curl -X POST http://127.0.0.1:8000/orders \
 403, and one asserting an overridden admin user gets 204. This exercises the
 `app.dependency_overrides` pattern from `tests/test_orders_api.py` for a case the shipped tests
 don't already cover.
+
+> **Deep dive**: [10 — Web frameworks](../deep_dive/10_web_frameworks.md) — Django/Flask/FastAPI
+> selection, WSGI vs ASGI, `Depends()` in depth, the `async def` vs `def` trap, auth, testing and
+> production deployment. Also [11 — Framework development](../deep_dive/11_python_framework_development.md).

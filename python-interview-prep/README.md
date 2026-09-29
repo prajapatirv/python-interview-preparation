@@ -8,6 +8,10 @@ Q&A crib sheet, and runnable `.py` files you're meant to open, run, break, and m
 **Looking for a specific question?** See **[QUESTION_INDEX.md](QUESTION_INDEX.md)** — every
 question below, one file, each linked straight to the line that demonstrates it.
 
+**Want the full answer, not the crib-sheet version?** See **[`deep_dive/`](deep_dive/)** — 21
+long-form Q&A documents, one per interview topic, with multi-paragraph answers, trade-offs,
+failure modes, hands-on drills and a "60-second spoken answer" for each.
+
 ## How to use this
 
 1. Pick a folder in the order below (or jump to whatever you're weak on).
@@ -45,19 +49,38 @@ without any infra when you just want to see the pattern.
 | `09_aws_lambda_streaming/` | Lambda handler patterns, streaming large files without loading them fully | Yes (simulated S3) |
 | `10_genai_llm_patterns/` | prompt engineering, RAG pipeline shape, semantic caching | Yes (mocked, no API key needed) |
 | `11_coding_challenges/` | anagram grouping, sliding window max, LRU cache, string reversal | Yes |
+| `12_framework_internals/` | repository pattern, DI from scratch, plugin architecture, middleware chain, config | Yes |
+| `deep_dive/` | **21 long-form Q&A documents** — the full answers behind every crib sheet | — (reading) |
 | `legacy_examples/` | your original scratch files, kept as-is for reference | — |
 
 ## Source material
 
-The concept notes distilled into each README come from three interview-prep documents already
-reviewed for this project: *Python Developer Deep-Dive Interview Q&A*, *Python Advanced Topics
-Interview* (framework dev, scaling, Kafka, caching, production stability, AI-first tech), and the
-*Python & Kafka Interview Q&A Handbook* (194 questions across 14 topics). This project turns their
-Q&A into something you can actually execute and poke at.
+The concept notes and deep dives are distilled from the interview-prep PDFs in
+[`../material_ref/`](../material_ref/): *Python Developer Deep-Dive Interview Q&A* (37pp),
+*Python Advanced Interview Topics* (35pp — framework dev, scaling, Kafka, caching, queues,
+production stability, AI-first), and the *Python & Kafka Interview Q&A Handbook* (58pp, 194
+questions across the 14 topics the `deep_dive/` set mirrors). This project turns their Q&A into
+something you can actually execute and poke at, and the deep dives expand each answer with the
+trade-offs, failure modes and production detail the sources summarise in a line or two.
+
+> The other three PDFs in `material_ref/` (`Kafka_Master_Guide`, `Kafka_Advanced_Master_Pack`,
+> `Full_Interview_Preparation`) are largely generated placeholder text — "Explain Kafka concept
+> 17", "Answer includes design, trade-offs…" — and contributed only their few genuine sections.
 
 ## Suggested order for a first pass
 
-`01` → `11` → `02` → `04` → `05` → `03` → `07` → `08` → `06` → `09` → `10`
+`01` → `11` → `02` → `04` → `05` → `03` → `07` → `08` → `12` → `06` → `09` → `10`
 
 (Core language and coding challenges first since they show up in every round; Kafka and infra-heavy
 topics last since they need the most setup.)
+
+Read the matching [`deep_dive/`](deep_dive/) document **before** running each folder's files — the
+crib sheet tells you *what*, the deep dive tells you *why*, and the `# EXPERIMENT:` prompts in the
+code are where it actually sticks.
+
+## If you're coming from Java
+
+Start with [`deep_dive/21_java_to_python_bridge.md`](deep_dive/21_java_to_python_bridge.md) and
+[`01_python_core/11_java_to_python_bridge.py`](01_python_core/11_java_to_python_bridge.py). The
+concepts transfer; the syntax, the idioms and about seven specific traps do not. Every other deep
+dive also carries a **Java contrast** block where the semantics genuinely differ.

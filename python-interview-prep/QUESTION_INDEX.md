@@ -3,14 +3,43 @@
 A single reference mapping interview questions to where they're demonstrated in this repo.
 **Click any `→ file.py:LX` link** to jump straight to that line in the editor.
 
-- **Part 1 — Hands-On Topics**: every question here has a runnable example in one of the 11
+- **Part 1 — Hands-On Topics**: every question here has a runnable example in one of the 12
   numbered folders. Read the Q&A, then click through and run the file yourself.
 - **Part 2 — Reference Topics**: covered in the source interview-prep material but with no
   runnable example in this repo (Apache Camel, Couchbase, Airflow, Terraform/Databricks, Java
-  migration, monitoring/alerting, and more). No links — concept-only.
+  migration, and more). No links — concept-only.
 
-Use your editor's outline/symbol view (VS Code: `Ctrl+Shift+O`) to jump between the 21 sections
+Use your editor's outline/symbol view (VS Code: `Ctrl+Shift+O`) to jump between the sections
 below, or `Ctrl+F` for a specific keyword.
+
+> **The answers here are deliberately short** — one or two lines, enough to jog your memory.
+> For the full treatment of any topic below (multi-paragraph answers, trade-offs, failure modes,
+> Java contrasts, hands-on drills and a "60-second spoken answer"), go to the matching document
+> in **[`deep_dive/`](deep_dive/)**. The map:
+
+| This index's section | Deep dive |
+|---|---|
+| 01 Python Core — data structures | [01 — Data structures + `collections`](deep_dive/01_data_structures_collections.md) |
+| 01 Python Core — comprehensions, map/filter/reduce | [02 — Comprehensions, `map`/`filter`/`reduce`](deep_dive/02_comprehensions_map_filter_reduce.md) |
+| 01 Python Core — decorators | [03 — Custom decorators](deep_dive/03_decorators.md) |
+| 01 Python Core — generators/iterators | [04 — Generators, iterators, iterables](deep_dive/04_generators_iterators.md) |
+| 01 Python Core — context managers, descriptors, metaclasses | [05 — Context managers, descriptors, metaclasses](deep_dive/05_context_managers_descriptors_metaclasses.md) |
+| 01 Python Core — OOP / MRO | [06 — OOP in depth: inheritance and MRO](deep_dive/06_oop_inheritance_mro.md) |
+| 01 Python Core — exceptions | [08 — Error handling](deep_dive/08_error_handling.md) |
+| 02 Concurrency | [07 — Concurrency](deep_dive/07_concurrency.md) |
+| 03 Pandas | [09 — Pandas for data handling](deep_dive/09_pandas.md) |
+| 05 FastAPI / REST | [10 — Django / Flask / FastAPI](deep_dive/10_web_frameworks.md) |
+| 06 Kafka — core concepts | [13 — Kafka core](deep_dive/13_kafka_core.md) |
+| 06 Kafka — delivery semantics | [14 — Pipelines & delivery semantics](deep_dive/14_kafka_pipelines_delivery_semantics.md) |
+| 06 Kafka — retry/DLQ | [15 — Failure handling](deep_dive/15_kafka_failure_handling.md) |
+| 06 Kafka — schema registry | [16 — Schema management](deep_dive/16_kafka_schema_management.md) |
+| 07 Caching | [17 — Caching mechanisms](deep_dive/17_caching.md) |
+| 07 Queues | [18 — Queue-based architectures](deep_dive/18_queue_architectures.md) |
+| 08 Scaling & resilience | [12 — Scaling applications](deep_dive/12_scaling_applications.md) |
+| Part 2 — monitoring/alerting | [19 — Production stability, alerting & monitoring](deep_dive/19_production_stability_monitoring.md) |
+| 10 GenAI / LLM | [20 — AI-first technologies](deep_dive/20_ai_first_technologies.md) |
+| 12 Framework internals | [11 — Python framework development](deep_dive/11_python_framework_development.md) |
+| Part 2 — Java migration | [21 — Java → Python bridge](deep_dive/21_java_to_python_bridge.md) |
 
 ---
 
@@ -198,6 +227,36 @@ below, or `Ctrl+F` for a specific keyword.
   **A:** A `return` inside `finally` silently overrides and discards both the `try`'s return
   value AND any in-flight exception — never do it.
   → [08_exception_handling.py:112](01_python_core/08_exception_handling.py#L112)
+
+**`10_map_filter_reduce.py`**
+
+- **Q:** Are `map` and `filter` lists in Python 3?
+  **A:** No — they are lazy, single-pass iterators. Calling `list()` on the same `map` object
+  twice gives you the results and then an empty list, with no error.
+  → [10_map_filter_reduce.py:1](01_python_core/10_map_filter_reduce.py#L1)
+- **Q:** `map` or a comprehension?
+  **A:** `map` when you pass an existing named function (`map(int, xs)`) — it is cleaner and
+  faster. A comprehension when you would otherwise need a lambda, which `map` makes slower.
+- **Q:** Why was `reduce` moved out of builtins in Python 3?
+  **A:** Almost every real use is already `sum`, `max`, `min`, `any`, `all`, `math.prod` or
+  `join`; the rest are hard to read. Note `reduce(operator.add, list_of_lists)` is **O(n²)**.
+- **Q:** How do Java Streams map onto Python?
+  **A:** `.map(f).filter(p).collect(toList())` → `[f(x) for x in xs if p(x)]`;
+  `groupingBy` → `defaultdict(list)`; `.parallelStream()` has **no** equivalent (the GIL).
+
+**`11_java_to_python_bridge.py`**
+
+- **Q:** Coming from Java, what actually differs rather than just looking different?
+  **A:** The GIL (threads give concurrency, not parallelism); real multiple inheritance, so
+  `super()` means "next in the MRO", not "the parent"; and nothing is enforced — no `private`,
+  no checked exceptions, and type hints are not checked at runtime.
+  → [11_java_to_python_bridge.py:1](01_python_core/11_java_to_python_bridge.py#L1)
+- **Q:** Why no pre-emptive getters and setters in Python?
+  **A:** A public attribute can become a `@property` later **without breaking any caller**, so
+  defensive accessors buy nothing. `get_name()` is the loudest Java accent there is.
+- **Q:** What is `typing.Protocol` and why has Java no equivalent?
+  **A:** A structural contract — the implementing class never imports it, so you can retrofit a
+  type contract onto a third-party class you do not control.
 
 **`09_memory_management.py`**
 
@@ -414,6 +473,23 @@ below, or `Ctrl+F` for a specific keyword.
   default, or change/remove a type incompatibly.
   → [05_schema_registry_avro_notes.md:39](06_kafka/05_schema_registry_avro_notes.md#L39)
 
+**`06_schema_registry_simulation.py`**
+
+- **Q:** Describe the Confluent wire format.
+  **A:** Magic byte `0`, then a 4-byte big-endian schema ID, then the payload — 5 bytes total,
+  so the schema itself never travels. Dumping the first byte is the fastest way to debug a
+  deserialisation failure: `0x7B` means someone produced plain JSON to an Avro topic.
+  → [06_schema_registry_simulation.py:1](06_kafka/06_schema_registry_simulation.py#L1)
+- **Q:** BACKWARD vs FORWARD — which side do you upgrade first?
+  **A:** BACKWARD (the default) means a new consumer can read old data, so upgrade **consumers**
+  first. FORWARD means old consumers can read new data, so upgrade **producers** first.
+- **Q:** Why does `BACKWARD_TRANSITIVE` matter?
+  **A:** Plain BACKWARD only checks against the *latest* version, so v1→v2→v3 can each pass while
+  v3 cannot read v1 data — which a consumer replaying a 30-day topic will hit.
+- **Q:** Should a production service auto-register schemas?
+  **A:** No. `auto.register.schemas=false`; CI registers after a compatibility check that fails
+  the build. Otherwise any deployment can silently change a shared contract.
+
 ### 07 — Caching & Queues
 
 - **Q:** What's the cache-aside pattern, and how do you keep it correct across writes?
@@ -460,6 +536,24 @@ below, or `Ctrl+F` for a specific keyword.
   (a Kafka producer, a batched log) → exit. The container's grace period must exceed how long
   that drain takes.
   → [04_health_checks_graceful_shutdown.py:62](08_scaling_production_resilience/04_health_checks_graceful_shutdown.py#L62)
+
+**`05_metrics_alerting_simulation.py`**
+
+- **Q:** What is the cardinality trap?
+  **A:** Labelling a metric with a raw path or a user/order ID creates one time series per value.
+  Millions of series OOM your Prometheus — during the incident you needed it for. Use the route
+  *template*; per-entity detail belongs in logs and traces.
+  → [05_metrics_alerting_simulation.py:1](08_scaling_production_resilience/05_metrics_alerting_simulation.py#L1)
+- **Q:** Histogram or Summary?
+  **A:** Histogram. A Summary computes quantiles per instance, and quantiles **cannot** be
+  averaged across instances — a Histogram exports bucket counts, which are additive.
+- **Q:** What is an error budget and what is it *for*?
+  **A:** `1 − SLO`. It is a deployment risk budget: budget left means ship freely, budget spent
+  means freeze features and work on reliability.
+- **Q:** Why multi-window burn-rate alerts instead of "error rate > 1%"?
+  **A:** A flat threshold is both too noisy (keeps firing on a 1h average after a blip ended) and
+  too blind (misses a slow 4x burn that sits under the threshold). Requiring a long **and** a
+  short window to breach fixes both.
 
 ### 09 — AWS Lambda & Streaming Large Files
 
@@ -518,6 +612,58 @@ below, or `Ctrl+F` for a specific keyword.
   → [04_reverse_string.py:14](11_coding_challenges/04_reverse_string.py#L14)
 
 ---
+
+### 12 — Framework Internals
+
+**`01_repository_pattern.py`**
+
+- **Q:** What is the single highest-value structural decision when laying out a service?
+  **A:** The repository pattern — it lets you swap PostgreSQL for Couchbase, or add a cache
+  layer, without touching business logic, and lets you unit-test services with no database.
+  → [01_repository_pattern.py:1](12_framework_internals/01_repository_pattern.py#L1)
+- **Q:** Should a repository call `commit()`?
+  **A:** No — `flush()` only. The *service* owns the transaction boundary, because one business
+  operation may span several repositories and must commit atomically.
+- **Q:** Why must the service layer never import the web framework?
+  **A:** So the same service is callable from a Kafka consumer, a CLI command or a Lambda. It
+  raises *domain* exceptions; a central handler maps those to HTTP status codes in one place.
+
+**`02_dependency_injection.py`**
+
+- **Q:** What does FastAPI's `Depends()` actually do?
+  **A:** Resolves a dependency graph per request, caches each dependency once per request, and
+  supports `yield` for setup/teardown that runs after the response.
+  → [02_dependency_injection.py:1](12_framework_internals/02_dependency_injection.py#L1)
+- **Q:** Why does per-request caching matter?
+  **A:** A `get_db` depended on by three other dependencies opens **one** connection, so all
+  your queries run in one transaction. Without it you'd get three connections.
+- **Q:** Why is DI better than a module-level `settings` global?
+  **A:** `app.dependency_overrides` swaps any node of the graph in tests with no patching and no
+  source changes — which is why the unit suite runs in milliseconds.
+
+**`03_plugin_architecture.py`**
+
+- **Q:** Three ways to build a plugin system, and their trade-offs?
+  **A:** A decorator registry (simple, but the module must be *imported* to register);
+  `__init_subclass__` (registers at class definition, subclasses only); setuptools entry points
+  (a separate pip package can extend you, at packaging cost).
+  → [03_plugin_architecture.py:1](12_framework_internals/03_plugin_architecture.py#L1)
+- **Q:** When should you *not* build a plugin system?
+  **A:** For two or three implementations you control — an `if`/`else` and a config value is the
+  right amount of engineering until a third party actually needs to extend you.
+
+**`04_middleware_and_config.py`**
+
+- **Q:** In what order does middleware run?
+  **A:** The middleware added **last** is the **outermost** and runs **first**. Get it wrong and
+  a cache hit short-circuits before your auth check.
+  → [04_middleware_and_config.py:1](12_framework_internals/04_middleware_and_config.py#L1)
+- **Q:** What's the cardinality trap in metrics middleware?
+  **A:** Labelling by `request.url.path` creates one time series per order ID. Use the route
+  *template* (`/orders/{id}`), or you'll OOM Prometheus during the incident you needed it for.
+- **Q:** Why should config validation happen at startup?
+  **A:** A missing `DB_URL` or a typo'd `WORKER=8` should crash the process at boot, in staging,
+  with a message naming the problem — not silently use a default and surface at 3am.
 
 ## Part 2 — Reference Topics (no runnable example in this repo)
 

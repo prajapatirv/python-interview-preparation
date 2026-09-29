@@ -57,3 +57,19 @@ docker compose -f docker-compose.kafka.yml down
 
 If you don't have Docker available, read the files anyway — every one has inline commentary
 describing the exact broker-side behavior each call triggers.
+
+> **Deep dives**: [13 — Kafka core](../deep_dive/13_kafka_core.md) ·
+> [14 — Pipelines & delivery semantics](../deep_dive/14_kafka_pipelines_delivery_semantics.md) ·
+> [15 — Failure handling: retry topics, DLQ, idempotency](../deep_dive/15_kafka_failure_handling.md) ·
+> [16 — Schema management](../deep_dive/16_kafka_schema_management.md)
+
+## Files (updated)
+
+| File | Needs a broker? | Topic |
+|---|---|---|
+| `01_producer_basics.py` | yes (falls back to annotated read-only) | producer config, `acks`, idempotence, delivery callbacks |
+| `02_consumer_basics.py` | yes (same fallback) | consumer groups, offsets, manual commit |
+| `03_delivery_semantics.py` | **no** — `FakeBroker` | at-most/at-least/exactly-once, loss and duplication reproduced on purpose |
+| `04_retry_topic_dlq.py` | **no** — simulated | retry tiers, DLQ routing, headers, idempotent handler |
+| `05_schema_registry_avro_notes.md` | — | concept notes |
+| `06_schema_registry_simulation.py` | **no** — simulated | the Confluent wire format, subjects/versions, BACKWARD vs BACKWARD_TRANSITIVE, schema resolution |

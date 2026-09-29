@@ -32,6 +32,7 @@ Pure stdlib — every file runs with `py <file>.py`, no dependencies.
 | `02_circuit_breaker.py` | CLOSED → OPEN → HALF-OPEN → CLOSED state machine, built from scratch |
 | `03_rate_limiter.py` | sliding-window rate limiter as a decorator, per-caller buckets |
 | `04_health_checks_graceful_shutdown.py` | liveness vs readiness, `signal`-based graceful shutdown |
+| `05_metrics_alerting_simulation.py` | RED metrics, the cardinality trap, Histogram vs Summary, SLO/error budget, multi-window burn-rate alerting |
 
 ## Exercise
 
@@ -39,3 +40,8 @@ Compose `02_circuit_breaker.py`'s breaker with `01_retry_backoff.py`'s retry: wr
 retries transient failures with backoff *while the circuit is closed*, but skips straight to the
 fallback with zero retries the instant the circuit opens. Explain in one sentence why retrying
 into an already-open circuit would make an outage worse, not better.
+
+> **Deep dives**: [12 — Scaling applications](../deep_dive/12_scaling_applications.md) (bottlenecks
+> in the order they bite, connection pooling, autoscaling, backpressure) ·
+> [19 — Production stability, alerting & monitoring](../deep_dive/19_production_stability_monitoring.md)
+> (SLI/SLO/error budgets, RED metrics, cardinality, burn-rate alerts, graceful shutdown).

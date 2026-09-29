@@ -15,47 +15,75 @@ def section(title):
 section("race condition: counter += 1 is NOT atomic")
 
 
-def racy_increment(n_threads=4, n_iters=100_000):
+def bare_increment(n_threads=4, n_iters=20_000):
+    """`counter += 1` with nothing else in the loop body."""
     counter = 0
 
     def work():
         nonlocal counter
         for _ in range(n_iters):
-            counter += 1  # read, modify, write -- another thread can interleave here
+            counter += 1  # LOAD, ADD, STORE -- three separate bytecodes
     threads = [threading.Thread(target=work) for _ in range(n_threads)]
     [t.start() for t in threads]
     [t.join() for t in threads]
     return counter
 
 
-result = racy_increment()
-expected = 4 * 100_000
-print(f"expected {expected}, got {result} (mismatch means the race actually happened)")
-# EXPERIMENT: rerun this file a few times -- the result varies and is often < expected.
-# On some fast machines/short loops it may occasionally get lucky; increase n_iters to
-# make the race more reliably visible.
+def racy_increment(n_threads=4, n_iters=20_000):
+    """The same read-modify-write, but with a call inside the critical section."""
+    counter = 0
+
+    def work():
+        nonlocal counter
+        for _ in range(n_iters):
+            tmp = counter      # read
+            time.sleep(0)      # ANY function call is a possible GIL handoff point
+            counter = tmp + 1  # write -- another thread may have written in between
+    threads = [threading.Thread(target=work) for _ in range(n_threads)]
+    [t.start() for t in threads]
+    [t.join() for t in threads]
+    return counter
+
+
+expected = 4 * 20_000
+bare = bare_increment()
+racy = racy_increment()
+print(f"bare `counter += 1`          : {bare:>7,} / {expected:,}  lost {expected - bare:,}")
+print(f"read / sleep(0) / write      : {racy:>7,} / {expected:,}  lost {expected - racy:,}")
+print("""
+Why the first line often loses NOTHING on CPython 3.13+: the interpreter only checks
+for a GIL handoff at the loop back-edge -- i.e. AFTER the store -- so a bare += in a
+tight loop tends not to interleave. That does NOT make it atomic or thread-safe; it
+means the bug HIDES until the critical section contains a function call, which all
+real code does. The second line adds exactly that, and the updates disappear.""")
+# EXPERIMENT: rerun this file a few times -- the second number differs every run.
+# EXPERIMENT: swap time.sleep(0) for a call to any trivial helper and the race persists.
+#             It is the CALL that opens the window, not the sleep.
 
 
 # ---------------------------------------------------------------- fixed with a Lock
 section("fixed with threading.Lock — always exactly correct")
 
 
-def safe_increment(n_threads=4, n_iters=100_000):
+def safe_increment(n_threads=4, n_iters=20_000):
     counter = 0
     lock = threading.Lock()
 
     def work():
         nonlocal counter
         for _ in range(n_iters):
-            with lock:  # only one thread inside this block at a time
-                counter += 1
+            with lock:             # only one thread inside this block at a time
+                tmp = counter      # the SAME read/yield/write as racy_increment above
+                time.sleep(0)      # the handoff can still happen -- but no one else
+                counter = tmp + 1  # can be inside the lock, so nothing is lost
     threads = [threading.Thread(target=work) for _ in range(n_threads)]
     [t.start() for t in threads]
     [t.join() for t in threads]
     return counter
 
 
-print("safe_increment() ->", safe_increment(), "(always exactly 400000)")
+print("safe_increment() ->", f"{safe_increment():,}", "(always exactly 80,000)")
+print("Same critical section as the racy version -- the Lock is the only difference.")
 
 
 # ---------------------------------------------------------------- ThreadPoolExecutor for I/O

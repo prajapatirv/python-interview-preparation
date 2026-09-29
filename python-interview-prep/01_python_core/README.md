@@ -40,3 +40,19 @@ and read the `# EXPERIMENT:` prompts — change the marked line, predict the out
 | `08_exception_handling.py` | try/except/else/finally, custom hierarchy, chaining, EAFP vs LBYL, `ExceptionGroup` |
 | `09_memory_management.py` | refcounting, `gc`, `weakref`, `__slots__`, `tracemalloc` |
 | `exercises.md` | practice prompts — solve before checking the corresponding file above |
+| `10_map_filter_reduce.py` | `map`/`filter` laziness, `reduce` and why it left builtins, `operator`, Java Streams mapping |
+| `11_java_to_python_bridge.py` | the 7 traps a Java developer hits, bean → dataclass, ABC vs Protocol, MRO, the GIL race |
+
+## Deep dives
+
+The crib sheet above is for revision. For long-form Q&A with full answers, trade-offs and
+hands-on drills, see [`../deep_dive/`](../deep_dive/):
+
+- [01 — Data structures + `collections`](../deep_dive/01_data_structures_collections.md)
+- [02 — Comprehensions, `map`/`filter`/`reduce`](../deep_dive/02_comprehensions_map_filter_reduce.md)
+- [03 — Custom decorators](../deep_dive/03_decorators.md)
+- [04 — Generators, iterators, iterables](../deep_dive/04_generators_iterators.md)
+- [05 — Context managers, descriptors, metaclasses](../deep_dive/05_context_managers_descriptors_metaclasses.md)
+- [06 — OOP in depth: inheritance and MRO](../deep_dive/06_oop_inheritance_mro.md)
+- [08 — Error handling](../deep_dive/08_error_handling.md)
+- [21 — Java → Python bridge](../deep_dive/21_java_to_python_bridge.md)

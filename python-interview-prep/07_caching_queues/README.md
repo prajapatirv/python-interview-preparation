@@ -40,3 +40,7 @@ Extend `01_cache_aside_pattern.py`'s `FakeRedis` with an `allkeys-lru` eviction 
 `maxsize`, evicting the least-recently-*accessed* key on overflow — reuse the `OrderedDict` LRU
 from `01_python_core/01_data_structures.py`). Then write a small load test that proves eviction
 kicks in at the right size.
+
+> **Deep dives**: [17 — Caching mechanisms](../deep_dive/17_caching.md) (stampede, eviction,
+> L1/L2, invalidation, CDN) · [18 — Queue-based architectures](../deep_dive/18_queue_architectures.md)
+> (SQS/SNS/Kafka selection, fan-out, DLQ, outbox, CQRS).

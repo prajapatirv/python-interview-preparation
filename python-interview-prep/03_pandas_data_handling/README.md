@@ -29,3 +29,7 @@ Needs `pandas` installed (`pip install -r ../requirements.txt`). Run with `py <f
 | `02_missing_data_groupby_merge.py` | `isna`/`fillna`, `groupby().agg()`, `merge` with `indicator` |
 | `03_performance_large_data.py` | `apply` vs vectorized (timed), chunked CSV reads, memory reduction |
 | `sample_data/orders.csv` | small dataset the examples read from |
+
+> **Deep dive**: [09 — Pandas](../deep_dive/09_pandas.md) — `loc`/`iloc`, the `apply` performance
+> ladder, merge fan-out detection with `validate=`, `SettingWithCopyWarning` and Copy-on-Write,
+> `agg` vs `transform`, and processing files larger than memory.
