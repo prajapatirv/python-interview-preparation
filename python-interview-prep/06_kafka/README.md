@@ -34,17 +34,6 @@ file is written so you can read the code and reason about it even without runnin
   `BACKWARD` compatibility (the default) means: add fields *with defaults*, or remove fields —
   never change a type or remove a required field without one.
 
-## Files
-
-| File | Topic |
-|---|---|
-| `01_producer_basics.py` | producing with a key (partition affinity), delivery callbacks, `flush()` |
-| `02_consumer_basics.py` | consumer group, manual offset commit (at-least-once shape) |
-| `03_delivery_semantics.py` | at-most-once vs at-least-once shown side by side via commit order |
-| `04_retry_topic_dlq.py` | classify transient vs poison-pill errors, route to retry tier or DLQ |
-| `05_schema_registry_avro_notes.md` | wire format, compatibility modes, safe vs unsafe Avro changes |
-| `docker-compose.kafka.yml` | one-command local broker + Schema Registry for hands-on runs |
-
 ## Running against a real broker (optional but recommended)
 
 ```bash
@@ -61,15 +50,35 @@ describing the exact broker-side behavior each call triggers.
 > **Deep dives**: [13 — Kafka core](../deep_dive/13_kafka_core.md) ·
 > [14 — Pipelines & delivery semantics](../deep_dive/14_kafka_pipelines_delivery_semantics.md) ·
 > [15 — Failure handling: retry topics, DLQ, idempotency](../deep_dive/15_kafka_failure_handling.md) ·
-> [16 — Schema management](../deep_dive/16_kafka_schema_management.md)
+> [16 — Schema management](../deep_dive/16_kafka_schema_management.md) ·
+> [31 — Kafka config & integration from Python](../deep_dive/31_kafka_python_integration.md)
 
-## Files (updated)
+## Files
 
 | File | Needs a broker? | Topic |
 |---|---|---|
-| `01_producer_basics.py` | yes (falls back to annotated read-only) | producer config, `acks`, idempotence, delivery callbacks |
-| `02_consumer_basics.py` | yes (same fallback) | consumer groups, offsets, manual commit |
-| `03_delivery_semantics.py` | **no** — `FakeBroker` | at-most/at-least/exactly-once, loss and duplication reproduced on purpose |
-| `04_retry_topic_dlq.py` | **no** — simulated | retry tiers, DLQ routing, headers, idempotent handler |
-| `05_schema_registry_avro_notes.md` | — | concept notes |
+| `01_producer_basics.py` | yes (falls back to annotated read-only) | producer config, `acks`, idempotence, delivery callbacks, `flush()` |
+| `02_consumer_basics.py` | yes (same fallback) | consumer groups, offsets, manual commit (the at-least-once shape) |
+| `03_delivery_semantics.py` | **no** — `FakeBroker` | at-most/at-least/exactly-once, with loss and duplication reproduced on purpose |
+| `04_retry_topic_dlq.py` | **no** — simulated | retry tiers, DLQ routing, headers, an idempotent handler |
+| `05_schema_registry_avro_notes.md` | — | wire format, compatibility modes, safe vs unsafe Avro changes |
 | `06_schema_registry_simulation.py` | **no** — simulated | the Confluent wire format, subjects/versions, BACKWARD vs BACKWARD_TRANSITIVE, schema resolution |
+| `07_kafka_python_config.py` | **no** | every producer/consumer setting that matters and what it costs; four named profiles (throughput / low-latency / no-loss / exactly-once); a **config validator** that catches contradictory combinations; env-var → librdkafka mapping; MSK IAM / Confluent Cloud / SCRAM auth |
+| `08_kafka_to_aurora_sink.py` | **no** — `FakeBroker` + `FakeAurora` | Kafka → Aurora: the three real bugs (offset-committed-first = **lost rows**, plain `INSERT` = **duplicates**, row-at-a-time = 40× the round trips) and the fix — batch + idempotent upsert + **DB commit before offset commit** |
+| `docker-compose.kafka.yml` | — | one-command local broker + Schema Registry for hands-on runs |
+
+## The two config defaults that lose data
+
+Worth memorising, because both are defaults and both are wrong for real work:
+
+1. **`enable.auto.commit=True`** (consumer) — a background thread commits offsets on a timer, so it
+   can commit messages you have not finished processing. A crash then loses them **silently**. Set it
+   to `False` and commit after the work succeeds.
+2. **`acks=1`** (producer) — the write is acknowledged once the leader has it, so if that leader dies
+   before replicating, the message is gone *and you were told it succeeded*. Use `acks=all` plus
+   `enable.idempotence=True`, with broker-side `min.insync.replicas=2` and RF=3.
+
+And a third that loses data less obviously: **ignoring the delivery callback.** `produce()` is
+asynchronous, so without `on_delivery` a permanent send failure is invisible to your code. Always
+`flush()` before exit, too — an unflushed buffer on SIGTERM is lost, not retried.
+

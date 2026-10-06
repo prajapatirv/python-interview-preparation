@@ -25,6 +25,12 @@ streaming behavior (constant memory, regardless of file size) is genuinely obser
 |---|---|
 | `01_lambda_handler_patterns.py` | the handler shape: module-level init, structured logging, re-raise on error |
 | `02_stream_large_file_s3_simulation.py` | streaming a "large" file line-by-line with constant memory, vs. loading it all at once |
+| `03_large_file_processing.py` | the full "how would you handle a 100GB file?" answer — generator pipelines, batched writes, streaming aggregation, **external merge sort**, dedupe (Bloom filter + disk partitioning), **parallel byte-range chunks**, atomic checkpoint/resume, gzip vs Parquet |
+
+> **Deep dive**: [30 — Handling a 100GB file](../deep_dive/30_large_file_processing.md) — which
+> operations are one-pass and which aren't, how to sort/dedupe/join beyond RAM, how to split on
+> record boundaries for parallel workers, how to survive a crash at 80GB, and when the right answer
+> is Athena/DuckDB/Spark instead of Python.
 
 ## Exercise
 

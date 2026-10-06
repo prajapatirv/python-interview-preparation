@@ -1,14 +1,15 @@
 # Python Interview Prep — Hands-On Lab
 
 A self-contained playground for Python backend interview prep (6-10 yrs level): core language,
-concurrency, Pandas, FastAPI/REST, Kafka, caching/queues, production resilience, AWS Lambda, and
-GenAI patterns. Every topic folder has a `README.md` with the condensed concept notes + interview
+concurrency, Pandas, FastAPI/REST, Kafka, caching/queues, production resilience, AWS Lambda,
+GenAI patterns, and the system-design scenario rounds (zero downtime, observability, capacity
+planning). Every topic folder has a `README.md` with the condensed concept notes + interview
 Q&A crib sheet, and runnable `.py` files you're meant to open, run, break, and modify.
 
 **Looking for a specific question?** See **[QUESTION_INDEX.md](QUESTION_INDEX.md)** — every
 question below, one file, each linked straight to the line that demonstrates it.
 
-**Want the full answer, not the crib-sheet version?** See **[`deep_dive/`](deep_dive/)** — 21
+**Want the full answer, not the crib-sheet version?** See **[`deep_dive/`](deep_dive/)** — 32
 long-form Q&A documents, one per interview topic, with multi-paragraph answers, trade-offs,
 failure modes, hands-on drills and a "60-second spoken answer" for each.
 
@@ -38,19 +39,20 @@ without any infra when you just want to see the pattern.
 
 | Folder | Covers | Runs with just stdlib? |
 |---|---|---|
-| `01_python_core/` | data structures, comprehensions, decorators, generators/iterators, context managers, descriptors, metaclasses, OOP/MRO, exceptions, memory management | Yes |
+| `01_python_core/` | data structures, comprehensions, decorators, generators/iterators, context managers, descriptors, metaclasses, OOP/MRO, exceptions, memory management, **variable scope/LEGB**, **ABCs & `Protocol`**, **senior-level basics**, **multi-level exception handling** | Yes |
 | `02_concurrency/` | GIL, threading, multiprocessing, asyncio, synchronization primitives | Yes |
 | `03_pandas_data_handling/` | Series/DataFrame, missing data, groupby/merge, performance at scale | Needs `pandas` |
 | `04_testing_tdd/` | TDD workflow, pytest, mocking, fixtures | Needs `pytest` |
 | `05_web_apis_fastapi/` | FastAPI app (routers/services/repos/DI), REST semantics, status codes, auth | Needs `fastapi`, `uvicorn` |
-| `06_kafka/` | topics/partitions/replication, delivery semantics, retry+DLQ, schema registry | Needs a broker (docker-compose provided) |
+| `06_kafka/` | topics/partitions/replication, delivery semantics, retry+DLQ, schema registry, **client config profiles**, **Kafka → Aurora sink** | Partly — 5 of its 7 Python files need no broker |
 | `07_caching_queues/` | cache-aside, stampede protection, SQS/SNS-style fan-out, DLQ | Yes (simulated); Redis optional |
 | `08_scaling_production_resilience/` | retry+backoff, circuit breaker, rate limiting, health checks | Yes |
-| `09_aws_lambda_streaming/` | Lambda handler patterns, streaming large files without loading them fully | Yes (simulated S3) |
+| `09_aws_lambda_streaming/` | Lambda handler patterns, streaming large files without loading them fully, **the full 100GB-file answer** (external sort, dedupe, parallel chunks, resume) | Yes (simulated S3) |
 | `10_genai_llm_patterns/` | prompt engineering, RAG pipeline shape, semantic caching | Yes (mocked, no API key needed) |
-| `11_coding_challenges/` | anagram grouping, sliding window max, LRU cache, string reversal | Yes |
+| `11_coding_challenges/` | anagram grouping, sliding window max, LRU cache, string reversal, **retry decorator**, **nested-dict search** | Yes |
 | `12_framework_internals/` | repository pattern, DI from scratch, plugin architecture, middleware chain, config | Yes |
-| `deep_dive/` | **21 long-form Q&A documents** — the full answers behind every crib sheet | — (reading) |
+| `13_system_design_scenarios/` | **zero-downtime production changes**, **observability** (metrics/logs/traces/SLO), **scaling 100 → 600 TPS**, **AI leverage & customer-impact stories** | Yes |
+| `deep_dive/` | **32 long-form Q&A documents** — the full answers behind every crib sheet | — (reading) |
 | `legacy_examples/` | your original scratch files, kept as-is for reference | — |
 
 ## Source material
@@ -69,10 +71,11 @@ trade-offs, failure modes and production detail the sources summarise in a line 
 
 ## Suggested order for a first pass
 
-`01` → `11` → `02` → `04` → `05` → `03` → `07` → `08` → `12` → `06` → `09` → `10`
+`01` → `11` → `02` → `04` → `05` → `03` → `07` → `08` → `13` → `12` → `06` → `09` → `10`
 
 (Core language and coding challenges first since they show up in every round; Kafka and infra-heavy
-topics last since they need the most setup.)
+topics last since they need the most setup. `13` sits after `08` because the resilience patterns in
+`08` are what the system-design scenarios assume you already have.)
 
 Read the matching [`deep_dive/`](deep_dive/) document **before** running each folder's files — the
 crib sheet tells you *what*, the deep dive tells you *why*, and the `# EXPERIMENT:` prompts in the

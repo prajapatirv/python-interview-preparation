@@ -25,6 +25,18 @@ and read the `# EXPERIMENT:` prompts — change the marked line, predict the out
   chain; `finally`'s `return` silently discards everything else (never `return` from `finally`).
 - **Memory**: CPython uses reference counting + a generational cyclic GC. `__slots__` removes the
   per-instance `__dict__` (~40% memory saving) at the cost of dynamic attributes.
+- **Scope (LEGB)**: Local → Enclosing *function* → Global (= module-level) → Built-in. Assignment
+  anywhere in a function makes the name local **for the whole function**, decided at compile time —
+  that one rule causes `UnboundLocalError`, the late-binding closure bug, and the class-body
+  `NameError`. `global`/`nonlocal` rebind a *name*; mutating an object needs neither.
+- **ABCs**: `class X(ABC)` + `@abstractmethod` → `TypeError` at **instantiation**, naming what's
+  missing. An ABC can hold concrete code (template method) — that's why it beats a `Protocol` when
+  you own the hierarchy. It checks **names only**, never signatures: a type checker does that.
+  `typing.Protocol` is structural (no inheritance); `__init_subclass__` validates at **import** time.
+- **Multi-level `except`**: clauses are tried top-down, so a parent above a child makes the child's
+  handler **dead code** — with no warning. `raise X from e` preserves the cause; `return`/`raise` in
+  `finally` destroys the in-flight exception; `__exit__` returning `True` **swallows** it.
+  `ExceptionGroup`/`except*` (3.11+) for several failures at once.
 
 ## Files
 
@@ -42,6 +54,10 @@ and read the `# EXPERIMENT:` prompts — change the marked line, predict the out
 | `exercises.md` | practice prompts — solve before checking the corresponding file above |
 | `10_map_filter_reduce.py` | `map`/`filter` laziness, `reduce` and why it left builtins, `operator`, Java Streams mapping |
 | `11_java_to_python_bridge.py` | the 7 traps a Java developer hits, bean → dataclass, ABC vs Protocol, MRO, the GIL race |
+| `12_variable_scope_namespaces.py` | LEGB, `global`/`nonlocal`, `UnboundLocalError`, the class-body scope hole, late binding, shadowing built-ins |
+| `13_abstract_base_classes.py` | `ABC`/`@abstractmethod`, template method, abstract property, `Protocol`, `register()`, `collections.abc` mixins, `__init_subclass__` |
+| `14_python_basics_essentials.py` | `is` vs `==`, pass-by-object-reference, mutable defaults, truthiness, shallow/deep copy, `*args`/`**kwargs`, sorting, type hints |
+| `15_nested_exception_handling.py` | multi-level `except`, nested `try`, layer translation, `with` + exceptions, `ExceptionGroup`/`except*`, `add_note()` |
 
 ## Deep dives
 
@@ -55,4 +71,8 @@ hands-on drills, see [`../deep_dive/`](../deep_dive/):
 - [05 — Context managers, descriptors, metaclasses](../deep_dive/05_context_managers_descriptors_metaclasses.md)
 - [06 — OOP in depth: inheritance and MRO](../deep_dive/06_oop_inheritance_mro.md)
 - [08 — Error handling](../deep_dive/08_error_handling.md)
+- [22 — Variable scope, declaration and namespaces](../deep_dive/22_variable_scope_namespaces.md)
+- [23 — Abstract base classes, interfaces and `Protocol`](../deep_dive/23_abstract_classes_interfaces.md)
+- [24 — Python basics that still get asked at senior level](../deep_dive/24_python_basics_essentials.md)
+- [25 — Multi-level exception handling and `with`](../deep_dive/25_nested_exception_handling.md)
 - [21 — Java → Python bridge](../deep_dive/21_java_to_python_bridge.md)

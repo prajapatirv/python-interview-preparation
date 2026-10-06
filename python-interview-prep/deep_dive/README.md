@@ -3,7 +3,7 @@
 The topic folder `README.md` files are **crib sheets**: one or two lines per concept, for
 revision the morning of an interview.
 
-**These 21 files are the opposite.** Each one is a long-form treatment of a single topic with
+**These 32 files are the opposite.** Each one is a long-form treatment of a single topic with
 multi-paragraph answers, working code, the trade-offs, the failure modes, and — where it
 matters — the Java contrast. Read these to *understand*; read the crib sheets to *revise*.
 
@@ -19,7 +19,7 @@ Every file follows the same shape:
 
 ---
 
-## The 21 deep dives
+## The 32 deep dives
 
 ### Core language
 
@@ -32,7 +32,11 @@ Every file follows the same shape:
 | [05](05_context_managers_descriptors_metaclasses.md) | **Context managers, descriptors, metaclasses** | [`05_context_managers.py`](../01_python_core/05_context_managers.py) · [`06_descriptors_metaclasses.py`](../01_python_core/06_descriptors_metaclasses.py) |
 | [06](06_oop_inheritance_mro.md) | **OOP in depth** — multiple/multilevel inheritance, MRO, `super()` | [`07_oop_inheritance_mro.py`](../01_python_core/07_oop_inheritance_mro.py) |
 | [07](07_concurrency.md) | **Concurrency** — threading / multiprocessing / asyncio | [`02_concurrency/`](../02_concurrency/) |
-| [08](08_error_handling.md) | **Error handling** | [`08_exception_handling.py`](../01_python_core/08_exception_handling.py) |
+| [08](08_error_handling.md) | **Error handling** — the basics | [`08_exception_handling.py`](../01_python_core/08_exception_handling.py) |
+| [22](22_variable_scope_namespaces.md) | **Variable scope, declaration and namespaces** — LEGB, `global`/`nonlocal`, closures | [`12_variable_scope_namespaces.py`](../01_python_core/12_variable_scope_namespaces.py) |
+| [23](23_abstract_classes_interfaces.md) | **Abstract base classes, interfaces and `Protocol`** | [`13_abstract_base_classes.py`](../01_python_core/13_abstract_base_classes.py) |
+| [24](24_python_basics_essentials.md) | **Python basics that still get asked at senior level** | [`14_python_basics_essentials.py`](../01_python_core/14_python_basics_essentials.py) |
+| [25](25_nested_exception_handling.md) | **Multi-level exception handling and `with`** — nested `try`, `except*`, `__exit__` | [`15_nested_exception_handling.py`](../01_python_core/15_nested_exception_handling.py) |
 
 ### Data and web
 
@@ -42,6 +46,7 @@ Every file follows the same shape:
 | [10](10_web_frameworks.md) | **Django / Flask / FastAPI** (FastAPI in depth) | [`05_web_apis_fastapi/`](../05_web_apis_fastapi/) |
 | [11](11_python_framework_development.md) | **Python framework development** | [`12_framework_internals/`](../12_framework_internals/) |
 | [12](12_scaling_applications.md) | **Scaling applications & handling challenges** | [`08_scaling_production_resilience/`](../08_scaling_production_resilience/) |
+| [30](30_large_file_processing.md) | **Handling a 100GB file** — streaming, external sort, dedupe, parallel chunks, resume | [`03_large_file_processing.py`](../09_aws_lambda_streaming/03_large_file_processing.py) |
 
 ### Kafka
 
@@ -51,6 +56,7 @@ Every file follows the same shape:
 | [14](14_kafka_pipelines_delivery_semantics.md) | **Designing Kafka pipelines & delivery semantics** | [`03_delivery_semantics.py`](../06_kafka/03_delivery_semantics.py) |
 | [15](15_kafka_failure_handling.md) | **Failure handling** — retry topics, DLQ, consumer idempotency | [`04_retry_topic_dlq.py`](../06_kafka/04_retry_topic_dlq.py) |
 | [16](16_kafka_schema_management.md) | **Schema management** — Schema Registry, Avro/Protobuf/JSON Schema | [`06_schema_registry_simulation.py`](../06_kafka/06_schema_registry_simulation.py) |
+| [31](31_kafka_python_integration.md) | **Kafka config & integration from Python** — client config, Kafka→Aurora, outbox | [`07_kafka_python_config.py`](../06_kafka/07_kafka_python_config.py) · [`08_kafka_to_aurora_sink.py`](../06_kafka/08_kafka_to_aurora_sink.py) |
 
 ### Architecture and production
 
@@ -60,26 +66,37 @@ Every file follows the same shape:
 | [18](18_queue_architectures.md) | **Queue-based architectures** | [`03_queue_patterns.py`](../07_caching_queues/03_queue_patterns.py) |
 | [19](19_production_stability_monitoring.md) | **Production stability, alerting & monitoring** | [`05_metrics_alerting_simulation.py`](../08_scaling_production_resilience/05_metrics_alerting_simulation.py) |
 | [20](20_ai_first_technologies.md) | **AI-first technologies & solutions** | [`10_genai_llm_patterns/`](../10_genai_llm_patterns/) |
+| [27](27_zero_downtime_production_changes.md) | **Zero-downtime changes** — mitigate first, canary, expand/migrate/contract | [`01_zero_downtime_change.py`](../13_system_design_scenarios/01_zero_downtime_change.py) |
+| [28](28_observability_distributed_systems.md) | **Observability** — metrics, logs, traces, correlation IDs, SLO burn rate | [`02_observability_pillars.py`](../13_system_design_scenarios/02_observability_pillars.py) |
+| [29](29_capacity_scaling_tps.md) | **Scaling 100 → 600 TPS** — Little's Law, bottleneck analysis, load shedding | [`03_capacity_scaling_tps.py`](../13_system_design_scenarios/03_capacity_scaling_tps.py) |
 
-### Bridge
+### Coding rounds, behavioural, and the bridge
 
 | # | Topic | Runnable companion |
 |---|---|---|
+| [26](26_coding_design_problems.md) | **Three design-coding problems** — retry decorator, nested-dict search, LRU cache | [`05_retry_decorator.py`](../11_coding_challenges/05_retry_decorator.py) · [`06_nested_dict_search.py`](../11_coding_challenges/06_nested_dict_search.py) · [`03_lru_cache.py`](../11_coding_challenges/03_lru_cache.py) |
+| [32](32_ai_leverage_and_impact_stories.md) | **Leveraging AI on a project, and the customer-impact story** | [`04_ai_leverage_and_impact.py`](../13_system_design_scenarios/04_ai_leverage_and_impact.py) |
 | [21](21_java_to_python_bridge.md) | **Java → Python** — syntax, idioms, and the traps | [`11_java_to_python_bridge.py`](../01_python_core/11_java_to_python_bridge.py) |
 
 ---
 
 ## Suggested reading order
 
-**If you have a week:** `21` (bridge) → `01`–`08` (core) → `10`, `11` (frameworks) →
-`13`–`16` (Kafka) → `07`, `12`, `17`, `18`, `19` (systems) → `09` (Pandas) → `20` (AI).
+**If you have a week:** `21` (bridge) → `24`, `22`, `01`–`08`, `23`, `25` (core) → `26` (coding
+rounds) → `10`, `11` (frameworks) → `13`–`16`, `31` (Kafka) → `07`, `12`, `17`, `18`, `19`, `27`,
+`28`, `29` (systems) → `09`, `30` (data) → `20`, `32` (AI).
 
 **If you have a day:** read the *60-second spoken answer* at the bottom of each file, then go
 deep on the three topics you're weakest on. Practise saying them out loud — the gap between
 "I understand this" and "I can explain this in two minutes" is where interviews are lost.
 
-**If you have an hour:** `13` (Kafka core), `14` (delivery semantics), `07` (concurrency).
-Those three come up in almost every round for this profile.
+**If you have an hour:** `13` (Kafka core), `14` (delivery semantics), `07` (concurrency),
+`29` (capacity scaling). Those four come up in almost every round for this profile.
+
+**If the round is explicitly system design:** `27`, `28`, `29`, `12`, `19`, plus `30` if the role
+touches data pipelines.
+
+**If the round is a live coding exercise:** `26`, then `01` and `04`.
 
 ---
 
@@ -92,6 +109,11 @@ development, scaling, caching, queues, production stability, AI-first) — then 
 the trade-offs, failure modes and production detail that the source documents summarise in a
 line or two.
 
+Deep dives **22–32** go beyond the source material: they cover the scope/ABC/basics/exception
+topics the PDFs skip, the three design-coding problems that come up in live rounds, the
+system-design scenarios (zero downtime, observability, capacity planning, large files), the
+Kafka-from-Python integration detail, and the two behavioural-but-technical questions.
+
 **A note on the source PDFs:** three of the six contain real content. `Kafka_Master_Guide.pdf`,
 `Kafka_Advanced_Master_Pack.pdf` and `Full_Interview_Preparation.pdf` are mostly generated
 placeholder text ("Explain Kafka concept 17", "Answer includes design, trade-offs…") and were
@@ -101,15 +123,46 @@ not used beyond their few genuine sections.
 
 ## Day-before-interview checklist
 
+**Core language**
+
 - [ ] Explain the **GIL**, and when to use threads vs processes vs asyncio, in 60 seconds.
 - [ ] Write a **decorator with arguments** (retry or timer) and a **context manager** from memory.
 - [ ] Draw the **MRO for a diamond** and explain what `super()` calls, and why.
-- [ ] Sketch a **FastAPI app**: router, Pydantic model, `Depends()`, exception handler, `lifespan`.
+- [ ] State the **LEGB rule** and why `counter += 1` raises `UnboundLocalError`.
+- [ ] Say when you'd use an **ABC** vs a **`Protocol`** vs plain duck typing — and what an ABC
+      does *not* check.
+- [ ] Name the production bug caused by `if not discount:` and by a **mutable default argument**.
+- [ ] Explain what `__exit__` returning `True` does, and why `return` in `finally` is banned.
+
+**Coding round**
+
+- [ ] Write a **retry decorator** with backoff, jitter and an *injectable sleep* so it's testable.
+- [ ] Write an **LRU cache** both ways (`OrderedDict`, and dict + doubly linked list) and justify O(1).
+- [ ] Search a **nested dict** and return the key *and the path*, iteratively.
+
+**Kafka**
+
 - [ ] Draw a **Kafka cluster**: topic, partitions, leader/followers, ISR, consumer group.
 - [ ] Explain **at-most / at-least / exactly-once** and show *where the commit goes* in code.
 - [ ] Describe the **retry-topic + DLQ** flow and how the consumer stays **idempotent**.
 - [ ] State **BACKWARD vs FORWARD** compatibility and one safe/unsafe Avro change for each.
+- [ ] Name the **two config defaults that lose data** (`enable.auto.commit=True`, `acks=1`).
+- [ ] Describe **Kafka → Aurora**: batch, upsert on `event_id`, DB commit *then* offset commit.
+
+**Systems**
+
 - [ ] Explain **cache-aside** and how you'd handle a **stampede**.
-- [ ] Explain **SLI / SLO / error budget** and why you alert on symptoms, not causes.
+- [ ] Explain **SLI / SLO / error budget** and why you alert on **symptoms, not causes**.
+- [ ] State **Little's Law** and use it to size a worker count and a connection pool out loud.
+- [ ] Say why you never plan past **70% utilization** (`1/(1−ρ)`).
+- [ ] Describe **mitigate-before-fix** and the **expand → migrate → contract** migration.
+- [ ] Name the **three pillars** of observability and what each one answers that the others can't.
+- [ ] Say how you'd process a **100GB file**, including sort and dedupe.
+
+**And the two that matter most**
+
 - [ ] Prepare **two stories from your own projects**: one scaling/performance problem you
-      diagnosed, one failure you debugged. These matter more than any answer above.
+      diagnosed, one failure you debugged. **With before/after numbers and how you measured
+      them.** These matter more than any answer above —
+      [`13_system_design_scenarios/04_ai_leverage_and_impact.py`](../13_system_design_scenarios/04_ai_leverage_and_impact.py)
+      has a `validate()` that refuses a story without them.

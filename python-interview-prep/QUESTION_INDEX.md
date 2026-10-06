@@ -3,7 +3,7 @@
 A single reference mapping interview questions to where they're demonstrated in this repo.
 **Click any `→ file.py:LX` link** to jump straight to that line in the editor.
 
-- **Part 1 — Hands-On Topics**: every question here has a runnable example in one of the 12
+- **Part 1 — Hands-On Topics**: every question here has a runnable example in one of the 13
   numbered folders. Read the Q&A, then click through and run the file yourself.
 - **Part 2 — Reference Topics**: covered in the source interview-prep material but with no
   runnable example in this repo (Apache Camel, Couchbase, Airflow, Terraform/Databricks, Java
@@ -26,6 +26,10 @@ below, or `Ctrl+F` for a specific keyword.
 | 01 Python Core — context managers, descriptors, metaclasses | [05 — Context managers, descriptors, metaclasses](deep_dive/05_context_managers_descriptors_metaclasses.md) |
 | 01 Python Core — OOP / MRO | [06 — OOP in depth: inheritance and MRO](deep_dive/06_oop_inheritance_mro.md) |
 | 01 Python Core — exceptions | [08 — Error handling](deep_dive/08_error_handling.md) |
+| 01 Python Core — variable scope / namespaces | [22 — Variable scope, declaration and namespaces](deep_dive/22_variable_scope_namespaces.md) |
+| 01 Python Core — abstract classes / `Protocol` | [23 — Abstract base classes, interfaces and `Protocol`](deep_dive/23_abstract_classes_interfaces.md) |
+| 01 Python Core — language basics | [24 — Python basics that still get asked at senior level](deep_dive/24_python_basics_essentials.md) |
+| 01 Python Core — multi-level `except`, `with` | [25 — Multi-level exception handling and `with`](deep_dive/25_nested_exception_handling.md) |
 | 02 Concurrency | [07 — Concurrency](deep_dive/07_concurrency.md) |
 | 03 Pandas | [09 — Pandas for data handling](deep_dive/09_pandas.md) |
 | 05 FastAPI / REST | [10 — Django / Flask / FastAPI](deep_dive/10_web_frameworks.md) |
@@ -33,12 +37,19 @@ below, or `Ctrl+F` for a specific keyword.
 | 06 Kafka — delivery semantics | [14 — Pipelines & delivery semantics](deep_dive/14_kafka_pipelines_delivery_semantics.md) |
 | 06 Kafka — retry/DLQ | [15 — Failure handling](deep_dive/15_kafka_failure_handling.md) |
 | 06 Kafka — schema registry | [16 — Schema management](deep_dive/16_kafka_schema_management.md) |
+| 06 Kafka — client config & Aurora sink | [31 — Kafka config & integration from Python](deep_dive/31_kafka_python_integration.md) |
 | 07 Caching | [17 — Caching mechanisms](deep_dive/17_caching.md) |
 | 07 Queues | [18 — Queue-based architectures](deep_dive/18_queue_architectures.md) |
 | 08 Scaling & resilience | [12 — Scaling applications](deep_dive/12_scaling_applications.md) |
 | Part 2 — monitoring/alerting | [19 — Production stability, alerting & monitoring](deep_dive/19_production_stability_monitoring.md) |
 | 10 GenAI / LLM | [20 — AI-first technologies](deep_dive/20_ai_first_technologies.md) |
+| 09 Large files / streaming | [30 — Handling a 100GB file](deep_dive/30_large_file_processing.md) |
+| 11 Coding challenges | [26 — Three design-coding problems](deep_dive/26_coding_design_problems.md) |
 | 12 Framework internals | [11 — Python framework development](deep_dive/11_python_framework_development.md) |
+| 13 Zero-downtime changes | [27 — Zero-downtime production changes](deep_dive/27_zero_downtime_production_changes.md) |
+| 13 Observability | [28 — Observability in a distributed system](deep_dive/28_observability_distributed_systems.md) |
+| 13 Capacity planning / scaling TPS | [29 — Scaling 100 to 600 TPS](deep_dive/29_capacity_scaling_tps.md) |
+| 13 AI leverage & impact stories | [32 — Leveraging AI, and the customer-impact story](deep_dive/32_ai_leverage_and_impact_stories.md) |
 | Part 2 — Java migration | [21 — Java → Python bridge](deep_dive/21_java_to_python_bridge.md) |
 
 ---
@@ -277,6 +288,167 @@ below, or `Ctrl+F` for a specific keyword.
   **A:** `tracemalloc.start()` → `take_snapshot()` → `.statistics("lineno")`.
   → [09_memory_management.py:102](01_python_core/09_memory_management.py#L102)
 
+**`12_variable_scope_namespaces.py`**
+
+- **Q:** Explain the LEGB rule.
+  **A:** A bare name is resolved Local -> Enclosing *function* -> Global (= module-level) -> Built-in,
+  and the classification is decided at **compile time** (`LOAD_FAST` vs `LOAD_GLOBAL`), not when the
+  line runs.
+  → [12_variable_scope_namespaces.py:21](01_python_core/12_variable_scope_namespaces.py#L21)
+- **Q:** Why does reading a module-level `counter` inside a function that also assigns to it raise
+  `UnboundLocalError`?
+  **A:** Because the assignment anywhere in the body makes the name local for the **whole** function —
+  including the line above it. Fix by passing it in and returning it out; `global` is the last resort.
+  → [12_variable_scope_namespaces.py:63](01_python_core/12_variable_scope_namespaces.py#L63)
+- **Q:** Does mutating a module-level dict need `global`?
+  **A:** No. `global`/`nonlocal` are about **rebinding a name**; `config["k"] = v` mutates the object the
+  name already points at. Only `config = {}` needs `global`.
+  → [12_variable_scope_namespaces.py:101](01_python_core/12_variable_scope_namespaces.py#L101)
+- **Q:** What does `nonlocal` do and when do you use it?
+  **A:** Rebinds a name in the nearest **enclosing function** scope (it must already exist). Its real use
+  is closure state — a tiny object with one method, which is how a stateful decorator keeps a counter.
+  → [12_variable_scope_namespaces.py:119](01_python_core/12_variable_scope_namespaces.py#L119)
+- **Q:** Why can a method not see a class attribute as a bare name?
+  **A:** A class body executes in its own namespace and is **not** an enclosing scope for anything nested
+  in it — so methods need `self.x`, and a comprehension in a class body cannot see the class's own
+  attributes (it *can* see globals).
+  → [12_variable_scope_namespaces.py:179](01_python_core/12_variable_scope_namespaces.py#L179)
+- **Q:** Why do all the lambdas created in a loop return the same value?
+  **A:** Closures capture the **variable**, not the value (late binding). Bind eagerly with a default
+  argument (`lambda i=i: i`) or `functools.partial`.
+  → [12_variable_scope_namespaces.py:204](01_python_core/12_variable_scope_namespaces.py#L204)
+- **Q:** What is wrong with module-level mutable state in a service?
+  **A:** It leaks between tests, `+= 1` is not thread-safe, and it does not survive scaling out — an
+  in-process rate limiter becomes 4 limiters on 4 pods. Module level is for immutable constants; use a
+  `ContextVar` for per-request state.
+  → [12_variable_scope_namespaces.py:240](01_python_core/12_variable_scope_namespaces.py#L240)
+
+**`13_abstract_base_classes.py`**
+
+- **Q:** What does an ABC actually enforce, and when?
+  **A:** A subclass missing an `@abstractmethod` raises `TypeError` **at instantiation**, naming what is
+  missing (`__abstractmethods__` lists it). The value is *when* you find out — at construction, not on
+  the first production call.
+  → [13_abstract_base_classes.py:21](01_python_core/13_abstract_base_classes.py#L21)
+- **Q:** Is an ABC the same as a Java interface?
+  **A:** No — it can carry concrete code, which is the main reason to choose it: the **template-method**
+  pattern (the algorithm once in the base, abstract steps, optional hooks with defaults).
+  → [13_abstract_base_classes.py:60](01_python_core/13_abstract_base_classes.py#L60)
+- **Q:** How do you make a property abstract, and what is the trap?
+  **A:** `@property` above `@abstractmethod` — `@abstractmethod` must be **innermost**. Reverse them and
+  the abstractness is silently lost, with no warning.
+  → [13_abstract_base_classes.py:99](01_python_core/13_abstract_base_classes.py#L99)
+- **Q:** What does an ABC *not* check?
+  **A:** Signatures and types. A subclass with the wrong signature instantiates happily and fails at call
+  time — so you need three layers: the ABC for names, mypy for signatures, and a shared contract test
+  suite for the semantics.
+  → [13_abstract_base_classes.py:138](01_python_core/13_abstract_base_classes.py#L138)
+- **Q:** ABC vs `typing.Protocol` — when each?
+  **A:** ABC (nominal) when you own the hierarchy and want shared code; `Protocol` (structural) to
+  describe what a function needs, especially for third-party classes that cannot import your base.
+  `@runtime_checkable` `isinstance` checks **member names only**.
+  → [13_abstract_base_classes.py:159](01_python_core/13_abstract_base_classes.py#L159)
+- **Q:** What does `ABC.register()` give you, and what does it not?
+  **A:** `isinstance`/`issubclass` pass — but no inherited code, **no abstract-method check**, and it is
+  not in the MRO. It is a label, not a verification. (It is how `isinstance([], Sequence)` works.)
+  → [13_abstract_base_classes.py:189](01_python_core/13_abstract_base_classes.py#L189)
+- **Q:** What do you get from `collections.abc`?
+  **A:** Implement `__getitem__`/`__iter__`/`__len__` and `Mapping` gives you `get`, `keys`, `items`,
+  `values`, `__contains__` and `__eq__` — plus immutability by construction, since `Mapping` has no
+  `__setitem__`.
+  → [13_abstract_base_classes.py:211](01_python_core/13_abstract_base_classes.py#L211)
+- **Q:** When would you use `__init_subclass__` instead of an ABC?
+  **A:** When the check should fire at **class definition** (import time) rather than instantiation, or
+  when it is something an ABC cannot express — "every plugin must declare a name". Lighter and far more
+  readable than a metaclass.
+  → [13_abstract_base_classes.py:246](01_python_core/13_abstract_base_classes.py#L246)
+
+**`14_python_basics_essentials.py`**
+
+- **Q:** `is` vs `==`, and why does `is` sometimes appear to work?
+  **A:** `is` is identity, `==` is value. CPython caches small ints (-5..256) and interns some strings —
+  an implementation detail. Use `is` only for `None`/`True`/`False`/sentinels.
+  → [14_python_basics_essentials.py:21](01_python_core/14_python_basics_essentials.py#L21)
+- **Q:** Is Python pass-by-value or pass-by-reference?
+  **A:** Neither — pass-by-**object-reference**. You can always *mutate* the caller's object; you can
+  never *rebind* the caller's name.
+  → [14_python_basics_essentials.py:49](01_python_core/14_python_basics_essentials.py#L49)
+- **Q:** What is the mutable-default-argument bug?
+  **A:** Defaults are evaluated once at `def` time, so the same list is shared across every call (visible
+  in `fn.__defaults__`). Use `None` as a sentinel, or `field(default_factory=list)` in a dataclass.
+  → [14_python_basics_essentials.py:72](01_python_core/14_python_basics_essentials.py#L72)
+- **Q:** What bug does truthiness cause?
+  **A:** `if not discount:` silently ignores a deliberate `0`; `if not items:` cannot tell "no filter
+  supplied" from "filter matched nothing". `if x is None` asks a different question — use the one you
+  mean.
+  → [14_python_basics_essentials.py:94](01_python_core/14_python_basics_essentials.py#L94)
+- **Q:** Shallow vs deep copy — when does it matter?
+  **A:** `.copy()`/`{**d}` copy the container, not what is inside, so a nested config default mutated by
+  one request changes every later request in that process. Prefer immutability or a factory function over
+  `deepcopy`.
+  → [14_python_basics_essentials.py:119](01_python_core/14_python_basics_essentials.py#L119)
+- **Q:** What are `/` and `*` in a signature for?
+  **A:** `/` ends positional-only parameters; `*` starts keyword-only ones. Keyword-only is how you keep
+  a public API changeable and call sites readable — every boolean flag should be keyword-only.
+  → [14_python_basics_essentials.py:137](01_python_core/14_python_basics_essentials.py#L137)
+- **Q:** Why is `+=` on strings in a loop a performance bug?
+  **A:** Strings are immutable, so each `+=` allocates and copies — O(n^2). Accumulate in a list and
+  `"".join()` once, or use `io.StringIO`.
+  → [14_python_basics_essentials.py:195](01_python_core/14_python_basics_essentials.py#L195)
+- **Q:** `sorted()` vs `list.sort()`, and what does stability buy you?
+  **A:** `sorted()` returns a new list; `.sort()` returns `None` and mutates. Sort is stable, so equal keys
+  keep their order — which is what makes multi-pass sorting (and sortable table columns) work. A tuple
+  key sorts by each element in turn.
+  → [14_python_basics_essentials.py:218](01_python_core/14_python_basics_essentials.py#L218)
+- **Q:** Are type hints enforced?
+  **A:** Not at runtime. mypy/pyright enforce them in CI; Pydantic enforces them at the **boundary**
+  (request bodies, config, events). Validate at the edges, trust inside.
+  → [14_python_basics_essentials.py:252](01_python_core/14_python_basics_essentials.py#L252)
+- **Q:** What does `-7 // 2` give, and why does it matter?
+  **A:** `-4` — Python floors toward negative infinity (Java truncates to `-3`), and `%` takes the
+  **divisor's** sign. It matters the moment you port a hash-based sharding or partitioning function.
+  → [14_python_basics_essentials.py:276](01_python_core/14_python_basics_essentials.py#L276)
+
+**`15_nested_exception_handling.py`**
+
+- **Q:** How are multiple `except` clauses evaluated, and what is the classic bug?
+  **A:** Top-down, first `isinstance` match wins — so a parent class above a child makes the child's
+  handler **dead code**, with no warning from Python. Order specific to general, or by decision
+  (retryable -> permanent -> unknown).
+  → [15_nested_exception_handling.py:25](01_python_core/15_nested_exception_handling.py#L25)
+- **Q:** When do you nest `try` blocks?
+  **A:** When different parts of the body have different recovery strategies. Handle each error at the
+  layer that can actually do something; let the rest propagate.
+  → [15_nested_exception_handling.py:72](01_python_core/15_nested_exception_handling.py#L72)
+- **Q:** How do errors cross layer boundaries?
+  **A:** Each layer catches the layer below's type and raises its own with `raise ... from e`, so the
+  storage type never leaks upward and the root cause survives. HTTP status codes are decided in one
+  place, at the boundary.
+  → [15_nested_exception_handling.py:108](01_python_core/15_nested_exception_handling.py#L108)
+- **Q:** What is the exact order of `try`/`except`/`else`/`finally`?
+  **A:** `try` -> (`except` | `else`) -> `finally`, always. On `return`, the value is computed, then
+  `finally` runs, then the caller gets it. `else` exists to keep your `except` narrow.
+  → [15_nested_exception_handling.py:166](01_python_core/15_nested_exception_handling.py#L166)
+- **Q:** What are the three ways nested handling silently loses an error?
+  **A:** Raising inside `except` without `from` (the cause only lands in `__context__`); raising **or
+  returning** in `finally` (it destroys the in-flight exception); and an over-broad inner handler with a
+  `continue` (rows vanish with no log and no metric).
+  → [15_nested_exception_handling.py:232](01_python_core/15_nested_exception_handling.py#L232)
+- **Q:** What does `__exit__` returning `True` do?
+  **A:** It **swallows** the exception. Right for a best-effort audit write, catastrophic for a payment —
+  so return `issubclass(exc_type, TheOneExpectedError)`, never a bare `True`. In `@contextmanager` form
+  the exception surfaces at the `yield`.
+  → [15_nested_exception_handling.py:290](01_python_core/15_nested_exception_handling.py#L290)
+- **Q:** What is `ExceptionGroup`/`except*` for?
+  **A:** Several independent failures at once (concurrency). **Multiple `except*` branches can all run**
+  for one group — which is how you split a failed batch into "retry these" and "DLQ those".
+  `asyncio.TaskGroup` raises these natively.
+  → [15_nested_exception_handling.py:373](01_python_core/15_nested_exception_handling.py#L373)
+- **Q:** What is `add_note()` for?
+  **A:** Attaching context (a Kafka offset, an attempt number) **without** changing the exception's type
+  or message — so handlers above still match and the traceback still carries the coordinates.
+  → [15_nested_exception_handling.py:408](01_python_core/15_nested_exception_handling.py#L408)
+
 ### 02 — Concurrency
 
 **`01_threading_demo.py`**
@@ -490,6 +662,79 @@ below, or `Ctrl+F` for a specific keyword.
   **A:** No. `auto.register.schemas=false`; CI registers after a compatibility check that fails
   the build. Otherwise any deployment can silently change a shared contract.
 
+**`07_kafka_python_config.py`**
+
+- **Q:** Which Python Kafka client, and why?
+  **A:** `confluent-kafka-python` (librdkafka, C) for production — fastest and most complete;
+  `aiokafka` if the service is asyncio, because `confluent-kafka`'s `poll`/`flush` block and would
+  stall the event loop. `kafka-python` is slower; avoid for new work.
+  → [07_kafka_python_config.py:16](06_kafka/07_kafka_python_config.py#L16)
+- **Q:** What is the minimum producer config for "do not lose messages"?
+  **A:** `acks=all` + `enable.idempotence=True` + a bounded `delivery.timeout.ms` — and **act on the
+  delivery callback's error**, because `produce()` is asynchronous and a permanent failure is otherwise
+  invisible. `flush()` before exit, always.
+  → [07_kafka_python_config.py:105](06_kafka/07_kafka_python_config.py#L105)
+- **Q:** Which consumer default loses data?
+  **A:** `enable.auto.commit=True`. A background thread commits offsets on a timer, so it can commit
+  messages you have not finished — a crash then loses them silently. Set it `False` and commit after the
+  work succeeds.
+  → [07_kafka_python_config.py:145](06_kafka/07_kafka_python_config.py#L145)
+- **Q:** What does `enable.idempotence=True` imply, and what does it NOT cover?
+  **A:** It implies `acks=all`, `retries>0`, `max.in.flight<=5`, and it dedupes the broker's **own**
+  retries. It does nothing about your application calling `produce()` twice.
+  → [07_kafka_python_config.py:182](06_kafka/07_kafka_python_config.py#L182)
+- **Q:** How do you catch a contradictory Kafka config before it ships?
+  **A:** Validate at startup and fail the boot: idempotence with `acks=1`, `max.in.flight>5` with
+  idempotence, `retries>0` with in-flight>1 and idempotence off (silent reordering), auto-commit with
+  `read_committed`.
+  → [07_kafka_python_config.py:182](06_kafka/07_kafka_python_config.py#L182)
+- **Q:** Where should the config live?
+  **A:** Environment variables mapped to librdkafka keys (strip prefix, lowercase, `_` -> `.`), secrets
+  from a secret manager, one profile per environment. MSK uses SASL_SSL + OAUTHBEARER with an IAM token
+  callback; Confluent Cloud uses SASL_SSL + PLAIN.
+  → [07_kafka_python_config.py:239](06_kafka/07_kafka_python_config.py#L239)
+- **Q:** My consumer keeps rebalancing. Why?
+  **A:** Processing takes longer than `max.poll.interval.ms` between `poll()` calls. Fix the handler, or
+  lower `max.poll.records` — never `sleep()` in the loop. Note `session.timeout.ms` (heartbeat) and
+  `max.poll.interval.ms` (progress) are different clocks.
+  → [07_kafka_python_config.py:64](06_kafka/07_kafka_python_config.py#L64)
+
+**`08_kafka_to_aurora_sink.py`**
+
+- **Q:** How do you consume from Kafka and write to Aurora without losing or duplicating rows?
+  **A:** Poll a batch -> validate (poison straight to the DLQ) -> **one** transaction with **one**
+  idempotent upsert -> **DB commit** -> *then* commit the Kafka offset. A crash in between means a
+  redelivery that the upsert turns into a no-op.
+  → [08_kafka_to_aurora_sink.py:208](06_kafka/08_kafka_to_aurora_sink.py#L208)
+- **Q:** What happens if you commit the Kafka offset first?
+  **A:** A crash between the commit and the write loses the row **forever, silently** — which is also
+  exactly what `enable.auto.commit=True` does to you on a 5-second timer.
+  → [08_kafka_to_aurora_sink.py:156](06_kafka/08_kafka_to_aurora_sink.py#L156)
+- **Q:** Why is a plain `INSERT` wrong?
+  **A:** At-least-once delivery means redelivery is normal (every rebalance). A plain INSERT either
+  raises `IntegrityError` and kills the batch, or — with no unique index — **double-counts revenue**,
+  which nothing errors on. `ON CONFLICT (event_id) DO NOTHING` is the fix.
+  → [08_kafka_to_aurora_sink.py:174](06_kafka/08_kafka_to_aurora_sink.py#L174)
+- **Q:** Why batch the writes?
+  **A:** 200 rows row-at-a-time is 200 round trips; `execute_values` makes it one. Measured at 40x fewer
+  round trips in the simulation — and it is the usual reason consumer lag never drains.
+  → [08_kafka_to_aurora_sink.py:193](06_kafka/08_kafka_to_aurora_sink.py#L193)
+- **Q:** Do Kafka transactions give you exactly-once into a database?
+  **A:** No — they cover Kafka-to-Kafka only. There is no two-phase commit between Kafka and Aurora, so
+  the **idempotent write** is what makes the replay harmless: at-least-once delivery, effectively-once
+  effect.
+  → [08_kafka_to_aurora_sink.py:208](06_kafka/08_kafka_to_aurora_sink.py#L208)
+- **Q:** What is Aurora-specific about this?
+  **A:** Writes go to the **writer** endpoint; a failover takes 30-60s and invalidates pooled sockets
+  (`pool_pre_ping`, bounded lifetime, treat `OperationalError` as retryable); `pods x pool_size` must
+  stay under `max_connections`; IAM auth tokens expire in 15 minutes.
+  → [08_kafka_to_aurora_sink.py:299](06_kafka/08_kafka_to_aurora_sink.py#L299)
+- **Q:** How do you update the database and publish an event atomically?
+  **A:** You cannot — there is no transaction spanning both. Use the **transactional outbox**: write the
+  event row in the same transaction as the business data, then relay it (or let Debezium tail it). Every
+  clever ordering of two separate writes leaves a window.
+  → [08_kafka_to_aurora_sink.py:380](06_kafka/08_kafka_to_aurora_sink.py#L380)
+
 ### 07 — Caching & Queues
 
 - **Q:** What's the cache-aside pattern, and how do you keep it correct across writes?
@@ -571,6 +816,54 @@ below, or `Ctrl+F` for a specific keyword.
   doing exactly that.
   → [02_stream_large_file_s3_simulation.py:44](09_aws_lambda_streaming/02_stream_large_file_s3_simulation.py#L44)
 
+**`03_large_file_processing.py`**
+
+- **Q:** How would you process a 100GB file?
+  **A:** Stream it — iterating a file object yields one line at a time, so peak memory is the longest
+  *line*, identical at 10MB and 100GB (measured: 39MB vs 170KB on the same input). The S3 version wraps
+  the `StreamingBody` instead of calling `.read()` on it.
+  → [03_large_file_processing.py:80](09_aws_lambda_streaming/03_large_file_processing.py#L80)
+- **Q:** What is a generator pipeline and why does it matter?
+  **A:** Compose parse -> filter -> transform as generators; each record flows all the way through before
+  the next is read, so peak memory is one record regardless of stage count. It reads like a query and
+  each stage is unit-testable with three dicts.
+  → [03_large_file_processing.py:121](09_aws_lambda_streaming/03_large_file_processing.py#L121)
+- **Q:** Which operations can you do in one pass, and which cannot?
+  **A:** One pass: sum/count/filter/map, and GROUP BY with few distinct keys. **Not** one pass: sort,
+  exact dedupe, joins, exact percentiles. High-cardinality GROUP BY needs hash-partitioning into N files
+  first — which is literally a shuffle.
+  → [03_large_file_processing.py:155](09_aws_lambda_streaming/03_large_file_processing.py#L155)
+- **Q:** How do you sort a file larger than RAM?
+  **A:** External merge sort: read a chunk, sort it in memory, write a sorted run to disk; then
+  `heapq.merge` across the runs, which holds one record per run. The same two phases as `sort -S`,
+  Postgres and Spark.
+  → [03_large_file_processing.py:182](09_aws_lambda_streaming/03_large_file_processing.py#L182)
+- **Q:** How do you deduplicate 2 billion IDs?
+  **A:** Exact: hash-partition so all copies of a key land in the same file, then a `set` per file.
+  Approximate: a Bloom filter — fixed memory, **no false negatives**, but it can drop a genuinely new
+  record, so use it as a pre-filter in front of a DB check.
+  → [03_large_file_processing.py:239](09_aws_lambda_streaming/03_large_file_processing.py#L239)
+- **Q:** How do you parallelise it, and what is the trap?
+  **A:** Split into byte ranges that **start on record boundaries** — seek to the nominal offset, then
+  advance to the next newline; `size // n` splits a row in half. Then processes, not threads (the GIL
+  blocks CPU-bound parsing). The chunk descriptor is two integers, so it also works as a ranged S3 GET
+  per Lambda.
+  → [03_large_file_processing.py:299](09_aws_lambda_streaming/03_large_file_processing.py#L299)
+- **Q:** How do you survive a crash 80GB in?
+  **A:** Chunk the work and checkpoint after each chunk, writing to a temp file and `os.replace`-ing it
+  so a crash mid-write leaves the previous checkpoint intact. The write must be idempotent, and the
+  checkpoint goes *after* the side effect commits.
+  → [03_large_file_processing.py:362](09_aws_lambda_streaming/03_large_file_processing.py#L362)
+- **Q:** Why is a single `.gz` a problem?
+  **A:** It is **not splittable** — it must be decompressed from byte 0, so byte-range parallelism is
+  impossible. Use many smaller `.gz` objects, or Parquet (columnar + row groups + predicate pushdown).
+  → [03_large_file_processing.py:402](09_aws_lambda_streaming/03_large_file_processing.py#L402)
+- **Q:** Should this be Python at all?
+  **A:** Often not. If it is in S3 and the work is SQL-shaped, convert to Parquet once and use Athena, or
+  run DuckDB on one box. Write the Python streaming version when the per-record transform is genuinely
+  custom or must run inside an existing service.
+  → [03_large_file_processing.py:440](09_aws_lambda_streaming/03_large_file_processing.py#L440)
+
 ### 10 — GenAI / LLM Patterns
 
 - **Q:** What's the actual pipeline shape of RAG, end to end?
@@ -610,6 +903,54 @@ below, or `Ctrl+F` for a specific keyword.
   **A:** Strings are immutable — convert to a list of characters first, two-pointer swap in place
   on the list, then `"".join()`.
   → [04_reverse_string.py:14](11_coding_challenges/04_reverse_string.py#L14)
+- **Q:** Design a retry decorator with a retry limit and exponential backoff. What makes it production
+  code rather than a loop with a `sleep`?
+  **A:** Three nesting levels (it takes arguments), `functools.wraps`, `delay = base * factor^(n-1)`
+  capped by `max_delay`, **jitter** so N failing clients do not retry in the same instant, retry only
+  transient errors, a bare `raise` on the last attempt so the traceback survives — and an **injectable
+  `sleep`** so the tests assert the exact delay sequence in microseconds instead of waiting.
+  → [05_retry_decorator.py:59](11_coding_challenges/05_retry_decorator.py#L59) (decorator) / [line 36](11_coding_challenges/05_retry_decorator.py#L36) (the delay maths)
+- **Q:** Why is jitter not optional?
+  **A:** Without it, 100 clients that failed together retry at exactly 0.1s, 0.2s, 0.4s... — a
+  synchronised spike precisely while the service is recovering. Full jitter is `uniform(0, delay)`.
+  → [05_retry_decorator.py:36](11_coding_challenges/05_retry_decorator.py#L36)
+- **Q:** Why does a retry decorator need a *time* budget as well as an attempt limit?
+  **A:** The decorator's limit is attempts; the caller's limit is time. A caller with a 2s SLA does not
+  care that you had 5 attempts left — so check the budget **before** sleeping.
+  → [05_retry_decorator.py:59](11_coding_challenges/05_retry_decorator.py#L59)
+- **Q:** What is the trap in an async retry decorator?
+  **A:** A blocking `time.sleep()` stalls the whole event loop — every other coroutine waits. Use
+  `await asyncio.sleep()`. (And `CancelledError` is a `BaseException`, so `except Exception` correctly
+  does not retry a cancelled task.)
+  → [05_retry_decorator.py:101](11_coding_challenges/05_retry_decorator.py#L101)
+- **Q:** What can retries alone not fix?
+  **A:** A dependency that is already saturated — retrying triples your offered load at the worst moment.
+  You need a **circuit breaker** alongside, and the operation must be **idempotent**, or a retry
+  double-charges the customer.
+  → [05_retry_decorator.py:59](11_coding_challenges/05_retry_decorator.py#L59)
+- **Q:** Search for a keyword in a nested dictionary and return the matching key. What do you ask first?
+  **A:** Four things: does it nest through lists too, first match or all matches, exact or substring, and
+  do you want the key or the **path** — because "city" appearing twice is useless without
+  `customer.address.city`.
+  → [06_nested_dict_search.py:47](11_coding_challenges/06_nested_dict_search.py#L47)
+- **Q:** What is the subtle bug in the obvious recursive solution?
+  **A:** Guarding with `if found:` instead of `if found is not None:` — a falsy *key* like `0` or `""` is
+  then skipped, and the search silently continues past a correct answer.
+  → [06_nested_dict_search.py:47](11_coding_challenges/06_nested_dict_search.py#L47)
+- **Q:** Why return a generator for the all-matches version?
+  **A:** The caller chooses the cost: `next(gen, None)` stops at the first match, `list(gen)` walks
+  everything, `islice(gen, 10)` takes ten. One function, three cost profiles.
+  → [06_nested_dict_search.py:70](11_coding_challenges/06_nested_dict_search.py#L70)
+- **Q:** When must the search be iterative rather than recursive?
+  **A:** When the data is deep or **untrusted** — Python's ~1000-frame recursion limit makes the recursive
+  version a DoS vector on adversarially nested JSON. An explicit stack is bounded only by heap, and
+  `popleft` instead of `pop` gives breadth-first (the shallowest match, usually the one a human meant).
+  → [06_nested_dict_search.py:121](11_coding_challenges/06_nested_dict_search.py#L121)
+- **Q:** "Now do this 10,000 times a second."
+  **A:** Flatten once into a `value -> [paths]` index: O(n) to build, O(1) per lookup. And if the data
+  lives in Postgres, it is a `jsonb` containment query with a GIN index — do not walk JSON in Python when
+  the database can index it.
+  → [06_nested_dict_search.py:175](11_coding_challenges/06_nested_dict_search.py#L175)
 
 ---
 
@@ -664,6 +1005,160 @@ below, or `Ctrl+F` for a specific keyword.
 - **Q:** Why should config validation happen at startup?
   **A:** A missing `DB_URL` or a typo'd `WORKER=8` should crash the process at boot, in staging,
   with a message naming the problem — not silently use a default and surface at 3am.
+
+### 13 — System Design & Scenario Questions
+
+**`01_zero_downtime_change.py`**
+
+- **Q:** How would you fix an issue in a distributed production system with zero downtime?
+  **A:** Mitigate before you fix. Declare the incident, then flip the feature flag off / shift traffic /
+  shed load / scale out — seconds to minutes, no deploy. Stabilise and say so in metrics; the clock stops
+  there. *Then* diagnose calmly and ship the fix behind a canary.
+  → [01_zero_downtime_change.py:98](13_system_design_scenarios/01_zero_downtime_change.py#L98)
+- **Q:** What is the difference between liveness and readiness?
+  **A:** Liveness failing means **restart me**; readiness failing means **remove me from the load
+  balancer**. Liveness must never check a dependency, or one DB blip restarts the whole fleet. No
+  readiness gate is why "deploys always cause a brief error spike".
+  → [01_zero_downtime_change.py:29](13_system_design_scenarios/01_zero_downtime_change.py#L29)
+- **Q:** When is a rolling deploy actually zero-downtime?
+  **A:** Only if you **drain** (fail readiness, let the LB deregister, wait for in-flight requests) and
+  **gate** the new instance on its readiness probe. The simulation shows 0 failed requests with both, and
+  ~22% without — while every pod reports "Running" in both cases.
+  → [01_zero_downtime_change.py:131](13_system_design_scenarios/01_zero_downtime_change.py#L131)
+- **Q:** Blue/green vs canary?
+  **A:** Blue/green verifies with zero customer traffic and rolls back with an instant pointer flip, at 2x
+  infrastructure. A canary bounds the blast radius with real traffic — and you must measure the canary's
+  **own** error rate, because averaging it over the fleet hides a 20% failure under a 1% SLO.
+  → [01_zero_downtime_change.py:174](13_system_design_scenarios/01_zero_downtime_change.py#L174) (blue/green) / [line 206](13_system_design_scenarios/01_zero_downtime_change.py#L206) (canary)
+- **Q:** How do you change a database schema with zero downtime?
+  **A:** **Expand -> migrate -> contract**, as three separate deploys: add nullable columns and
+  dual-write; backfill in throttled resumable batches and switch reads; drop the old column *days* later
+  (that gap is the rollback window). Plus `lock_timeout` so an `ALTER TABLE` fails fast instead of
+  queueing behind a long read and blocking everything.
+  → [01_zero_downtime_change.py:233](13_system_design_scenarios/01_zero_downtime_change.py#L233)
+- **Q:** What does graceful shutdown involve?
+  **A:** SIGTERM -> fail readiness (and sleep a few seconds so the LB notices) -> finish in-flight work ->
+  flush the producer, commit offsets, close the pool -> exit 0, all inside
+  `terminationGracePeriodSeconds`. Skip it and every deploy costs 502s and **lost** unflushed events.
+  → [01_zero_downtime_change.py:233](13_system_design_scenarios/01_zero_downtime_change.py#L233)
+
+**`02_observability_pillars.py`**
+
+- **Q:** What is the difference between monitoring and observability?
+  **A:** Monitoring checks known signals against known thresholds — it answers questions you wrote in
+  advance. Observability lets you answer **new** questions from the data you already emit, without
+  shipping code.
+  → [02_observability_pillars.py:36](13_system_design_scenarios/02_observability_pillars.py#L36)
+- **Q:** What are the three pillars, and why do you need all three?
+  **A:** Metrics say *that* it is broken, logs say *what happened to this request*, traces say *where the
+  time went*. And cardinality forces the split: a user ID cannot be a metric label, so high-cardinality
+  data has to live in logs and span attributes.
+  → [02_observability_pillars.py:63](13_system_design_scenarios/02_observability_pillars.py#L63)
+- **Q:** Why does latency go in a histogram and never an average?
+  **A:** An average hides the tail: 99% at 50ms and 1% at 10s averages to 150ms and looks fine while 1 in
+  100 customers times out. Bucket boundaries must straddle your SLO threshold or you cannot measure
+  compliance.
+  → [02_observability_pillars.py:63](13_system_design_scenarios/02_observability_pillars.py#L63)
+- **Q:** What is the cardinality rule?
+  **A:** Series count is the product of all label cardinalities. `route`/`status`/`region` are fine;
+  `user_id`/`order_id` create one series per value and take your monitoring system down during the
+  incident you needed it for.
+  → [02_observability_pillars.py:63](13_system_design_scenarios/02_observability_pillars.py#L63)
+- **Q:** How does a trace survive a network hop?
+  **A:** The W3C `traceparent` header on every outbound HTTP call **and in every Kafka message header**.
+  Drop it on one hop and the trace splits into two unconnected halves — the usual reason a distributed
+  trace looks broken.
+  → [02_observability_pillars.py:174](13_system_design_scenarios/02_observability_pillars.py#L174)
+- **Q:** Why a `ContextVar` for the correlation ID rather than a global or `threading.local`?
+  **A:** A global is shared by every concurrent request; `threading.local` is wrong for asyncio because
+  thousands of tasks share one thread. A `ContextVar` is isolated per task *and* per thread — and you must
+  `reset(token)` in a `finally`, or the value leaks into the next request.
+  → [02_observability_pillars.py:48](13_system_design_scenarios/02_observability_pillars.py#L48)
+- **Q:** Explain SLI, SLO and error budget, and how you alert on them.
+  **A:** SLI = the measurement, SLO = the target, error budget = `1 - SLO` (99.9% is ~40 min per 28 days).
+  Alert on multi-window **burn rate** — 14.4x over an hour pages, ~1.5x over six hours tickets — and on
+  **symptoms** the customer feels, never on causes like CPU.
+  → [02_observability_pillars.py:259](13_system_design_scenarios/02_observability_pillars.py#L259)
+- **Q:** RED vs USE, and which signal predicts an outage?
+  **A:** RED (Rate, Errors, Duration) for services; USE (Utilization, Saturation, Errors) for resources.
+  **Saturation** is the leading indicator: a pool at 100% utilization with 0 waiters is fine, with 50
+  waiters you are already failing and the latency graph has not caught up.
+  → [02_observability_pillars.py:259](13_system_design_scenarios/02_observability_pillars.py#L259)
+
+**`03_capacity_scaling_tps.py`**
+
+- **Q:** Traffic is going from 100 TPS to 600 TPS. How do you scale?
+  **A:** Measure first (per-request cost from a trace, and the **peak-to-mean ratio** — 600 average with a
+  2.4x peak is really 1440). Then Little's Law for the numbers, remove work before buying capacity, scale
+  what is left, protect it with backpressure, and load-test to 2x.
+  → [03_capacity_scaling_tps.py:109](13_system_design_scenarios/03_capacity_scaling_tps.py#L109)
+- **Q:** What is Little's Law and why is it the whole answer?
+  **A:** `concurrency = arrival rate x latency`. 600 TPS x 282ms = 169 in flight; at 120ms it is 72. So
+  **halving latency halves the fleet you must provision** — latency reduction and capacity are the same
+  lever, and the cheap one.
+  → [03_capacity_scaling_tps.py:38](13_system_design_scenarios/03_capacity_scaling_tps.py#L38)
+- **Q:** Why never plan past ~70% utilization?
+  **A:** Queueing delay goes as `1/(1-rho)`: 80% busy is 5x the service time, 90% is 10x, 95% is 20x. "CPU
+  is only at 90%" means your p99 is already 10x — and the next 5% of traffic doubles it.
+  → [03_capacity_scaling_tps.py:66](13_system_design_scenarios/03_capacity_scaling_tps.py#L66)
+- **Q:** What caps horizontal scaling?
+  **A:** Amdahl's Law. With 10% of the request behind one shared lock, 50 pods buy 8.5x, not 50x. So "what
+  is the serial component?" comes before "add instances".
+  → [03_capacity_scaling_tps.py:83](13_system_design_scenarios/03_capacity_scaling_tps.py#L83)
+- **Q:** What do you do before buying capacity?
+  **A:** Remove work, in payoff order: fix the N+1, cache the hot reads, move anything the user does not
+  wait for onto a queue, batch the writes. On a typical profile that is 282ms -> 120ms for zero extra
+  infrastructure — and it makes the product faster, not just survivable.
+  → [03_capacity_scaling_tps.py:133](13_system_design_scenarios/03_capacity_scaling_tps.py#L133)
+- **Q:** How do you size a connection pool, and what is the classic outage?
+  **A:** Little's Law again: 600 TPS x 8ms of DB time = ~5 concurrent queries -> a pool of 7-12 per pod.
+  Then multiply by **max** pod count and compare with `max_connections` — autoscaling the app tier into
+  the database's connection limit is a real and common outage.
+  → [03_capacity_scaling_tps.py:180](13_system_design_scenarios/03_capacity_scaling_tps.py#L180)
+- **Q:** Why does a bounded queue beat an unbounded one under overload?
+  **A:** With shedding, throughput stays at capacity and p99 stays ~110ms whatever you offer. Unbounded,
+  110% load gives a 2.6s p99 and a queue of 1800 — you did the work for requests whose clients had already
+  timed out. A fast 429 for 20% beats a slow failure for 100%.
+  → [03_capacity_scaling_tps.py:215](13_system_design_scenarios/03_capacity_scaling_tps.py#L215)
+- **Q:** What do you autoscale on?
+  **A:** p95 latency or queue depth — **not** CPU, which is a lagging indicator for an I/O-bound service
+  (you will be timing out at 40% CPU because you are waiting on a dependency).
+  → [03_capacity_scaling_tps.py:52](13_system_design_scenarios/03_capacity_scaling_tps.py#L52)
+
+**`04_ai_leverage_and_impact.py`**
+
+- **Q:** You have an AI licence. How would you use it to improve and manage a project?
+  **A:** Start from where the team loses hours (PR cycle time, escaped defects, MTTR), score candidates on
+  **value x feasibility discounted by blast radius**, pilot ONE for a sprint with the baseline measured
+  first, and keep it only if the number moved.
+  → [04_ai_leverage_and_impact.py:31](13_system_design_scenarios/04_ai_leverage_and_impact.py#L31)
+- **Q:** Which use cases do you start with, and which do you explicitly not?
+  **A:** Internal and advisory first — a PR first-pass reviewer, test generation for the untested modules
+  that cause the most incidents, an incident-triage copilot that cites its evidence. **Not** a
+  customer-facing chatbot: highest value, worst risk, because a confidently wrong answer reaches a
+  customer unreviewed.
+  → [04_ai_leverage_and_impact.py:68](13_system_design_scenarios/04_ai_leverage_and_impact.py#L68)
+- **Q:** What are the guardrails?
+  **A:** Five categories: data boundary (tested PII redaction, a no-training contract, and check whether
+  source code may leave at all), human in the loop (advisory, not authoritative), **verifiability** (an
+  offline eval suite gating prompt changes in CI — a prompt is code), cost/latency (cache, smallest model
+  that passes, timeout + fallback), and operations (kill switch, versioned prompts, traced calls).
+  → [04_ai_leverage_and_impact.py:147](13_system_design_scenarios/04_ai_leverage_and_impact.py#L147)
+- **Q:** How do you prove the pilot worked?
+  **A:** Before/after with the measurement method and window, **including the cost row**. And if you did
+  not measure a baseline, say so — that answer scores higher than an invented 40%.
+  → [04_ai_leverage_and_impact.py:183](13_system_design_scenarios/04_ai_leverage_and_impact.py#L183)
+- **Q:** What functionality have you built that significantly improved the customer experience?
+  **A:** STAR, and the **Result is the only part being graded**: a number, the measurement window, and how
+  you measured it ("p95 4.2s -> 0.9s, abandonment 23% -> 14% over 30 days against a control cohort"). Use
+  "I" for what you decided, name a decision you deliberately did **not** make, and name what got worse.
+  → [04_ai_leverage_and_impact.py:220](13_system_design_scenarios/04_ai_leverage_and_impact.py#L220)
+- **Q:** Which metrics make such a story land?
+  **A:** Latency of the flow the customer waits on, reliability, funnel abandonment (closest to money),
+  support tickets on that complaint, and time-to-value. Two or three, each with how it was measured.
+  → [04_ai_leverage_and_impact.py:183](13_system_design_scenarios/04_ai_leverage_and_impact.py#L183)
+
+---
 
 ## Part 2 — Reference Topics (no runnable example in this repo)
 
@@ -790,10 +1285,14 @@ leadership).
   you touch it (Boy Scout Rule); set a coverage floor and raise it incrementally each sprint; use
   characterization tests to document legacy behavior before refactoring it.
 
-### Production monitoring & release-safety (not covered by `08_scaling_production_resilience`)
+### Production monitoring & release-safety — mostly NOW COVERED by `13_system_design_scenarios/`
 
-*(08 covers retry/backoff, circuit breakers, rate limiting, and liveness/readiness hands-on —*
-*these are the adjacent topics with no runnable example.)*
+*(08 covers retry/backoff, circuit breakers, rate limiting and liveness/readiness hands-on;*
+*`13_system_design_scenarios/01_zero_downtime_change.py` and `02_observability_pillars.py` now cover*
+*canaries, blue/green, expand-migrate-contract, the three pillars and SLO burn-rate alerting as*
+*runnable code — see also deep dives [27](deep_dive/27_zero_downtime_production_changes.md) and*
+*[28](deep_dive/28_observability_distributed_systems.md). The entries below remain as the*
+*crib-sheet summary.)*
 
 - **Q:** What is an SLO, and what's an error budget used for in practice?
   **A:** An SLO is a target value for a measured SLI (e.g. "99.5% of requests < 200ms"); the
