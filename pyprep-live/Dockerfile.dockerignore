@@ -1,0 +1,7 @@
+# The build context is the whole repo root; send only what the image needs.
+**
+!pyprep-live/requirements.txt
+!pyprep-live/requirements-examples.txt
+!pyprep-live/app
+!pyprep-live/static
+**/__pycache__

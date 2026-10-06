@@ -1,0 +1,182 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Python Interview Lab - Live Runner</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+:root{--bg:#0e1116;--panel:#161b22;--line:#262d38;--txt:#d7dde5;--dim:#8590a0;--acc:#4cc2ff;--ok:#3fb950;--bad:#f85149;--warn:#d29922;--sec:#bc8cff;
+--mono:ui-monospace,"Cascadia Code",Consolas,Menlo,monospace}
+*{box-sizing:border-box}html,body{height:100%;margin:0}
+body{background:var(--bg);color:var(--txt);font:14px/1.5 system-ui,Segoe UI,sans-serif;display:grid;grid-template-columns:290px 1fr;grid-template-rows:100%}
+#side{background:var(--panel);border-right:1px solid var(--line);overflow:auto;padding:10px 0}
+#side h1{font-size:15px;margin:4px 14px 10px}#side input{margin:0 14px 8px;width:calc(100% - 28px);padding:6px 8px;background:var(--bg);color:var(--txt);border:1px solid var(--line);border-radius:6px}
+.topic{padding:6px 14px;cursor:pointer;color:var(--dim);font-weight:600;font-size:12px;text-transform:uppercase;letter-spacing:.04em;user-select:none}
+.topic:hover{color:var(--txt)}
+.ex{padding:5px 14px 5px 26px;cursor:pointer;border-left:3px solid transparent;font-size:13px;display:flex;justify-content:space-between;gap:6px}
+.ex:hover{background:#1c232d}.ex.active{background:#1c2733;border-left-color:var(--acc)}
+.tag{font-size:10px;padding:0 5px;border-radius:8px;border:1px solid var(--line);color:var(--dim);white-space:nowrap}
+.tag.infra{color:var(--warn);border-color:var(--warn)}
+#main{display:grid;grid-template-rows:auto 1fr 1fr;min-width:0;height:100%}
+#head{padding:10px 16px;border-bottom:1px solid var(--line);display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+#head h2{margin:0;font-size:17px}#head .d{color:var(--dim);flex-basis:100%;font-size:13px}
+button{background:#21262d;color:var(--txt);border:1px solid var(--line);border-radius:6px;padding:5px 12px;cursor:pointer;font:inherit}
+button:hover:not(:disabled){border-color:var(--acc)}button:disabled{opacity:.4;cursor:default}
+button.run{background:#238636;border-color:#2ea043}button.stop{background:#8e2b27;border-color:var(--bad)}
+#status{margin-left:auto;font-family:var(--mono);font-size:12px;padding:2px 10px;border-radius:10px;border:1px solid var(--line)}
+.st-running{color:var(--acc);border-color:var(--acc)!important}.st-ok{color:var(--ok);border-color:var(--ok)!important}.st-error,.st-timeout{color:var(--bad);border-color:var(--bad)!important}
+#codewrap{display:grid;grid-template-columns:1fr 200px;min-height:0;border-bottom:1px solid var(--line)}
+#code,#editor{margin:0;padding:10px 0;overflow:auto;font:12.5px/1.5 var(--mono);min-height:0}
+#editor{width:100%;height:100%;background:var(--bg);color:var(--txt);border:0;padding:10px 16px;resize:none;outline:none;white-space:pre;tab-size:4}
+.ln{display:block;padding:0 16px 0 0;white-space:pre}.ln b{display:inline-block;width:44px;text-align:right;color:#4a5361;font-weight:400;margin-right:14px;user-select:none}
+.ln.hot{background:#23304a}
+.k{color:#ff7b72}.s{color:#a5d6ff}.c{color:#6e7681;font-style:italic}.n{color:#79c0ff}.f{color:#d2a8ff}
+#toc{border-left:1px solid var(--line);overflow:auto;padding:8px;font-size:12px}#toc div{padding:3px 6px;cursor:pointer;color:var(--dim);border-radius:4px}#toc div:hover{background:#1c232d;color:var(--txt)}
+#bottom{display:grid;grid-template-columns:1.4fr 1fr;min-height:0}
+.pane{display:flex;flex-direction:column;min-height:0;min-width:0}.pane+.pane{border-left:1px solid var(--line)}
+.bar{padding:6px 12px;border-bottom:1px solid var(--line);display:flex;gap:6px;align-items:center;flex-wrap:wrap;background:var(--panel)}.bar span.t{font-weight:600;margin-right:auto}
+#log,#aiout{flex:1;overflow:auto;padding:8px 12px;font:12.5px/1.45 var(--mono);white-space:pre-wrap;word-break:break-word;margin:0}
+#aiout{font:13px/1.55 system-ui,sans-serif}
+.l{display:flex;gap:10px}.l .t{color:#4a5361;min-width:58px;text-align:right;flex:none;user-select:none}.l.err{color:var(--bad)}.l.sec{color:var(--sec);font-weight:600}.l.meta{color:var(--dim);font-style:italic}.l.endok{color:var(--ok)}.l.enderr{color:var(--bad)}
+#ask{flex:1;min-width:120px;background:var(--bg);color:var(--txt);border:1px solid var(--line);border-radius:6px;padding:5px 8px}
+.hint{color:var(--dim);padding:16px;font-size:13px}
+#toc h4{margin:8px 6px 2px;font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--dim)}#toc h4:first-child{margin-top:0}
+#toc .exp{color:var(--warn)}
+.docbtn{font-size:12px;padding:2px 9px}
+#hist{background:var(--bg);color:var(--txt);border:1px solid var(--line);border-radius:6px;padding:3px 6px;max-width:170px}
+#sum{display:none;padding:6px 12px;border-bottom:1px solid var(--line);font:12px var(--mono);gap:6px;flex-wrap:wrap}
+.chip{padding:1px 8px;border-radius:10px;border:1px solid var(--line)}.chip.pass{color:var(--ok);border-color:var(--ok)}.chip.fail{color:var(--bad);border-color:var(--bad)}.chip.skip{color:var(--warn);border-color:var(--warn)}
+#modal{display:none;position:fixed;inset:0;background:#000a;z-index:10;align-items:center;justify-content:center}
+#modal.open{display:flex}#modal .box{background:var(--panel);border:1px solid var(--line);border-radius:10px;width:min(900px,92vw);height:86vh;display:flex;flex-direction:column}
+#modal .bar{justify-content:space-between}#mdbody{overflow:auto;padding:12px 22px;line-height:1.6}
+#mdbody h1,#mdbody h2,#mdbody h3{margin:18px 0 6px}#mdbody pre{background:var(--bg);padding:10px;border-radius:6px;overflow:auto;font:12.5px/1.45 var(--mono)}
+#mdbody code{background:var(--bg);padding:0 4px;border-radius:4px;font-family:var(--mono)}#mdbody pre code{padding:0}
+</style>
+</head>
+<body>
+<nav id="side"><h1>Python Interview Lab <span class="tag" id="pyver" title="Interpreter that runs the examples"></span></h1><input id="filter" placeholder="Filter examples..."><div id="tree"></div></nav>
+<main id="main">
+  <header id="head">
+    <h2 id="title">Select an example</h2><button class="run" id="run" disabled>&#9654; Run</button><button class="stop" id="stop" disabled>&#9632; Stop</button>
+    <button id="edit" style="display:none">Edit code</button><span id="needs"></span><span id="docs"></span><span id="status">idle</span><div class="d" id="desc"></div>
+  </header>
+  <div id="codewrap"><div id="codehost" style="min-width:0;min-height:0;display:flex"><pre id="code" style="flex:1"></pre></div><div id="toc"></div></div>
+  <div id="bottom">
+    <section class="pane"><div class="bar"><span class="t">Live log</span><select id="hist" title="Previous runs of this example"><option value="">History</option></select><button id="clear">Clear</button><button id="copy">Copy</button></div><div id="sum"></div><div id="log"><div class="hint">Press Run - output streams here line by line, with timestamps.</div></div></section>
+    <section class="pane"><div class="bar"><span class="t">AI coach <span class="tag" id="aimode"></span></span>
+      <button data-ai="predict">Predict</button><button data-ai="explain">Explain</button><button data-ai="quiz">Quiz me</button><button data-ai="break">Experiments</button><button data-ai="java">vs Java</button>
+      <input id="ask" placeholder="Ask about this example..."></div><div id="aiout"><div class="hint">Run an example, then ask the coach to explain the log.</div></div></section>
+  </div>
+</main>
+<div id="modal"><div class="box"><div class="bar"><span class="t" id="mdtitle"></span><button id="mdclose">Close</button></div><div id="mdbody"></div></div></div>
+<script>
+const $=s=>document.querySelector(s);
+const st={cat:null,ex:null,src:"",running:false,ctrl:null,logText:"",editing:false,features:{},history:{},cur:null};
+const HIST_MAX=10;
+const KW=new Set("and as assert async await break class continue def del elif else except finally for from global if import in is lambda nonlocal not or pass raise return try while with yield None True False self cls".split(" "));
+const esc=s=>String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+function hl(line){ // tiny tokenizer: comments, strings, numbers, keywords, defs
+  const re=/(#.*$)|("""|'''|"(?:\\.|[^"\\])*"|'(?:\\.|[^'\\])*')|\b(\d[\d_.]*)\b|\b([A-Za-z_]\w*)\b/g;let o="",i=0,m,prevDef=false;
+  while((m=re.exec(line))){o+=esc(line.slice(i,m.index));i=re.lastIndex;
+    if(m[1])o+=`<span class=c>${esc(m[1])}</span>`;else if(m[2])o+=`<span class=s>${esc(m[2])}</span>`;else if(m[3])o+=`<span class=n>${m[3]}</span>`;
+    else{const w=m[4];if(KW.has(w)){o+=`<span class=k>${w}</span>`;prevDef=(w==="def"||w==="class")}else if(prevDef){o+=`<span class=f>${w}</span>`;prevDef=false}else o+=w}}
+  return o+esc(line.slice(i));}
+function renderCode(){const L=st.src.split("\n");$("#code").innerHTML=L.map((l,i)=>`<span class=ln id=L${i+1}><b>${i+1}</b>${hl(l)}</span>`).join("");}
+function renderToc(){const t=$("#toc");t.innerHTML="";
+  const add=(label,items,cls,fmt,fn)=>{if(!items||!items.length)return;const h=document.createElement("h4");h.textContent=label;t.appendChild(h);
+    items.forEach(x=>{const d=document.createElement("div");if(cls)d.className=cls;d.textContent=fmt(x);d.title=fmt(x);d.onclick=()=>fn(x);t.appendChild(d)})};
+  add("Outline",st.ex.sections,"",s=>`${s.line}  ${s.title}`,s=>jump(s.line));
+  add("Experiments",st.ex.experiments,"exp",x=>`${x.line}  ${x.text}`,tryExperiment);}
+function tryExperiment(x){ // jump to the line; with editing enabled, switch to the editor and select it
+  if(st.features.edit&&!st.editing&&st.ex.kind!=="suite")toggleEdit();
+  if(st.editing){const ta=$("#editor");const L=ta.value.split("\n");let start=0;for(let i=0;i<x.line-1;i++)start+=L[i].length+1;
+    ta.focus();ta.setSelectionRange(start,start+(L[x.line-1]||"").length);ta.scrollTop=Math.max(0,(x.line-4)*18.75)}
+  else jump(x.line);}
+function renderDocs(){const h=$("#docs");h.innerHTML="";(st.ex.docs||[]).forEach(d=>{const b=document.createElement("button");b.className="docbtn";b.textContent="Deep dive: "+d.title;b.onclick=()=>openDoc(d);h.appendChild(b)})}
+function md(src){ // tiny markdown: fences, headings, bold, inline code; everything else stays plain text
+  let out="",inCode=false;
+  for(const line of src.split("\n")){
+    if(line.startsWith("```")){out+=inCode?"</code></pre>":"<pre><code>";inCode=!inCode;continue}
+    if(inCode){out+=esc(line)+"\n";continue}
+    const h=/^(#{1,3})\s+(.*)$/.exec(line);
+    if(h){out+=`<h${h[1].length}>${esc(h[2])}</h${h[1].length}>`;continue}
+    out+=esc(line).replace(/`([^`]+)`/g,"<code>$1</code>").replace(/\*\*([^*]+)\*\*/g,"<b>$1</b>")+"<br>"}
+  return out+(inCode?"</code></pre>":"")}
+async function openDoc(d){$("#mdtitle").textContent=d.title;$("#mdbody").textContent="Loading...";$("#modal").classList.add("open");
+  const r=await fetch("/api/docs/"+encodeURIComponent(d.id));$("#mdbody").innerHTML=r.ok?md((await r.json()).markdown):"Could not load "+esc(d.id);}
+function summarise(){ // pytest -v lines -> pass/fail chips
+  const sum=$("#sum");sum.innerHTML="";sum.style.display="none";if(st.ex.kind!=="suite")return;
+  const c={PASSED:0,FAILED:0,ERROR:0,SKIPPED:0};const bad=[];
+  st.logText.split("\n").forEach(l=>{const m=/::(\S+)\s+(PASSED|FAILED|ERROR|SKIPPED|XFAIL|XPASS)\b/.exec(l);if(m){const k=m[2].replace("XFAIL","SKIPPED").replace("XPASS","PASSED");c[k]++;if(k==="FAILED"||k==="ERROR")bad.push(m[1])}});
+  const total=c.PASSED+c.FAILED+c.ERROR+c.SKIPPED;if(!total)return;sum.style.display="flex";
+  const chip=(n,l,cls)=>n?`<span class="chip ${cls}">${n} ${l}</span>`:"";
+  sum.innerHTML=chip(c.PASSED,"passed","pass")+chip(c.FAILED+c.ERROR,"failed","fail")+chip(c.SKIPPED,"skipped","skip")+bad.map(b=>`<span class="chip fail">${esc(b)}</span>`).join("");}
+function pushHistory(ev){const h=st.history[st.ex.id]=st.history[st.ex.id]||[];const end=ev.find(e=>e.type==="end");
+  h.unshift({label:`${new Date().toLocaleTimeString()} - ${end?end.reason+" "+end.elapsed+"s":"stopped"}`,events:ev});h.length=Math.min(h.length,HIST_MAX);fillHist()}
+function fillHist(){const s=$("#hist"),h=st.history[st.ex&&st.ex.id]||[];s.innerHTML='<option value="">History ('+h.length+')</option>'+h.map((r,i)=>`<option value="${i}">${esc(r.label)}</option>`).join("")}
+function replay(i){const r=(st.history[st.ex.id]||[])[i];if(!r)return;clearLog(false);r.events.forEach(handle);summarise()}
+function jump(n){const e=document.getElementById("L"+n);if(!e)return;document.querySelectorAll(".ln.hot").forEach(x=>x.classList.remove("hot"));e.classList.add("hot");e.scrollIntoView({block:"center"});}
+function setStatus(txt,cls){const s=$("#status");s.textContent=txt;s.className=cls?("st-"+cls):""}
+async function init(){const r=await fetch("/api/catalog");st.cat=await r.json();st.features=st.cat.features;
+  $("#pyver").textContent="Python "+(st.features.python||"?");
+  $("#aimode").textContent=st.features.ai_mode==="claude"?"Claude":"mock";
+  if(st.cat.error){$("#tree").innerHTML=`<div class=hint>${esc(st.cat.error)}<br>Set PREP_ROOT.</div>`;return}
+  $("#edit").style.display=st.features.edit?"":"none";drawTree();}
+function drawTree(){const f=$("#filter").value.toLowerCase(),tree=$("#tree");tree.innerHTML="";
+  st.cat.topics.forEach(t=>{const ex=t.examples.filter(e=>!f||(e.title+e.file+t.title).toLowerCase().includes(f));if(!ex.length)return;
+    const h=document.createElement("div");h.className="topic";h.textContent=t.id.replace("_"," ").replace(/_/g," ");tree.appendChild(h);
+    ex.forEach(e=>{const d=document.createElement("div");d.className="ex"+(st.ex&&st.ex.id===e.id?" active":"");
+      d.innerHTML=`<span>${esc(e.kind==="suite"?"pytest suite":e.title)}</span>`+(e.infra?'<span class="tag infra">infra</span>':e.needs.length?`<span class=tag>${esc(e.needs[0])}</span>`:"");
+      d.onclick=()=>select(e);tree.appendChild(d)})})}
+async function select(e){if(st.running)stop();st.ex=e;st.editing=false;$("#title").textContent=e.title;
+  $("#desc").textContent=(e.description||"")+(e.infra?`  |  needs ${e.infra} for a real run. Explain-only here: it runs without one and prints what it would do; use the deep dive and AI coach to learn how it works.`:"");
+  $("#needs").innerHTML=e.needs.map(n=>`<span class=tag>${esc(n)}</span>`).join(" ");
+  const r=await fetch("/api/source?id="+encodeURIComponent(e.id));st.src=r.ok?(await r.json()).source:"";
+  if(st.ex!==e)return;                       // user clicked another example while this one was loading
+  $("#codehost").innerHTML='<pre id="code" style="flex:1"></pre>';
+  if(e.kind==="suite"){$("#code").innerHTML='<div class=hint>Runs pytest -v over this folder\'s tests. Output streams below.</div>'}else renderCode();
+  renderToc();renderDocs();fillHist();$("#sum").style.display="none";$("#run").disabled=false;$("#edit").textContent="Edit code";setStatus("idle","");drawTree();clearLog(true);}
+function clearLog(hint){$("#log").innerHTML=hint?'<div class="hint">Press Run - output streams here line by line, with timestamps.</div>':"";st.logText="";}
+function addLine(cls,t,text){const log=$("#log");const near=log.scrollTop+log.clientHeight>=log.scrollHeight-40;
+  const d=document.createElement("div");d.className="l "+cls;d.innerHTML=`<span class=t>${t==null?"":t.toFixed(2)+"s"}</span><span>${esc(text)}</span>`;log.appendChild(d);if(near)log.scrollTop=log.scrollHeight;}
+async function* sse(resp){const rd=resp.body.getReader(),dec=new TextDecoder();let buf="";
+  for(;;){const {done,value}=await rd.read();if(done)break;buf+=dec.decode(value,{stream:true});let i;
+    while((i=buf.indexOf("\n\n"))>=0){const chunk=buf.slice(0,i);buf=buf.slice(i+2);if(chunk.startsWith("data: "))yield JSON.parse(chunk.slice(6))}}}
+function handle(ev){ // renders one event; used by live runs and history replay
+  if(ev.type==="start")addLine("meta",null,`$ ${ev.cmd}   (cwd ${ev.cwd}${ev.python?`, Python ${ev.python}`:""})`);
+  else if(ev.type==="out"||ev.type==="err"){st.logText+=ev.line+"\n";const t=ev.line.trim();
+    addLine(ev.type==="err"?"err":(/^={5,}$/.test(t)||/^-{5,}$/.test(t)?"sec":""),ev.t,ev.line)}
+  else if(ev.type==="end"){const ok=ev.reason==="ok";addLine(ok?"endok":"enderr",null,`-- finished: ${ev.reason}, exit code ${ev.code}, ${ev.elapsed}s --`);setStatus(`${ev.reason} - ${ev.elapsed}s`,ok?"ok":"error")}}
+async function run(){if(!st.ex||st.running)return;clearLog(false);$("#sum").style.display="none";st.running=true;st.ctrl=new AbortController();
+  $("#run").disabled=true;$("#stop").disabled=false;setStatus("running 0.0s","running");
+  const body={id:st.ex.id};if(st.editing)body.code=$("#editor").value;
+  const t0=performance.now(),tick=setInterval(()=>setStatus(`running ${((performance.now()-t0)/1000).toFixed(1)}s`,"running"),200);
+  const ex=st.ex,events=[];
+  try{const resp=await fetch("/api/run",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(body),signal:st.ctrl.signal});
+    if(!resp.ok){addLine("err",null,"HTTP "+resp.status+": "+await resp.text());setStatus("error","error");return}
+    for await(const ev of sse(resp)){events.push(ev);handle(ev)}
+  }catch(e){if(e.name==="AbortError"){addLine("meta",null,"-- stopped by user --");setStatus("stopped","")}else{addLine("err",null,String(e));setStatus("error","error")}}
+  finally{clearInterval(tick);st.running=false;st.ctrl=null;$("#run").disabled=false;$("#stop").disabled=true;
+    if(events.length&&st.ex===ex){pushHistory(events);summarise()}}}
+function stop(){if(st.ctrl)st.ctrl.abort()}
+async function ai(mode,question=""){if(!st.ex)return;const out=$("#aiout");out.textContent="";let acc="";
+  const resp=await fetch("/api/ai",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({id:st.ex.id,mode,output:st.logText,question,code:st.editing?$("#editor").value:null})});
+  if(!resp.ok){out.textContent="HTTP "+resp.status+": "+await resp.text();return}
+  for await(const ev of sse(resp)){if(ev.text){acc+=ev.text;out.textContent=acc;out.scrollTop=out.scrollHeight}}}
+$("#run").onclick=run;$("#stop").onclick=stop;$("#clear").onclick=()=>clearLog(true);$("#filter").oninput=drawTree;
+$("#copy").onclick=()=>navigator.clipboard.writeText(st.logText);
+document.querySelectorAll("[data-ai]").forEach(b=>b.onclick=()=>ai(b.dataset.ai));
+$("#ask").onkeydown=e=>{if(e.key==="Enter"&&e.target.value.trim()){ai("ask",e.target.value.trim());e.target.value=""}};
+function toggleEdit(){if(!st.ex||st.ex.kind==="suite")return;st.editing=!st.editing;
+  if(st.editing){$("#codehost").innerHTML='<textarea id="editor" spellcheck="false"></textarea>';$("#editor").value=st.src;$("#edit").textContent="Reset to original"}
+  else{$("#codehost").innerHTML='<pre id="code" style="flex:1"></pre>';renderCode();$("#edit").textContent="Edit code"}}
+$("#edit").onclick=toggleEdit;
+$("#hist").onchange=e=>{if(e.target.value!=="")replay(+e.target.value)};
+$("#mdclose").onclick=()=>$("#modal").classList.remove("open");
+$("#modal").onclick=e=>{if(e.target.id==="modal")e.target.classList.remove("open")};
+document.addEventListener("keydown",e=>{if(e.key==="Escape")$("#modal").classList.remove("open")});
+document.addEventListener("keydown",e=>{if((e.ctrlKey||e.metaKey)&&e.key==="Enter"){e.preventDefault();run()}});
+init();
+</script>
+</body>
+</html>

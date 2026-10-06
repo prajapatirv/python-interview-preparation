@@ -1,0 +1,18 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Live Runner (uvicorn)",
+      "type": "debugpy",
+      "request": "launch",
+      "module": "uvicorn",
+      "args": ["app.main:app", "--port", "8000", "--reload"],
+      "cwd": "${workspaceFolder}/pyprep-live",
+      "env": {
+        "PREP_ALLOW_EDIT": "1",
+        "RUN_TIMEOUT_S": "60"
+      },
+      "justMyCode": true
+    }
+  ]
+}

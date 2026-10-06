@@ -1,0 +1,27 @@
+# Local run only (not for hosting): `start.cmd docker` / `./start.sh docker`, or
+#   docker compose up -d --build        (from this folder)
+# Compose reads ./.env automatically for ${ANTHROPIC_API_KEY} etc. With no key the AI coach runs in mock mode.
+services:
+  live-runner:
+    build:
+      context: ..
+      dockerfile: pyprep-live/Dockerfile
+    image: pyprep-live:local
+    container_name: pyprep-live
+    ports:
+      - "127.0.0.1:${PORT:-8000}:8000"          # localhost only
+    volumes:
+      - ../python-interview-prep:/prep           # the examples (edits are picked up; POST /api/reload for new files)
+    environment:
+      PREP_ROOT: /prep
+      PREP_ALLOW_EDIT: "${PREP_ALLOW_EDIT:-1}"
+      RUN_TIMEOUT_S: "${RUN_TIMEOUT_S:-60}"
+      AI_MODE: "${AI_MODE:-auto}"
+      ANTHROPIC_API_KEY: "${ANTHROPIC_API_KEY:-}"
+      ANTHROPIC_MODEL: "${ANTHROPIC_MODEL:-claude-sonnet-5-5}"
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request as u; u.urlopen('http://127.0.0.1:8000/api/catalog', timeout=3)"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    restart: "no"
