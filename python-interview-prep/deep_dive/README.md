@@ -78,7 +78,7 @@ Every file follows the same shape:
 |---|---|---|
 | [26](26_coding_design_problems.md) | **Three design-coding problems** — retry decorator, nested-dict search, LRU cache | [`05_retry_decorator.py`](../11_coding_challenges/05_retry_decorator.py) · [`06_nested_dict_search.py`](../11_coding_challenges/06_nested_dict_search.py) · [`03_lru_cache.py`](../11_coding_challenges/03_lru_cache.py) |
 | [32](32_ai_leverage_and_impact_stories.md) | **Leveraging AI on a project, and the customer-impact story** | [`04_ai_leverage_and_impact.py`](../13_system_design_scenarios/04_ai_leverage_and_impact.py) |
-| [21](21_java_to_python_bridge.md) | **Java → Python** — syntax, idioms, and the traps | [`11_java_to_python_bridge.py`](../01_python_core/11_java_to_python_bridge.py) |
+| [21](21_java_to_python_bridge.md) | **Java → Python** — syntax, idioms, the traps, and the missing features (`final`, `sealed`, `main`, Streams, virtual threads, generics, enums) | [`11_java_to_python_bridge.py`](../01_python_core/11_java_to_python_bridge.py) · [`17_java_to_python_advanced.py`](../01_python_core/17_java_to_python_advanced.py) |
 
 ---
 
@@ -135,6 +135,9 @@ not used beyond their few genuine sections.
 - [ ] Say what `@classmethod` / `@staticmethod` / `@property` each do to the first argument, and why
       a `@classmethod` factory is the only one that works for subclasses.
 - [ ] Name the `@lru_cache`-on-a-method memory leak and two ways to fix it.
+- [ ] Say what Java's `final` maps to in Python — and which of the four cases is actually enforced
+      at runtime.
+- [ ] Say what Java 21 virtual threads map to, for I/O and for CPU, and why threads don't help CPU.
 - [ ] Draw the **MRO for a diamond** and explain what `super()` calls, and why.
 - [ ] State the **LEGB rule** and why `counter += 1` raises `UnboundLocalError`.
 - [ ] Say when you'd use an **ABC** vs a **`Protocol`** vs plain duck typing — and what an ABC

@@ -1,6 +1,8 @@
 # Deep Dive 21 — Java → Python Bridge (syntax, idioms, and the traps)
 
-> Runnable companion: [`01_python_core/11_java_to_python_bridge.py`](../01_python_core/11_java_to_python_bridge.py)
+> Runnable companions: [`01_python_core/11_java_to_python_bridge.py`](../01_python_core/11_java_to_python_bridge.py)
+> (the traps) · [`01_python_core/17_java_to_python_advanced.py`](../01_python_core/17_java_to_python_advanced.py)
+> (`final`, `sealed`, `main`, Streams, virtual threads, generics, enums)
 > Related deep dives: [OOP](06_oop_inheritance_mro.md) · [Concurrency](07_concurrency.md) ·
 > [Web frameworks](10_web_frameworks.md) · [Comprehensions & map/filter/reduce](02_comprehensions_map_filter_reduce.md)
 
@@ -215,9 +217,47 @@ for o in orders:
         by_status[o.status].append(o)
 ```
 
-**`.parallelStream()` has no equivalent.** The GIL means threads don't parallelise CPU-bound Python.
-For real parallelism you need `ProcessPoolExecutor` — with pickling overhead and no shared memory.
-See [Concurrency](07_concurrency.md).
+**Three things that are the SAME and surprise people, and one that is genuinely different.**
+
+**SAME 1 — laziness.** A Java Stream is lazy; so is a **generator expression**. In Python the
+difference is visible in the brackets, and it is the single most useful thing to know here:
+
+```python
+[f(x) for x in items]      # list comprehension   -> EAGER. This is .collect(toList()) already done.
+(f(x) for x in items)      # generator expression -> LAZY. This is the Stream itself.
+```
+
+**SAME 2 — single use.** A consumed Stream throws `IllegalStateException`; a consumed generator just
+yields nothing, which is quieter and therefore worse:
+
+```python
+gen = (o["amount"] for o in orders)
+list(gen)      # [250, 80, 420, 15, 120]
+list(gen)      # []   <- exhausted. No error.
+```
+
+**SAME 3 — short-circuiting.** `any()`, `all()` and `next()` stop at the first decisive element, like
+`.anyMatch`/`.findFirst`. So `any(expensive(x) for x in items)` does not evaluate them all.
+
+**DIFFERENT — `.parallelStream()` has no equivalent.** The GIL means threads don't parallelise
+CPU-bound Python. You need `ProcessPoolExecutor` (pickling, no shared memory) or, on 3.14,
+`InterpreterPoolExecutor` — both a real architectural change, not a one-word method call. **This is
+the biggest performance expectation to reset when moving from Java.** See
+[Concurrency](07_concurrency.md) and "Virtual threads" below.
+
+**And `Optional<T>` → there is no `Optional`.** Python returns `None`:
+
+```java
+Optional<Order> o = find(id);  int amt = o.map(Order::getAmount).orElse(0);
+```
+```python
+order = find(id);  amt = order.amount if order else 0
+amt = d.get(key, 0)                              # the dict idiom
+if (order := find(id)) is not None: ...          # walrus: need the value AND the test
+```
+
+`x or default` is the tempting one-liner and it is the truthiness trap — it also replaces `0` and
+`""`. Use `x if x is not None else default` when zero is legitimate.
 
 ### Concurrency
 
@@ -231,10 +271,10 @@ See [Concurrency](07_concurrency.md).
 | `Semaphore` | `threading.Semaphore` / `asyncio.Semaphore` |
 | `CountDownLatch` | `threading.Event` or `Barrier` |
 | `BlockingQueue` | `queue.Queue` / `asyncio.Queue` |
-| `AtomicInteger` | **No direct equivalent** — use a `Lock`, or `queue` |
+| `AtomicInteger` | **No direct equivalent** — use a `Lock`, or `itertools.count()` |
 | `volatile` | No equivalent needed (the GIL provides the barrier) |
 | `@Async` / `CompletableFuture` chains | `async def` + `await` |
-| Virtual threads (21+) | `asyncio` coroutines — but **cooperative**, not preemptive |
+| Virtual threads (21+) | `asyncio` (I/O) · processes / subinterpreters / a free-threaded build (CPU) — see below |
 | `ThreadLocal<T>` | `threading.local()` — or **`contextvars.ContextVar`** for async |
 
 **Two genuinely different semantics, and both cause bugs:**
@@ -249,6 +289,283 @@ See [Concurrency](07_concurrency.md).
 **For async code use `contextvars.ContextVar`, not `threading.local`** — `ContextVar` follows the
 asyncio task, so concurrent requests sharing a thread keep separate values. Using `threading.local`
 in async code leaks state between requests.
+
+### `final` — one Java keyword, four Python answers
+
+`final` means four unrelated things in Java, and each maps to something different. **In three of the
+four cases Python has no runtime enforcement at all** — knowing which is which is the whole answer.
+
+| Java | Python | Enforced by |
+|---|---|---|
+| `final int x = 5;` (no rebinding) | `MAX = 5`, or `x: Final[int] = 5` | **nobody** / a type checker |
+| `private final String id;` (immutable field) | `@dataclass(frozen=True)` | **runtime** — `__setattr__` raises |
+| `public final void m()` (no override) | `@typing.final` on the method | a type checker only |
+| `public final class C` (no subclass) | `@typing.final` on the class | a type checker only |
+| | `__init_subclass__` that raises | **runtime**, at import |
+
+```python
+MAX_RETRIES: typing.Final[int] = 3
+MAX_RETRIES = 99          # mypy: error. CPython: completely fine. No exception.
+
+@typing.final
+class Config: ...
+class Sub(Config): ...    # mypy: error. CPython: allowed.
+```
+
+**The only case where Python is as strict as Java is a frozen dataclass**, because `frozen=True`
+generates a real `__setattr__` guard:
+
+```python
+@dataclass(frozen=True, slots=True)
+class Money:
+    amount_cents: int
+    currency: str = "USD"
+
+Money(1250).amount_cents = 1      # FrozenInstanceError — a genuine runtime error
+```
+
+It is also the closest thing to a Java **`record`**. And it is **shallow**, exactly like Java's
+`final`: a frozen dataclass holding a `list` still lets you mutate that list — which is also why it
+stops being hashable ([33](33_methods_and_builtin_decorators.md)).
+
+**When you genuinely must stop subclassing at runtime**, `__init_subclass__` is the readable option
+and it fires at **import**, which is as close as Python gets to a compile error:
+
+```python
+class FinalViaHook:
+    def __init_subclass__(cls, **kwargs):
+        raise TypeError("FinalViaHook is final; compose instead of inheriting")
+```
+
+**And `private` does not exist.** `_name` is a convention; `__name` only **name-mangles** (to
+`_Class__name`) to avoid accidental collisions in subclasses — it is still reachable:
+
+```python
+v = Visibility()
+v._Visibility__mangled      # 3. Perfectly accessible.
+```
+
+Python's answer to "stop people touching this" is a leading underscore and a code review. Say that
+plainly rather than claiming `__x` is private — the latter is a tell.
+
+### `sealed interface` (Java 17) → a union type plus `match`
+
+```java
+sealed interface Shape permits Circle, Square, Rectangle { }
+double area(Shape s) {
+    return switch (s) {                      // compiler CHECKS exhaustiveness
+        case Circle c -> PI * c.r() * c.r();
+        case Square q -> q.side() * q.side();
+        case Rectangle r -> r.w() * r.h();
+    };
+}
+```
+
+```python
+Shape = Circle | Square | Rectangle          # the "sealed" set, as a type alias
+
+def area(shape: Shape) -> float:
+    match shape:
+        case Circle(radius=r):      return 3.14159 * r * r
+        case Square(side=s):        return s * s
+        case Rectangle(w=w, h=h):   return w * h
+        case _:                     raise TypeError(f"unhandled {type(shape).__name__}")
+```
+
+`match` is genuinely **structural pattern matching**, not a switch: it destructures, binds names, and
+matches sequences, mappings and classes. The one thing it lacks is the **compiler** telling you a
+case is missing — mypy/pyright *will* flag it when the subject is a closed union, which is the reason
+to declare the alias at all. Keep the `case _` that raises as the runtime safety net.
+
+### `public static void main(String[] args)` → `if __name__ == "__main__":`
+
+There is **no main method**, because a Python file is a script: importing it executes every top-level
+statement. So the question is not "where does execution start" but **"how do I tell being run from
+being imported"**.
+
+```python
+def main() -> int:
+    ...
+    return 0
+
+if __name__ == "__main__":
+    sys.exit(main())        # returning from main() does NOTHING on its own
+```
+
+`__name__` is the module's name, and it equals `"__main__"` **only** when the file is the entry
+point.
+
+**Why it matters is the real lesson, not the syntax.** Without the guard, top-level code runs on
+import: it breaks your test suite, breaks `--help`, double-starts servers, and under
+`multiprocessing` on Windows/macOS — which **re-imports the module in every child** — it either
+prints everything once per child or raises outright:
+
+```
+RuntimeError: An attempt has been made to start a new process before the
+current process has finished its bootstrapping phase.
+```
+
+`17_java_to_python_advanced.py` hit both while being written, which is why its narration lives in
+`main()` and only its definitions are at module level. (Same anti-pattern as expensive top-level code
+in an Airflow DAG file — [34](34_airflow_orchestration.md).)
+
+| Java | Python |
+|---|---|
+| `java -cp . App` | `python app.py` — `__name__ == "__main__"` |
+| executable jar + `Main-Class` | `python -m mypkg` → runs `mypkg/__main__.py` |
+| a shell wrapper script | a `console_scripts` entry point: `[project.scripts] mycli = "mypkg.cli:main"` |
+| `String[] args` | `sys.argv` (`argv[0]` is the script), but use **`argparse`** for anything real |
+| `System.exit(1)` | `sys.exit(1)` — which raises `SystemExit` |
+| `static { }` before main | module-level statements, run at import |
+
+### Virtual threads (Java 21) → three different Python answers
+
+A Java virtual thread is a cheap JVM-scheduled thread: a million of them, each written in ordinary
+**blocking** style, parked automatically by the JVM at any blocking call.
+
+**Python has no equivalent**, because the constraint is different: `threading.Thread` is a real OS
+thread and the GIL means only one executes Python bytecode at a time. So the right answer depends on
+what you wanted virtual threads *for*:
+
+| You wanted… | Python answer | The catch |
+|---|---|---|
+| many concurrent **I/O waits** | **`asyncio`** — 10k+ tasks on one thread | **cooperative**, not preemptive (below) |
+| **parallel CPU** work | `ProcessPoolExecutor` | separate memory; args/results are **pickled** |
+| parallel CPU, cheaper | `InterpreterPoolExecutor` (3.14, PEP 734) | one GIL **per interpreter**; still isolated memory |
+| parallel CPU, like Java | a **free-threaded build** (PEP 703; 3.13 experimental, supported 3.14) | a *separate* build (`python3.14t`); C extensions must opt in |
+| blocking calls you can't make async | `ThreadPoolExecutor` / `asyncio.to_thread` | fine, because **the GIL is released during I/O** |
+
+**The difference that actually causes bugs: cooperative vs preemptive.** A virtual thread yields at
+*any* blocking call. A coroutine yields **only at `await`**. One synchronous `requests.get()` or a
+CPU-heavy loop inside `async def` **freezes the whole event loop** — every other task on that worker
+stops. There is no Java equivalent of that failure mode, and it is the single most common asyncio bug.
+The price of avoiding it is "async all the way down": one sync DB driver poisons the benefit.
+
+Measured in the companion file (4 × 6M-iteration loops, CPython 3.14):
+
+```
+serial                      2.61s          the baseline
+ThreadPoolExecutor          3.26s  0.80x   <- NO speedup. In Java this scales with cores.
+InterpreterPoolExecutor     2.02s  1.29x   <- real parallelism, one GIL per interpreter
+ProcessPoolExecutor         1.77s  1.47x   <- real parallelism, separate memory
+```
+
+**Read the threaded row.** Four threads, *slower* than one. That is the expectation to reset coming
+from Java, and "use threads for CPU-bound work" fails the round. (The speedups are modest here
+because the work is only ~0.6s per task, so startup and transfer costs are visible — the *ordering*
+is the point.)
+
+So the honest answer to "will Python ever have real threads?" is **"it now can, if you choose that
+build"** — which is a much better answer than "no, the GIL".
+
+### Generics — both languages erase them
+
+```java
+<T> T first(List<T> xs) { return xs.get(0); }     // erased at compile time
+```
+
+```python
+def first[T](items: list[T]) -> T:                # PEP 695 syntax, 3.12+
+    return items[0]
+
+class Box[T]:
+    def __init__(self, value: T): self.value = value
+```
+
+| Java | Python |
+|---|---|
+| `List<String>` | `list[str]` |
+| `<T> T first(List<T>)` | `def first[T](xs: list[T]) -> T` (3.12+), or `TypeVar` + `Generic[T]` |
+| `? extends Number` | a bound: `def f[T: float](x: T) -> T` |
+| `Class<T>` token | pass the type itself: `def load(cls: type[T]) -> T` |
+| erased at **compile** time | never existed at runtime — annotations are just data |
+
+`Box[int]("not an int")` runs happily. The practical consequence is identical in both languages:
+**you cannot ask at runtime what `T` was.**
+
+### `enum` — close, with two Python extras
+
+| Java | Python |
+|---|---|
+| `enum Status { A, B }` | `class Status(Enum): A = auto(); B = auto()` |
+| `Status.values()` | `list(Status)` / iteration |
+| `Status.valueOf("A")` | `Status["A"]` (by **name**) · `Status(value)` (by **value**) |
+| `.ordinal()` | `.value` with `auto()`, or `list(Status).index(x)` |
+| `.name()` | `.name` |
+| methods and fields on an enum | the same — methods, properties, even `__init__` |
+| `EnumSet` / `EnumMap` | a `set`/`dict` of members, or `enum.Flag` for bit flags |
+| `switch` on an enum | `match`/`case` on the member |
+
+**The two extras Java lacks:** `StrEnum` and `IntEnum` (3.11+ for `StrEnum`), whose members *are*
+`str`/`int` — so they serialise to JSON and compare to a raw literal with no `.value`:
+
+```python
+class Status(enum.StrEnum):
+    SHIPPED = "shipped"
+
+Status.SHIPPED == "shipped"      # True — the member IS the string
+json.dumps({"s": Status.SHIPPED})  # works, no .value needed
+```
+
+…plus `@enum.unique` and `Flag` for bitwise combinations.
+
+### `static { }` and instance initialiser blocks
+
+| Java | Python |
+|---|---|
+| `static { ... }` | plain statements in the **class body** (run once, at class creation = at import) |
+| `{ ... }` instance initialiser | code in `__init__` |
+| `static final X = compute()` | a class attribute `X = compute()` — **runs at import** |
+| `@PostConstruct` (Spring) | `__post_init__` on a dataclass, or a factory classmethod |
+| class-level validation | `__init_subclass__` — fires per subclass, at import |
+
+The thing to internalise: **a Python class body is executable code** that runs once, top to bottom,
+when the module is imported, and its local namespace becomes the class `__dict__`. So an expensive
+call in a class body is an expensive call at import time.
+
+### `Object`'s methods
+
+| Java | Python | The gotcha |
+|---|---|---|
+| `equals(Object o)` | `__eq__(self, other)` | return **`NotImplemented`**, not `False`, for an unknown type — it lets Python try the other side |
+| `hashCode()` | `__hash__(self)` | **defining `__eq__` sets `__hash__ = None`**, so the object stops working as a dict key unless you define `__hash__` too (or use `frozen=True`) |
+| `toString()` | `__repr__` / `__str__` | `__repr__` is for developers (unambiguous); `__str__` for users. Define `__repr__`; `__str__` falls back to it |
+| `Comparable.compareTo` | `__lt__` + `@functools.total_ordering` | gets you the other three operators free |
+| `clone()` / `Cloneable` | `copy.copy` / `copy.deepcopy` | no `Cloneable` ceremony ([24](24_python_basics_essentials.md)) |
+| `finalize()` | `__del__` | unreliable in both — use a context manager |
+| `getClass()` | `type(obj)` | `.__name__` for the name |
+
+The `__eq__`/`__hash__` pairing is the one that bites, because **Java never does this to you** —
+`hashCode()` simply stays inherited:
+
+```python
+class Thing:
+    def __eq__(self, other): ...     # __hash__ is now None
+{Thing(): "x"}                       # TypeError: unhashable type: 'Thing'
+```
+
+### Checked exceptions → a documented hierarchy
+
+Java forces `throws IOException` and the compiler makes callers handle it. **Python has no checked
+exceptions**: nothing in a signature tells you what a call can raise.
+
+What replaces it:
+
+1. **One documented app base exception** with specific subclasses, so a caller picks its granularity
+   (`except AppError` vs `except OrderNotFound`). **The type is the contract.**
+2. Docstrings with a `Raises:` section.
+3. Splitting exceptions by the **decision the caller must make** — transient vs permanent — rather
+   than by where they came from. That is what lets a consumer choose retry vs DLQ with no `isinstance`
+   ladder.
+4. A **boundary handler** that logs and converts: central FastAPI `exception_handler`s, or a Kafka
+   consumer's retry/DLQ router.
+
+One-line version: **in Java the compiler is the contract; in Python the exception hierarchy is the
+contract**, so design it deliberately. Full pattern in [08](08_error_handling.md) and
+[25](25_nested_exception_handling.md).
+
+Related: **try-with-resources → `with`** ([25](25_nested_exception_handling.md)). Both guarantee
+cleanup; only Python's lets `__exit__` **swallow** the exception by returning `True`.
 
 ### Frameworks: Spring Boot → FastAPI
 
@@ -332,6 +649,9 @@ anything**, and nothing tells you. Consequences:
   `SystemExit` and `asyncio.CancelledError`, making your process unkillable.
 - **Build your own exception hierarchy** rooted in one application base class, because the compiler
   won't organise it for you. See [Error handling](08_error_handling.md).
+
+The *replacement discipline* — four concrete practices that buy back what the compiler gave you — is
+in [Checked exceptions → a documented hierarchy](#checked-exceptions--a-documented-hierarchy) above.
 
 ### Trap 4 — Truthiness
 

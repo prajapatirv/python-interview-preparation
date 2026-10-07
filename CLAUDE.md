@@ -161,7 +161,7 @@ container, a mini-Airflow) that mirror the real library's API shape exactly, so 
 visible without provisioning infrastructure. Only `03_pandas_data_handling/`,
 `05_web_apis_fastapi/` and (optionally) `06_kafka/01`–`02` need real external packages or services.
 
-All **58 stdlib-only examples** are expected to exit 0. Verify with:
+All **59 stdlib-only examples** are expected to exit 0. Verify with:
 
 ```bash
 cd python-interview-prep
@@ -177,6 +177,12 @@ The redirection is the point — it is what catches the cp1252 problem above. No
 
 - `02_concurrency/01_threading_demo.py` and `01_python_core/11_java_to_python_bridge.py` take ~7s
   each, from deliberate `sleep`-driven race demos.
+- `01_python_core/17_java_to_python_advanced.py` takes ~10s: section 7 benchmarks 4 x 6M-iteration
+  loops four ways (serial / threads / subinterpreters / processes) to prove threads don't
+  parallelise CPU-bound Python. **Its narration lives in `main()` under an `if __name__` guard on
+  purpose** — `ProcessPoolExecutor` re-imports the module per child on Windows, so module-level
+  prints appear once per child and a module-level pool raises outright. Definitions stay at module
+  level because they must be importable *and* picklable.
 - `09_aws_lambda_streaming/03_large_file_processing.py` generates a ~13MB temp file under
   `tempfile.mkdtemp()` and removes it on exit. Raising its `ROWS` constant is the intended
   experiment; peak memory is designed *not* to move.

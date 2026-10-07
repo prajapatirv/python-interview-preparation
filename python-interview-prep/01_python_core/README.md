@@ -39,6 +39,12 @@ and read the `# EXPERIMENT:` prompts — change the marked line, predict the out
   missing. An ABC can hold concrete code (template method) — that's why it beats a `Protocol` when
   you own the hierarchy. It checks **names only**, never signatures: a type checker does that.
   `typing.Protocol` is structural (no inheritance); `__init_subclass__` validates at **import** time.
+- **Coming from Java**: `final` has FOUR meanings and only `@dataclass(frozen=True)` is enforced at
+  runtime — `Final`/`@final` are checker-only, and `__private` merely name-mangles. There is no
+  `main` method (`if __name__ == "__main__"`), no `Optional` (return `None`), no checked exceptions
+  (a documented hierarchy is the contract), and no `parallelStream` — threads do not parallelise
+  CPU-bound Python. A Stream maps to a **generator expression** (lazy, single-use); a *list*
+  comprehension is `.collect(toList())` already applied.
 - **Multi-level `except`**: clauses are tried top-down, so a parent above a child makes the child's
   handler **dead code** — with no warning. `raise X from e` preserves the cause; `return`/`raise` in
   `finally` destroys the in-flight exception; `__exit__` returning `True` **swallows** it.
@@ -65,6 +71,7 @@ and read the `# EXPERIMENT:` prompts — change the marked line, predict the out
 | `14_python_basics_essentials.py` | `is` vs `==`, pass-by-object-reference, mutable defaults, truthiness, shallow/deep copy, `*args`/`**kwargs`, sorting, type hints |
 | `15_nested_exception_handling.py` | multi-level `except`, nested `try`, layer translation, `with` + exceptions, `ExceptionGroup`/`except*`, `add_note()` |
 | `16_methods_and_builtin_decorators.py` | `@classmethod`/`@staticmethod`/`@property` (+setter/deleter), the descriptor mechanism, `cached_property`, `lru_cache` traps, `singledispatchmethod`, `total_ordering`, `@dataclass`, `__new__` vs `__init__` |
+| `17_java_to_python_advanced.py` | the Java features you cannot find: `final`/`final class`/`private`, `sealed` -> union + `match`, `public static void main`, Stream API (laziness, single-use, no `parallelStream`), **virtual threads vs asyncio/subinterpreters/free-threaded**, generics, `static {}`, equals/hashCode, `enum`, checked exceptions |
 
 ## Deep dives
 
@@ -83,4 +90,5 @@ hands-on drills, see [`../deep_dive/`](../deep_dive/):
 - [24 — Python basics that still get asked at senior level](../deep_dive/24_python_basics_essentials.md)
 - [25 — Multi-level exception handling and `with`](../deep_dive/25_nested_exception_handling.md)
 - [33 — `@classmethod`, `@staticmethod`, `@property` and the built-in decorators](../deep_dive/33_methods_and_builtin_decorators.md)
-- [21 — Java → Python bridge](../deep_dive/21_java_to_python_bridge.md)
+- [21 — Java → Python bridge](../deep_dive/21_java_to_python_bridge.md) — covers both
+  `11_java_to_python_bridge.py` (the traps) and `17_java_to_python_advanced.py` (the missing features)

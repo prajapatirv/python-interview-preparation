@@ -512,6 +512,92 @@ below, or `Ctrl+F` for a specific keyword.
   singletons.
   → [16_methods_and_builtin_decorators.py:494](01_python_core/16_methods_and_builtin_decorators.py#L494)
 
+**`17_java_to_python_advanced.py`**  (the Java features you look for and cannot find)
+
+- **Q:** What does Java's `final` map to in Python?
+  **A:** Four different things, and only ONE is enforced at runtime. `final int x` -> `UPPER_CASE` or
+  `x: Final[int]` (a type checker only -- rebinding works fine at runtime). `private final` field ->
+  `@dataclass(frozen=True)`, which IS a real `__setattr__` guard. `final` method and `final` class ->
+  `@typing.final`, checker-only; for runtime enforcement raise in `__init_subclass__`.
+  → [17_java_to_python_advanced.py:272](01_python_core/17_java_to_python_advanced.py#L272)
+- **Q:** Is `__private` really private?
+  **A:** No. `_name` is a convention; `__name` only NAME-MANGLES to `_Class__name` (to avoid
+  accidental collisions in subclasses) and stays fully reachable. Python has no access control --
+  the answer is a leading underscore and code review, not the compiler.
+  → [17_java_to_python_advanced.py:299](01_python_core/17_java_to_python_advanced.py#L299)
+- **Q:** What is the equivalent of a `sealed interface` plus an exhaustive `switch`?
+  **A:** A union type alias (`Shape = Circle | Square`) plus `match`/`case`. `match` is real
+  structural pattern matching (it destructures and binds), but there is no RUNTIME exhaustiveness
+  check -- mypy/pyright flag a missing case on a closed union, so keep a `case _` that raises.
+  → [17_java_to_python_advanced.py:331](01_python_core/17_java_to_python_advanced.py#L331)
+- **Q:** Abstract class vs interface in Python?
+  **A:** Python collapses them: ONE `ABC` can hold state, concrete code and abstract methods, because
+  multiple inheritance removes Java's reason to separate them. Plus `typing.Protocol` -- structural,
+  no inheritance -- which Java has no analogue for. The catch: Python's check fires at
+  INSTANTIATION, so a test that constructs every implementation buys back the compile-time check.
+  → [17_java_to_python_advanced.py:344](01_python_core/17_java_to_python_advanced.py#L344)
+- **Q:** Where is `public static void main(String[] args)`?
+  **A:** There isn't one -- a Python file is a script, so importing it runs every top-level
+  statement. `if __name__ == "__main__": sys.exit(main())` distinguishes being RUN from being
+  IMPORTED. `String[] args` -> `sys.argv`, but use `argparse`. Entry points come from
+  `[project.scripts]` in pyproject.toml, or `python -m pkg` running `__main__.py`.
+  → [17_java_to_python_advanced.py:364](01_python_core/17_java_to_python_advanced.py#L364)
+- **Q:** Why does the `__main__` guard actually matter?
+  **A:** Without it, top-level code runs on import -- breaking tests and `--help`, double-starting
+  servers, and under multiprocessing on Windows/macOS (which RE-IMPORTS the module per child) either
+  printing once per child or raising "an attempt has been made to start a new process before the
+  current process has finished its bootstrapping phase". This very file hit both.
+  → [17_java_to_python_advanced.py:364](01_python_core/17_java_to_python_advanced.py#L364)
+- **Q:** How does the Stream API translate, and what is the same vs different?
+  **A:** SAME: laziness (a generator expression is the Stream; a LIST comprehension is
+  `.collect(toList())` already applied), single-use exhaustion, and short-circuiting via
+  `any`/`all`/`next`. DIFFERENT: `.parallelStream()` has no equivalent -- threads do not
+  parallelise CPU-bound Python. Collectors map to `Counter`/`defaultdict`/dict comprehensions, and
+  `Optional` maps to `None` plus `d.get(k, default)`.
+  → [17_java_to_python_advanced.py:399](01_python_core/17_java_to_python_advanced.py#L399)
+- **Q:** What is the Python equivalent of Java 21 virtual threads?
+  **A:** There isn't one -- it depends what you wanted them FOR. Many concurrent I/O waits ->
+  `asyncio` (closest by purpose, but COOPERATIVE: a coroutine yields only at `await`, so one sync
+  call freezes the whole event loop -- a failure mode virtual threads don't have). Parallel CPU ->
+  `ProcessPoolExecutor`, `InterpreterPoolExecutor` (3.14, one GIL per interpreter) or a
+  free-threaded build (PEP 703; supported from 3.14). Blocking calls you can't make async ->
+  `ThreadPoolExecutor`, because the GIL IS released during I/O.
+  → [17_java_to_python_advanced.py:470](01_python_core/17_java_to_python_advanced.py#L470)
+- **Q:** Prove threads don't help CPU-bound Python.
+  **A:** The file benchmarks 4 x 6M-iteration loops four ways. Threads come out at ~0.8-1.0x of
+  serial (no speedup, sometimes slower); `InterpreterPoolExecutor` and `ProcessPoolExecutor` give
+  real speedups. In Java the same code scales with cores on either thread type.
+  → [17_java_to_python_advanced.py:470](01_python_core/17_java_to_python_advanced.py#L470)
+- **Q:** How do generics compare?
+  **A:** Both erase them. Java erases at compile time (hence `Class<T>` tokens); Python never had
+  them at runtime -- annotations are data. `def first[T](xs: list[T]) -> T` (PEP 695, 3.12+) or the
+  older `TypeVar` + `Generic[T]`. `Box[int]("not an int")` runs happily.
+  → [17_java_to_python_advanced.py:516](01_python_core/17_java_to_python_advanced.py#L516)
+- **Q:** Where did `static { }` initialiser blocks go?
+  **A:** A Python class body IS executable code that runs once at import, and its namespace becomes
+  the class `__dict__` -- so plain statements there are the static block, and an expensive call
+  there is an expensive call at import time. `__init_subclass__` covers class-level validation and
+  auto-registration.
+  → [17_java_to_python_advanced.py:532](01_python_core/17_java_to_python_advanced.py#L532)
+- **Q:** equals/hashCode/toString/Comparable?
+  **A:** `__eq__` (return `NotImplemented`, not `False`, for an unknown type), `__hash__`,
+  `__repr__` (developers) / `__str__` (users), and `__lt__` + `@functools.total_ordering`. The
+  gotcha Java never inflicts: **defining `__eq__` sets `__hash__ = None`**, so the object silently
+  stops working as a dict key unless you define `__hash__` or use `frozen=True`.
+  → [17_java_to_python_advanced.py:549](01_python_core/17_java_to_python_advanced.py#L549)
+- **Q:** How close is Python's `enum` to Java's?
+  **A:** Close -- methods, properties and `__init__` on members all work; `values()` -> iteration,
+  `valueOf` -> `Status["A"]` by name or `Status(value)` by value. Two Python extras: `StrEnum` and
+  `IntEnum`, whose members ARE `str`/`int` (so they serialise and compare to a raw literal), plus
+  `Flag` for bit flags.
+  → [17_java_to_python_advanced.py:580](01_python_core/17_java_to_python_advanced.py#L580)
+- **Q:** There are no checked exceptions. What replaces them?
+  **A:** One documented app base exception with specific subclasses (the TYPE is the contract),
+  `Raises:` docstrings, splitting exceptions by the DECISION the caller must make (transient vs
+  permanent, so a consumer picks retry vs DLQ without an isinstance ladder), and a boundary handler
+  that logs and converts. In Java the compiler is the contract; in Python the hierarchy is.
+  → [17_java_to_python_advanced.py:603](01_python_core/17_java_to_python_advanced.py#L603)
+
 ### 02 — Concurrency
 
 **`01_threading_demo.py`**
@@ -1475,6 +1561,12 @@ leadership).
   mechanism engages instead of swallowing the error.
 
 ### Java/Scala → Python Migration
+
+*(The language-level comparison is covered hands-on in*
+*[`01_python_core/11_java_to_python_bridge.py`](01_python_core/11_java_to_python_bridge.py) (the traps) and*
+*[`01_python_core/17_java_to_python_advanced.py`](01_python_core/17_java_to_python_advanced.py)*
+*(`final`, `sealed`, `main`, Streams, virtual threads, generics, enums), with*
+*[deep dive 21](deep_dive/21_java_to_python_bridge.md). The entries below are about MIGRATING A SERVICE.)*
 
 - **Q:** What's the recommended phased approach to migrating a Java/Scala application to Python?
   **A:** (1) Discovery — inventory modules/dependencies/SLAs, classify each as easy-to-port pure
