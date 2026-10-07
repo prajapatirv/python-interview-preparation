@@ -3,7 +3,7 @@
 The topic folder `README.md` files are **crib sheets**: one or two lines per concept, for
 revision the morning of an interview.
 
-**These 32 files are the opposite.** Each one is a long-form treatment of a single topic with
+**These 33 files are the opposite.** Each one is a long-form treatment of a single topic with
 multi-paragraph answers, working code, the trade-offs, the failure modes, and — where it
 matters — the Java contrast. Read these to *understand*; read the crib sheets to *revise*.
 
@@ -19,7 +19,7 @@ Every file follows the same shape:
 
 ---
 
-## The 32 deep dives
+## The 33 deep dives
 
 ### Core language
 
@@ -37,6 +37,7 @@ Every file follows the same shape:
 | [23](23_abstract_classes_interfaces.md) | **Abstract base classes, interfaces and `Protocol`** | [`13_abstract_base_classes.py`](../01_python_core/13_abstract_base_classes.py) |
 | [24](24_python_basics_essentials.md) | **Python basics that still get asked at senior level** | [`14_python_basics_essentials.py`](../01_python_core/14_python_basics_essentials.py) |
 | [25](25_nested_exception_handling.md) | **Multi-level exception handling and `with`** — nested `try`, `except*`, `__exit__` | [`15_nested_exception_handling.py`](../01_python_core/15_nested_exception_handling.py) |
+| [33](33_methods_and_builtin_decorators.md) | **`@classmethod`, `@staticmethod`, `@property`** and the built-in decorators | [`16_methods_and_builtin_decorators.py`](../01_python_core/16_methods_and_builtin_decorators.py) |
 
 ### Data and web
 
@@ -82,7 +83,7 @@ Every file follows the same shape:
 
 ## Suggested reading order
 
-**If you have a week:** `21` (bridge) → `24`, `22`, `01`–`08`, `23`, `25` (core) → `26` (coding
+**If you have a week:** `21` (bridge) → `24`, `22`, `01`–`08`, `33`, `23`, `25` (core) → `26` (coding
 rounds) → `10`, `11` (frameworks) → `13`–`16`, `31` (Kafka) → `07`, `12`, `17`, `18`, `19`, `27`,
 `28`, `29` (systems) → `09`, `30` (data) → `20`, `32` (AI).
 
@@ -127,6 +128,9 @@ not used beyond their few genuine sections.
 
 - [ ] Explain the **GIL**, and when to use threads vs processes vs asyncio, in 60 seconds.
 - [ ] Write a **decorator with arguments** (retry or timer) and a **context manager** from memory.
+- [ ] Say what `@classmethod` / `@staticmethod` / `@property` each do to the first argument, and why
+      a `@classmethod` factory is the only one that works for subclasses.
+- [ ] Name the `@lru_cache`-on-a-method memory leak and two ways to fix it.
 - [ ] Draw the **MRO for a diamond** and explain what `super()` calls, and why.
 - [ ] State the **LEGB rule** and why `counter += 1` raises `UnboundLocalError`.
 - [ ] Say when you'd use an **ABC** vs a **`Protocol`** vs plain duck typing — and what an ABC

@@ -30,6 +30,7 @@ below, or `Ctrl+F` for a specific keyword.
 | 01 Python Core — abstract classes / `Protocol` | [23 — Abstract base classes, interfaces and `Protocol`](deep_dive/23_abstract_classes_interfaces.md) |
 | 01 Python Core — language basics | [24 — Python basics that still get asked at senior level](deep_dive/24_python_basics_essentials.md) |
 | 01 Python Core — multi-level `except`, `with` | [25 — Multi-level exception handling and `with`](deep_dive/25_nested_exception_handling.md) |
+| 01 Python Core — `@classmethod`/`@staticmethod`/`@property` | [33 — Methods and the built-in decorators](deep_dive/33_methods_and_builtin_decorators.md) |
 | 02 Concurrency | [07 — Concurrency](deep_dive/07_concurrency.md) |
 | 03 Pandas | [09 — Pandas for data handling](deep_dive/09_pandas.md) |
 | 05 FastAPI / REST | [10 — Django / Flask / FastAPI](deep_dive/10_web_frameworks.md) |
@@ -448,6 +449,67 @@ below, or `Ctrl+F` for a specific keyword.
   **A:** Attaching context (a Kafka offset, an attempt number) **without** changing the exception's type
   or message — so handlers above still match and the traceback still carries the coordinates.
   → [15_nested_exception_handling.py:408](01_python_core/15_nested_exception_handling.py#L408)
+
+**`16_methods_and_builtin_decorators.py`**
+
+- **Q:** What is the difference between an instance method, a `@classmethod` and a `@staticmethod`?
+  **A:** Only what gets prepended as the first argument — the instance, the class, or nothing. Ask what
+  the method needs: instance data -> instance method, the class -> `@classmethod`, neither ->
+  `@staticmethod`. All three are callable on an instance.
+  → [16_methods_and_builtin_decorators.py:29](01_python_core/16_methods_and_builtin_decorators.py#L29)
+- **Q:** Why use `@classmethod` rather than `@staticmethod` for a factory / alternative constructor?
+  **A:** `cls` is the **actual** class, so a subclass gets a subclass back. A `@staticmethod` factory has
+  to hardcode the class name, so every subclass silently receives the wrong type — the same `cls` trick
+  is why `dict.fromkeys()` works on a dict subclass.
+  → [16_methods_and_builtin_decorators.py:71](01_python_core/16_methods_and_builtin_decorators.py#L71)
+- **Q:** How do they actually work?
+  **A:** All three are **descriptors**: `function.__get__` returns a method bound to the instance,
+  `classmethod.__get__` binds the class, `staticmethod.__get__` returns the plain function. That is the
+  entire difference — and it explains `obj.m.__self__`, `obj.m.__func__`, and `Cls.m(obj)`.
+  → [16_methods_and_builtin_decorators.py:126](01_python_core/16_methods_and_builtin_decorators.py#L126)
+- **Q:** `@staticmethod` or a module-level function?
+  **A:** A module function is the default. `@staticmethod` earns its place when the name belongs to the
+  class, or when a subclass may **override** it — which it can, unlike a module function, and the
+  override is picked up when called through `self`.
+  → [16_methods_and_builtin_decorators.py:165](01_python_core/16_methods_and_builtin_decorators.py#L165)
+- **Q:** What is `@property` for, and when is it the wrong tool?
+  **A:** Validation on assignment, a computed value that cannot drift, and promoting a plain attribute
+  to logic without changing any caller — which is why you never write `get_x()`/`set_x()` in Python.
+  Wrong when it is expensive, can raise, or has side effects: `obj.x` looks free, so a property that
+  queries a DB turns a loop into N queries and fires on `repr()` too.
+  → [16_methods_and_builtin_decorators.py:199](01_python_core/16_methods_and_builtin_decorators.py#L199)
+- **Q:** `@property` vs `@cached_property` vs `@lru_cache`?
+  **A:** `property` recomputes every access; `cached_property` computes once per instance and then *is*
+  an instance attribute (invalidate with `del obj.attr`); `lru_cache` caches by argument tuple on the
+  function itself. `cached_property` needs a `__dict__` (so no `__slots__`) and has had no lock since
+  3.12.
+  → [16_methods_and_builtin_decorators.py:258](01_python_core/16_methods_and_builtin_decorators.py#L258)
+- **Q:** Why is `@lru_cache` on a method a memory leak?
+  **A:** The cache lives on the **class** and the key includes `self`, so it holds a strong reference to
+  every instance it has seen — provably: the object survives `del` + `gc.collect()`. Fix with
+  `@cached_property`, a per-instance dict, or by hoisting the pure part into a static function.
+  → [16_methods_and_builtin_decorators.py:315](01_python_core/16_methods_and_builtin_decorators.py#L315)
+- **Q:** What are the decorator-stacking traps?
+  **A:** `@abstractmethod` must be **innermost** or the abstractness is silently lost; and
+  `@classmethod` on top of `@property` worked on 3.9-3.12 but was removed in 3.13 — on 3.13+ it does
+  not raise, it just returns a bound method instead of the value.
+  → [16_methods_and_builtin_decorators.py:363](01_python_core/16_methods_and_builtin_decorators.py#L363)
+- **Q:** How do you overload a method in Python?
+  **A:** You cannot — a second `def` replaces the first. Use default/keyword arguments,
+  `@functools.singledispatchmethod` to dispatch on the first argument's runtime type (and it lets
+  third-party code register its own types), or `typing.overload` for the type checker only.
+  → [16_methods_and_builtin_decorators.py:398](01_python_core/16_methods_and_builtin_decorators.py#L398)
+- **Q:** Which decorators write methods for you?
+  **A:** `@functools.total_ordering` (the other three comparisons from `__eq__` + one) and `@dataclass`
+  (`__init__`/`__repr__`/`__eq__` from annotations). Note `frozen=True` adds `__hash__` but a **mutable
+  field still makes instances unhashable**, and defining `__eq__` sets `__hash__ = None`.
+  → [16_methods_and_builtin_decorators.py:430](01_python_core/16_methods_and_builtin_decorators.py#L430)
+- **Q:** `__new__` vs `__init__`?
+  **A:** `__new__` creates and returns the object (an implicit `staticmethod`); `__init__` initialises
+  it. You need `__new__` only for subclassing an immutable type or controlling instance creation — and
+  note `__init__` still runs even when `__new__` returns an existing object, which breaks naive
+  singletons.
+  → [16_methods_and_builtin_decorators.py:494](01_python_core/16_methods_and_builtin_decorators.py#L494)
 
 ### 02 — Concurrency
 

@@ -9,7 +9,7 @@ Q&A crib sheet, and runnable `.py` files you're meant to open, run, break, and m
 **Looking for a specific question?** See **[QUESTION_INDEX.md](QUESTION_INDEX.md)** — every
 question below, one file, each linked straight to the line that demonstrates it.
 
-**Want the full answer, not the crib-sheet version?** See **[`deep_dive/`](deep_dive/)** — 32
+**Want the full answer, not the crib-sheet version?** See **[`deep_dive/`](deep_dive/)** — 33
 long-form Q&A documents, one per interview topic, with multi-paragraph answers, trade-offs,
 failure modes, hands-on drills and a "60-second spoken answer" for each.
 
@@ -39,7 +39,7 @@ without any infra when you just want to see the pattern.
 
 | Folder | Covers | Runs with just stdlib? |
 |---|---|---|
-| `01_python_core/` | data structures, comprehensions, decorators, generators/iterators, context managers, descriptors, metaclasses, OOP/MRO, exceptions, memory management, **variable scope/LEGB**, **ABCs & `Protocol`**, **senior-level basics**, **multi-level exception handling** | Yes |
+| `01_python_core/` | data structures, comprehensions, decorators, generators/iterators, context managers, descriptors, metaclasses, OOP/MRO, exceptions, memory management, **variable scope/LEGB**, **ABCs & `Protocol`**, **senior-level basics**, **multi-level exception handling**, **`@classmethod`/`@staticmethod`/`@property`** | Yes |
 | `02_concurrency/` | GIL, threading, multiprocessing, asyncio, synchronization primitives | Yes |
 | `03_pandas_data_handling/` | Series/DataFrame, missing data, groupby/merge, performance at scale | Needs `pandas` |
 | `04_testing_tdd/` | TDD workflow, pytest, mocking, fixtures | Needs `pytest` |
@@ -52,7 +52,7 @@ without any infra when you just want to see the pattern.
 | `11_coding_challenges/` | anagram grouping, sliding window max, LRU cache, string reversal, **retry decorator**, **nested-dict search** | Yes |
 | `12_framework_internals/` | repository pattern, DI from scratch, plugin architecture, middleware chain, config | Yes |
 | `13_system_design_scenarios/` | **zero-downtime production changes**, **observability** (metrics/logs/traces/SLO), **scaling 100 → 600 TPS**, **AI leverage & customer-impact stories** | Yes |
-| `deep_dive/` | **32 long-form Q&A documents** — the full answers behind every crib sheet | — (reading) |
+| `deep_dive/` | **33 long-form Q&A documents** — the full answers behind every crib sheet | — (reading) |
 | `legacy_examples/` | your original scratch files, kept as-is for reference | — |
 
 ## Source material

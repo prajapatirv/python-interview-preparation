@@ -85,7 +85,7 @@ Registry, a hand-built DI container) that mirror the real library's API shape ex
 pattern is visible without provisioning infrastructure. Only `03_pandas_data_handling/`,
 `05_web_apis_fastapi/`, and (optionally) `06_kafka/01`–`02` need real external packages/services.
 
-All 53 stdlib-only examples are expected to run clean; verify with:
+All 54 stdlib-only examples are expected to run clean; verify with:
 
 ```bash
 for f in 01_python_core/*.py 02_concurrency/*.py 06_kafka/0[3-8]*.py 07_caching_queues/*.py \
@@ -104,7 +104,7 @@ behaviour, but note peak memory is designed *not* to move.
 
 ### `deep_dive/` — the long-form documentation set
 
-`deep_dive/` holds **32 long-form Q&A documents**, one per interview topic, and is the answer to
+`deep_dive/` holds **33 long-form Q&A documents**, one per interview topic, and is the answer to
 "the folder READMEs are one-liners, I need the full answer". Each follows a fixed structure:
 *What interviewers are actually probing* → *Must-know points* → *Interview questions and full
 answers* (multi-paragraph, with code) → *A worked example* → *Hands-on drills* → *The 60-second
@@ -120,8 +120,9 @@ The division of labour matters and should be preserved when editing:
 checklist. When adding a runnable file, add a row to its folder README's file table, a Q&A block
 to `QUESTION_INDEX.md`, and a link from the relevant deep dive.
 
-**Documents 01–21 mirror the source PDFs; 22–32 go beyond them** — variable scope/LEGB, ABCs and
-`Protocol`, senior-level language basics, multi-level exception handling, the three design-coding
+**Documents 01–21 mirror the source PDFs; 22–33 go beyond them** — variable scope/LEGB, ABCs and
+`Protocol`, senior-level language basics, multi-level exception handling, the built-in decorators
+(`@classmethod`/`@staticmethod`/`@property`/`functools`), the three design-coding
 problems (retry decorator / nested-dict search / LRU), the four system-design scenarios
 (zero downtime, observability, 100→600 TPS, 100GB files), Kafka-from-Python config and the
 Kafka→Aurora sink, and the two behavioural-but-technical questions. Keep the numbering

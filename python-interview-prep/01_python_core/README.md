@@ -13,6 +13,12 @@ and read the `# EXPERIMENT:` prompts — change the marked line, predict the out
   when you only iterate once or feed `sum`/`any`/`max` — it's O(1) memory instead of O(n).
 - **Decorators**: `@deco` above `def f` is sugar for `f = deco(f)`. Always `functools.wraps`.
   A decorator that takes arguments needs three nested levels (factory → decorator → wrapper).
+- **The built-in decorators**: the *only* difference between an instance method, `@classmethod` and
+  `@staticmethod` is what is prepended as the first argument (the object / the class / nothing) —
+  all three are descriptors. `@classmethod`'s `cls` is the **actual** class, which is why a factory
+  works for subclasses. `@property` makes a method read as an attribute, so you never write
+  `get_x()`/`set_x()` in Python. `@cached_property` caches per instance (and needs a `__dict__`);
+  `@lru_cache` caches by arguments and must **never** go on a method — it keeps `self` alive.
 - **Generators**: lazy, single-pass, keep local state between `yield`s. `yield from` delegates to
   a sub-iterator and forwards `send`/`throw`.
 - **Context managers**: `__enter__`/`__exit__`; `@contextlib.contextmanager` turns a generator into
@@ -58,6 +64,7 @@ and read the `# EXPERIMENT:` prompts — change the marked line, predict the out
 | `13_abstract_base_classes.py` | `ABC`/`@abstractmethod`, template method, abstract property, `Protocol`, `register()`, `collections.abc` mixins, `__init_subclass__` |
 | `14_python_basics_essentials.py` | `is` vs `==`, pass-by-object-reference, mutable defaults, truthiness, shallow/deep copy, `*args`/`**kwargs`, sorting, type hints |
 | `15_nested_exception_handling.py` | multi-level `except`, nested `try`, layer translation, `with` + exceptions, `ExceptionGroup`/`except*`, `add_note()` |
+| `16_methods_and_builtin_decorators.py` | `@classmethod`/`@staticmethod`/`@property` (+setter/deleter), the descriptor mechanism, `cached_property`, `lru_cache` traps, `singledispatchmethod`, `total_ordering`, `@dataclass`, `__new__` vs `__init__` |
 
 ## Deep dives
 
@@ -75,4 +82,5 @@ hands-on drills, see [`../deep_dive/`](../deep_dive/):
 - [23 — Abstract base classes, interfaces and `Protocol`](../deep_dive/23_abstract_classes_interfaces.md)
 - [24 — Python basics that still get asked at senior level](../deep_dive/24_python_basics_essentials.md)
 - [25 — Multi-level exception handling and `with`](../deep_dive/25_nested_exception_handling.md)
+- [33 — `@classmethod`, `@staticmethod`, `@property` and the built-in decorators](../deep_dive/33_methods_and_builtin_decorators.md)
 - [21 — Java → Python bridge](../deep_dive/21_java_to_python_bridge.md)
