@@ -45,6 +45,7 @@ below, or `Ctrl+F` for a specific keyword.
 | Part 2 — monitoring/alerting | [19 — Production stability, alerting & monitoring](deep_dive/19_production_stability_monitoring.md) |
 | 10 GenAI / LLM | [20 — AI-first technologies](deep_dive/20_ai_first_technologies.md) |
 | 09 Large files / streaming | [30 — Handling a 100GB file](deep_dive/30_large_file_processing.md) |
+| 14 Airflow & orchestration | [34 — Airflow and workflow orchestration](deep_dive/34_airflow_orchestration.md) |
 | 11 Coding challenges | [26 — Three design-coding problems](deep_dive/26_coding_design_problems.md) |
 | 12 Framework internals | [11 — Python framework development](deep_dive/11_python_framework_development.md) |
 | 13 Zero-downtime changes | [27 — Zero-downtime production changes](deep_dive/27_zero_downtime_production_changes.md) |
@@ -1222,6 +1223,174 @@ below, or `Ctrl+F` for a specific keyword.
 
 ---
 
+### 14 — Airflow & Orchestration
+
+**`01_dag_anatomy_and_operators.py`**
+
+- **Q:** Walk me through a DAG file -- which `DAG(...)` keywords matter?
+  **A:** `dag_id` (the primary key -- renaming it orphans all history), `schedule`, a FIXED
+  `start_date`, `catchup` (explicitly!), `default_args` (retries/owner/callbacks, written once),
+  `max_active_runs`, `max_active_tasks`, `dagrun_timeout`, `tags`, `params`, `doc_md`. Resolution
+  order: explicit task kwarg > `default_args` > the hard default.
+  → [01_dag_anatomy_and_operators.py:32](14_airflow_orchestration/01_dag_anatomy_and_operators.py#L32)
+- **Q:** Operator vs Task vs Task Instance?
+  **A:** The operator is the CLASS, the task is a node in the DAG, the task instance is a
+  `(task, dag_run)` pair -- the only one of the three with a state, a try_number and logs. You clear
+  a task INSTANCE to re-run it.
+  → [01_dag_anatomy_and_operators.py:69](14_airflow_orchestration/01_dag_anatomy_and_operators.py#L69)
+- **Q:** Which operators have you used?
+  **A:** Answer by FAMILY: action (`PythonOperator`, `BashOperator`, `SQLExecuteQueryOperator`,
+  `KubernetesPodOperator`), transfer (`S3ToRedshiftOperator`), sensor (`S3KeySensor`,
+  `ExternalTaskSensor`), plus control flow (`EmptyOperator`, `BranchPythonOperator`,
+  `ShortCircuitOperator`, `TriggerDagRunOperator`). HOOKS are not operators -- they wrap connections.
+  → [01_dag_anatomy_and_operators.py:90](14_airflow_orchestration/01_dag_anatomy_and_operators.py#L90)
+- **Q:** How do you express dependencies?
+  **A:** `a >> b`; `a >> [b, c] >> d` for fan-out-then-in (it works via `__rrshift__`);
+  `chain(a, [b, c], [d, e], f)` which is PAIRWISE for equal-length lists; `cross_downstream` for a
+  full mesh.
+  → [01_dag_anatomy_and_operators.py:212](14_airflow_orchestration/01_dag_anatomy_and_operators.py#L212)
+- **Q:** What happens if your DAG has a cycle?
+  **A:** Airflow raises when the FILE IS PARSED, so the DAG never appears in the UI -- a deploy-time
+  error, not a runtime one. (The topological sort is what detects it.)
+  → [01_dag_anatomy_and_operators.py:237](14_airflow_orchestration/01_dag_anatomy_and_operators.py#L237)
+- **Q:** Why is your Airflow slow?
+  **A:** Expensive TOP-LEVEL code. The scheduler re-parses every DAG file every ~30s
+  (`min_file_process_interval`), so a module-level query, API call or `Variable.get()` runs forever
+  on the scheduler. Move it inside a task; use dynamic mapping for a variable task count.
+  → [01_dag_anatomy_and_operators.py:299](14_airflow_orchestration/01_dag_anatomy_and_operators.py#L299)
+
+**`02_scheduling_backfill_and_data_intervals.py`**
+
+- **Q:** A DAG is `@daily` with `start_date=1 Jan`. When is the first run, and what is its
+  `logical_date`?
+  **A:** It runs just after MIDNIGHT ON 2 JAN, with `logical_date = 1 JAN`. Airflow schedules DATA
+  INTERVALS `[start, end)` and can only trigger a run once `end` has passed -- the data for the 1st
+  does not exist until the 1st is over. So a `@daily` DAG always processes yesterday.
+  → [02_scheduling_backfill_and_data_intervals.py:33](14_airflow_orchestration/02_scheduling_backfill_and_data_intervals.py#L33)
+- **Q:** `execution_date` vs `logical_date` vs `data_interval_start`?
+  **A:** `execution_date` is the old, misleading name (it is not when the task ran); renamed
+  `logical_date` in 2.2 and REMOVED in Airflow 3. In queries use `data_interval_start`/`_end` --
+  they are unambiguous.
+  → [02_scheduling_backfill_and_data_intervals.py:33](14_airflow_orchestration/02_scheduling_backfill_and_data_intervals.py#L33)
+- **Q:** You deployed and 500 runs started. What happened?
+  **A:** `catchup=True` with a `start_date` in the past -- Airflow created a run for every missed
+  interval. `start_date` a year ago + `@hourly` = 8,760 runs queued at once. Set `catchup`
+  explicitly, and cap a deliberate backfill with `max_active_runs` + a pool.
+  → [02_scheduling_backfill_and_data_intervals.py:75](14_airflow_orchestration/02_scheduling_backfill_and_data_intervals.py#L75)
+- **Q:** Why has my DAG never run?
+  **A:** Usually `start_date=datetime.now()`: the file is re-parsed every ~30s so the first interval
+  never completes. (Or it is paused, or `schedule=None`.) Hardcode a fixed date.
+  → [02_scheduling_backfill_and_data_intervals.py:116](14_airflow_orchestration/02_scheduling_backfill_and_data_intervals.py#L116)
+- **Q:** What can you pass to `schedule=`?
+  **A:** A cron string, a preset (`@daily`), a `timedelta` (relative, not clock-pinned), `None`
+  (manual/triggered only), `"@continuous"`, a custom Timetable, or a list of Assets/Datasets for
+  data-aware scheduling. Everything is UTC internally.
+  → [02_scheduling_backfill_and_data_intervals.py:137](14_airflow_orchestration/02_scheduling_backfill_and_data_intervals.py#L137)
+- **Q:** Why is `datetime.now()` inside a task a correctness bug?
+  **A:** It breaks idempotency: a backfill then writes TODAY's data for every historical date,
+  silently. Scope the read to the interval (`data_interval_start/_end`) and make the write
+  delete-then-insert / upsert / partition-overwrite so a retry cannot double the data.
+  → [02_scheduling_backfill_and_data_intervals.py:171](14_airflow_orchestration/02_scheduling_backfill_and_data_intervals.py#L171)
+- **Q:** What are the four concurrency knobs?
+  **A:** `max_active_runs` (runs per DAG), `max_active_tasks` (tasks per DAG),
+  `max_active_tis_per_dag` (instances of one task), and a `pool` -- the ONLY one that is global
+  across DAGs, and therefore the answer to "how do you stop Airflow overwhelming the database".
+  → [02_scheduling_backfill_and_data_intervals.py:224](14_airflow_orchestration/02_scheduling_backfill_and_data_intervals.py#L224)
+- **Q:** What does `depends_on_past` do, and what does it cost?
+  **A:** The task waits for ITS OWN previous run to have succeeded -- correct for a cumulative load,
+  but it SERIALISES the DAG, so a catchup becomes sequential and one failed historical run blocks
+  every later one.
+  → [02_scheduling_backfill_and_data_intervals.py:246](14_airflow_orchestration/02_scheduling_backfill_and_data_intervals.py#L246)
+
+**`03_taskflow_xcom_and_dynamic_mapping.py`**
+
+- **Q:** How do tasks share data, and what should you NOT put in an XCom?
+  **A:** An XCom is a ROW IN THE METADATA DATABASE keyed by
+  (dag_id, run_id, task_id, map_index, key); a task's return value is pushed automatically. So pass
+  small scalars -- a row count, an S3 KEY -- and never a DataFrame. Write the data to S3 and pass the
+  key; a custom XCom backend automates that.
+  → [03_taskflow_xcom_and_dynamic_mapping.py:72](14_airflow_orchestration/03_taskflow_xcom_and_dynamic_mapping.py#L72)
+- **Q:** Classic operators vs the TaskFlow API?
+  **A:** Classic declares the data flow AND the dependency graph separately (`>>` plus
+  `xcom_pull`), so they can drift. TaskFlow's `@task` makes ordinary function calls declare both:
+  `load(transform(extract()))` creates three tasks and two edges. Use TaskFlow for Python-native
+  ETL, classic for provider operators, and mix them -- which is the normal reality.
+  → [03_taskflow_xcom_and_dynamic_mapping.py:102](14_airflow_orchestration/03_taskflow_xcom_and_dynamic_mapping.py#L102)
+- **Q:** TaskGroup vs SubDAG?
+  **A:** A TaskGroup is purely visual grouping -- no extra scheduling, ids become `group.task`.
+  `SubDagOperator` is GONE (removed in Airflow 3): it was a real DAG with its own scheduler record,
+  ran sequentially by default, and deadlocked pools.
+  → [03_taskflow_xcom_and_dynamic_mapping.py:142](14_airflow_orchestration/03_taskflow_xcom_and_dynamic_mapping.py#L142)
+- **Q:** You don't know how many files will arrive. How many tasks?
+  **A:** Dynamic task mapping (2.3+): `process.expand(name=list_files())` creates one task INSTANCE
+  per element at RUN time, each with its own log, retry and state. `.partial()` pins constant args.
+  The wrong answer is a parse-time `for` loop over a query -- that runs on the scheduler every 30s
+  and makes the DAG's history unreadable.
+  → [03_taskflow_xcom_and_dynamic_mapping.py:173](14_airflow_orchestration/03_taskflow_xcom_and_dynamic_mapping.py#L173)
+- **Q:** What exactly gets Jinja-templated?
+  **A:** Only the fields an operator lists in `template_fields`. `BashOperator.bash_command` is
+  templated; a `PythonOperator`'s callable BODY never is -- take the value from the context instead.
+  Know `{{ ds }}`, `{{ data_interval_start }}`, `{{ params.x }}`, `{{ var.value.x }}`,
+  `{{ conn.x.host }}`, `{{ macros.ds_add(ds, -7) }}`.
+  → [03_taskflow_xcom_and_dynamic_mapping.py:235](14_airflow_orchestration/03_taskflow_xcom_and_dynamic_mapping.py#L235)
+- **Q:** params vs Variables vs Connections vs conf?
+  **A:** `params` are declared on the DAG and overridable per run; `dag_run.conf` is what you passed
+  when triggering; Variables are a cross-DAG key/value store (read them via `{{ var.value.x }}` at
+  run time, never `Variable.get()` at parse time); Connections are credentials behind a `conn_id`,
+  ideally backed by a secrets manager.
+  → [03_taskflow_xcom_and_dynamic_mapping.py:278](14_airflow_orchestration/03_taskflow_xcom_and_dynamic_mapping.py#L278)
+
+**`04_failures_retries_and_trigger_rules.py`**
+
+- **Q:** What do retries fix, and what do they not?
+  **A:** They fix TRANSIENT failures (a blip, a failover, a 503, a reclaimed spot instance). They do
+  not fix bad data (set `retries=0` on validation -- retrying just delays the alert), a bug, or a
+  non-idempotent task, where retries make it worse. `execution_timeout` is what turns "hung" into
+  "failed" so the retry can happen at all.
+  → [04_failures_retries_and_trigger_rules.py:29](14_airflow_orchestration/04_failures_retries_and_trigger_rules.py#L29)
+- **Q:** Explain trigger rules.
+  **A:** They decide when a task may run given its upstream states. Default `all_success` -- note a
+  SKIP cascades too. The four that matter: `all_success`, `all_done` (cleanup), `one_failed`
+  (alerting), `none_failed_min_one_success` (the join after a branch). The file prints the full
+  matrix.
+  → [04_failures_retries_and_trigger_rules.py:80](14_airflow_orchestration/04_failures_retries_and_trigger_rules.py#L80)
+- **Q:** Why did the task after my branch get skipped?
+  **A:** A branch skips everything downstream that is NOT reachable from the chosen branch
+  (`skip_all_except`), and with the default `all_success` that skip CASCADES into the join. Give the
+  join `trigger_rule="none_failed_min_one_success"`: tolerate the skip, still refuse on a failure.
+  → [04_failures_retries_and_trigger_rules.py:121](14_airflow_orchestration/04_failures_retries_and_trigger_rules.py#L121)
+- **Q:** How do you alert, and how does an SLA actually behave?
+  **A:** `on_failure_callback`/`on_retry_callback` in `default_args`, or a provider Notifier. An
+  `sla` means "done within X OF THE DATA INTERVAL END", not X after the task started; it does not
+  fail the task, and there is no DAG-level SLA. Many teams prefer `dagrun_timeout` plus an external
+  output-freshness check.
+  → [04_failures_retries_and_trigger_rules.py:159](14_airflow_orchestration/04_failures_retries_and_trigger_rules.py#L159)
+- **Q:** A sensor is blocking all your workers. Why?
+  **A:** `mode="poke"` (the default) holds a worker slot for the ENTIRE wait. Use `mode="reschedule"`
+  (releases the slot between pokes) or `deferrable=True` (the triggerer; no slot at all), and ALWAYS
+  set `timeout`. `soft_fail=True` makes a timeout a skip rather than a page. If the thing you await
+  is another DAG, use Assets instead of polling.
+  → [04_failures_retries_and_trigger_rules.py:208](14_airflow_orchestration/04_failures_retries_and_trigger_rules.py#L208)
+- **Q:** How do you stop Airflow overwhelming a shared database?
+  **A:** A POOL, because every other concurrency control is scoped to one DAG -- twelve DAGs each
+  limited to 4 tasks still open 48 connections. Size the pool from the resource's connection budget.
+  Beware the pool deadlock: `poke`-mode sensors holding slots while waiting for something that needs
+  a slot in the same pool.
+  → [04_failures_retries_and_trigger_rules.py:269](14_airflow_orchestration/04_failures_retries_and_trigger_rules.py#L269)
+- **Q:** How do you test a DAG?
+  **A:** A `DagBag` import test in CI (catches syntax errors and cycles), structural assertions on
+  the graph, unit tests of the CALLABLE as a plain function (if the logic only runs inside an
+  operator, that is a design problem), and `airflow tasks test dag task date` / `dag.test()` locally.
+  → [04_failures_retries_and_trigger_rules.py:296](14_airflow_orchestration/04_failures_retries_and_trigger_rules.py#L296)
+- **Q:** A task failed at 3am. Walk me through it.
+  **A:** UI grid (which instance, which run) → its log for the right ATTEMPT → the RENDERED
+  TEMPLATE view (nine times out of ten the template resolved to something empty) → one run or all
+  runs, i.e. data vs code → fix, then CLEAR the task instance to re-run -- which is only safe
+  because the task is idempotent.
+  → [04_failures_retries_and_trigger_rules.py:296](14_airflow_orchestration/04_failures_retries_and_trigger_rules.py#L296)
+
+---
+
 ## Part 2 — Reference Topics (no runnable example in this repo)
 
 These are covered in the source interview-prep material but have no corresponding hands-on
@@ -1264,7 +1433,12 @@ leadership).
   **A:** Native per-document TTL/expiry (`InsertOptions(expiry=timedelta(minutes=30))`) plus
   sub-millisecond key-value reads.
 
-### Airflow DAGs & Tasks
+### Airflow DAGs & Tasks — NOW COVERED HANDS-ON by `14_airflow_orchestration/`
+
+*(These four were the original crib-sheet entries. The full treatment -- DAG keywords, operators,*
+*data intervals, catchup, trigger rules, XCom, dynamic mapping, sensors, pools -- is now runnable in*
+*[`14_airflow_orchestration/`](14_airflow_orchestration/) with*
+*[deep dive 34](deep_dive/34_airflow_orchestration.md). They are kept here as the short version.)*
 
 - **Q:** What is a DAG, and what does Airflow actually manage for you?
   **A:** A Directed Acyclic Graph of tasks and dependencies; Airflow schedules runs, tracks state,
@@ -1280,7 +1454,9 @@ leadership).
   write large data to S3 and pass just the S3 key through XCom instead.
 - **Q:** How do S3 sensors avoid wasting a worker slot while waiting?
   **A:** `S3KeySensor(mode="reschedule")` frees the worker slot between checks instead of
-  blocking it for the entire wait.
+  blocking it for the entire wait. Better still, `deferrable=True` hands the wait to the
+  triggerer and holds no worker slot at all. Always set `timeout` as well.
+  → [04_failures_retries_and_trigger_rules.py:208](14_airflow_orchestration/04_failures_retries_and_trigger_rules.py#L208)
 
 ### AWS Lambda & Orchestration (Airflow integration)
 

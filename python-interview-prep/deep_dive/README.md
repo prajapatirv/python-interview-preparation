@@ -3,7 +3,7 @@
 The topic folder `README.md` files are **crib sheets**: one or two lines per concept, for
 revision the morning of an interview.
 
-**These 33 files are the opposite.** Each one is a long-form treatment of a single topic with
+**These 34 files are the opposite.** Each one is a long-form treatment of a single topic with
 multi-paragraph answers, working code, the trade-offs, the failure modes, and — where it
 matters — the Java contrast. Read these to *understand*; read the crib sheets to *revise*.
 
@@ -19,7 +19,7 @@ Every file follows the same shape:
 
 ---
 
-## The 33 deep dives
+## The 34 deep dives
 
 ### Core language
 
@@ -48,6 +48,7 @@ Every file follows the same shape:
 | [11](11_python_framework_development.md) | **Python framework development** | [`12_framework_internals/`](../12_framework_internals/) |
 | [12](12_scaling_applications.md) | **Scaling applications & handling challenges** | [`08_scaling_production_resilience/`](../08_scaling_production_resilience/) |
 | [30](30_large_file_processing.md) | **Handling a 100GB file** — streaming, external sort, dedupe, parallel chunks, resume | [`03_large_file_processing.py`](../09_aws_lambda_streaming/03_large_file_processing.py) |
+| [34](34_airflow_orchestration.md) | **Airflow & orchestration** — DAG keywords, operators, data intervals, catchup, trigger rules, XCom, dynamic mapping | [`14_airflow_orchestration/`](../14_airflow_orchestration/) |
 
 ### Kafka
 
@@ -85,7 +86,7 @@ Every file follows the same shape:
 
 **If you have a week:** `21` (bridge) → `24`, `22`, `01`–`08`, `33`, `23`, `25` (core) → `26` (coding
 rounds) → `10`, `11` (frameworks) → `13`–`16`, `31` (Kafka) → `07`, `12`, `17`, `18`, `19`, `27`,
-`28`, `29` (systems) → `09`, `30` (data) → `20`, `32` (AI).
+`28`, `29` (systems) → `09`, `30`, `34` (data & orchestration) → `20`, `32` (AI).
 
 **If you have a day:** read the *60-second spoken answer* at the bottom of each file, then go
 deep on the three topics you're weakest on. Practise saying them out loud — the gap between
@@ -94,8 +95,11 @@ deep on the three topics you're weakest on. Practise saying them out loud — th
 **If you have an hour:** `13` (Kafka core), `14` (delivery semantics), `07` (concurrency),
 `29` (capacity scaling). Those four come up in almost every round for this profile.
 
-**If the round is explicitly system design:** `27`, `28`, `29`, `12`, `19`, plus `30` if the role
-touches data pipelines.
+**If the round is explicitly system design:** `27`, `28`, `29`, `12`, `19`, plus `30` and `34` if the
+role touches data pipelines.
+
+**If the role is data engineering:** `34` (Airflow), `30` (large files), `09` (Pandas), `31` (Kafka
+from Python), `13`–`16` (Kafka), `17`, `18`.
 
 **If the round is a live coding exercise:** `26`, then `01` and `04`.
 
@@ -162,6 +166,8 @@ not used beyond their few genuine sections.
 - [ ] Describe **mitigate-before-fix** and the **expand → migrate → contract** migration.
 - [ ] Name the **three pillars** of observability and what each one answers that the others can't.
 - [ ] Say how you'd process a **100GB file**, including sort and dedupe.
+- [ ] Say when a `@daily` DAG with `start_date=1 Jan` first runs, and what its `logical_date` is.
+- [ ] Name what `catchup=True` does on deploy day, and why the task after a branch gets skipped.
 
 **And the two that matter most**
 

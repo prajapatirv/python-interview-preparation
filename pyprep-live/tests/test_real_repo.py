@@ -15,9 +15,11 @@ def real():
     return TestClient(create_app())
 
 
-def test_all_twelve_topics_and_key_examples(real):
+def test_all_topics_and_key_examples(real):
     cat = real.get("/api/catalog").json()
-    assert len(cat["topics"]) == 12
+    # Exact count on purpose: a drop means the catalog stopped discovering a topic folder.
+    # Bump it when a numbered folder is added to ../python-interview-prep.
+    assert len(cat["topics"]) == 14
     ids = {e["id"] for t in cat["topics"] for e in t["examples"]}
     assert {"01_python_core/03_decorators.py", "04_testing_tdd/::pytest", "11_coding_challenges/::pytest"} <= ids
 

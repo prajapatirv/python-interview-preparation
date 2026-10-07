@@ -2,14 +2,14 @@
 
 A self-contained playground for Python backend interview prep (6-10 yrs level): core language,
 concurrency, Pandas, FastAPI/REST, Kafka, caching/queues, production resilience, AWS Lambda,
-GenAI patterns, and the system-design scenario rounds (zero downtime, observability, capacity
-planning). Every topic folder has a `README.md` with the condensed concept notes + interview
+GenAI patterns, Airflow orchestration, and the system-design scenario rounds (zero downtime,
+observability, capacity planning). Every topic folder has a `README.md` with the condensed concept notes + interview
 Q&A crib sheet, and runnable `.py` files you're meant to open, run, break, and modify.
 
 **Looking for a specific question?** See **[QUESTION_INDEX.md](QUESTION_INDEX.md)** — every
 question below, one file, each linked straight to the line that demonstrates it.
 
-**Want the full answer, not the crib-sheet version?** See **[`deep_dive/`](deep_dive/)** — 33
+**Want the full answer, not the crib-sheet version?** See **[`deep_dive/`](deep_dive/)** — 34
 long-form Q&A documents, one per interview topic, with multi-paragraph answers, trade-offs,
 failure modes, hands-on drills and a "60-second spoken answer" for each.
 
@@ -51,8 +51,9 @@ without any infra when you just want to see the pattern.
 | `10_genai_llm_patterns/` | prompt engineering, RAG pipeline shape, semantic caching | Yes (mocked, no API key needed) |
 | `11_coding_challenges/` | anagram grouping, sliding window max, LRU cache, string reversal, **retry decorator**, **nested-dict search** | Yes |
 | `12_framework_internals/` | repository pattern, DI from scratch, plugin architecture, middleware chain, config | Yes |
+| `14_airflow_orchestration/` | **Airflow**: DAG keywords & operators, data intervals/catchup/backfill, TaskFlow & XCom, dynamic task mapping, trigger rules, retries, sensors, pools — on a stdlib mini-Airflow | Yes |
 | `13_system_design_scenarios/` | **zero-downtime production changes**, **observability** (metrics/logs/traces/SLO), **scaling 100 → 600 TPS**, **AI leverage & customer-impact stories** | Yes |
-| `deep_dive/` | **33 long-form Q&A documents** — the full answers behind every crib sheet | — (reading) |
+| `deep_dive/` | **34 long-form Q&A documents** — the full answers behind every crib sheet | — (reading) |
 | `legacy_examples/` | your original scratch files, kept as-is for reference | — |
 
 ## Source material
@@ -71,7 +72,7 @@ trade-offs, failure modes and production detail the sources summarise in a line 
 
 ## Suggested order for a first pass
 
-`01` → `11` → `02` → `04` → `05` → `03` → `07` → `08` → `13` → `12` → `06` → `09` → `10`
+`01` → `11` → `02` → `04` → `05` → `03` → `07` → `08` → `13` → `12` → `06` → `09` → `14` → `10`
 
 (Core language and coding challenges first since they show up in every round; Kafka and infra-heavy
 topics last since they need the most setup. `13` sits after `08` because the resilience patterns in
