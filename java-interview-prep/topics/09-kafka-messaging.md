@@ -2,6 +2,8 @@
 id: 09-kafka
 title: Apache Kafka (and RabbitMQ) for Java Developers
 focus: Delivery guarantees, ordering, consumer groups, failure handling, Spring Kafka, Kafka 4
+deep_dive: 12
+examples: 12_kafka
 ---
 Kafka 4.0 (Mar 2025) removed ZooKeeper: clusters run **KRaft** only. Queues for Kafka (share groups, KIP-932) arrived in early access, then preview in 4.1. Spring for Apache Kafka 4.0 supports the new consumer rebalance protocol (KIP-848).
 

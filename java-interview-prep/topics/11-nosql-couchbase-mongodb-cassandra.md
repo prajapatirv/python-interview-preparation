@@ -2,6 +2,8 @@
 id: 11-nosql
 title: NoSQL (Couchbase, MongoDB, Cassandra) - from SQL to NoSQL thinking
 focus: Weak-area topic - concepts first, then Couchbase specifics, with honest-answer guidance
+deep_dive: 13
+examples: 13_nosql
 ---
 Strategy: your base is SQL and limited Couchbase exposure. Interviewers accept "I know the model and trade-offs; I have used X at a basic level" - they punish bluffing about operations you never did. Always map NoSQL ideas back to SQL ones you know well.
 

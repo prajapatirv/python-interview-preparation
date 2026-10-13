@@ -2,6 +2,8 @@
 id: 04-jvm-performance
 title: JVM Internals, GC & Performance Tuning
 focus: Memory model, garbage collectors, profiling, containers - what Leads use in RCA
+deep_dive: 05
+examples: 05_jvm_gc_performance
 ---
 
 ### Q1 [basic] Describe JVM memory areas.

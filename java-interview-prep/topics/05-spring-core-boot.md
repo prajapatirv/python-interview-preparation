@@ -2,6 +2,8 @@
 id: 05-spring-boot
 title: Spring Framework & Spring Boot (3.x / 4.x)
 focus: IoC, auto-configuration, proxies, configuration, Boot 4 changes
+deep_dive: 06,07
+examples: 06_spring_core,07_spring_boot
 ---
 Boot 4.0 (Nov 2025) is built on Spring Framework 7; Boot 3.5 open-source support ended June 2026. Mention both versions if asked "what are you on".
 

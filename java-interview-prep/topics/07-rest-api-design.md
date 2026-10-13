@@ -2,6 +2,8 @@
 id: 07-rest-api
 title: REST API Design & Integration
 focus: Idempotency, versioning, pagination, errors, security, performance
+deep_dive: 08
+examples: 08_rest_api
 ---
 
 ### Q1 [basic] What makes an API RESTful?

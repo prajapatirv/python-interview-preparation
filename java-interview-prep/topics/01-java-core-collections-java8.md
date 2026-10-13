@@ -2,6 +2,8 @@
 id: 01-java-core
 title: Java Core, Collections, Streams (Java 8+)
 focus: Fundamentals every Lead is expected to explain crisply and with trade-offs
+deep_dive: 01,02
+examples: 01_java8_core,02_collections
 ---
 Lead interviews start here to check depth, not definitions. Always add "when it breaks in production".
 

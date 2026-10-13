@@ -2,6 +2,8 @@
 id: 08-microservices
 title: Microservices Architecture & Patterns
 focus: Boundaries, data, sagas, resilience, communication, deployment
+deep_dive: 11
+examples: 11_microservices
 ---
 
 ### Q1 [basic] What is a microservice and what are the benefits and costs?

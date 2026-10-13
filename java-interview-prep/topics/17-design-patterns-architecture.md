@@ -2,6 +2,8 @@
 id: 17-patterns-architecture
 title: Design Patterns, SOLID, Clean/Hexagonal Architecture
 focus: Code-level and application-level design; how a Lead guides design decisions
+deep_dive: 17,20
+examples: 17_design_patterns
 ---
 
 ### Q1 [basic] Explain the SOLID principles with one example each.

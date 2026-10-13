@@ -2,6 +2,8 @@
 id: 21-trending-2026
 title: Hot & Trending Topics for Lead Java Interviews (2026)
 focus: Task 7 - what companies are asking right now, with ready answers
+deep_dive: 03,04
+examples: 03_java11_and_modern,04_concurrency
 ---
 Priority order for your interview (most likely first): 1) Java 21/25 + virtual threads, 2) Spring Boot 3.5 -> 4 migration, 3) event-driven design with Kafka (outbox, idempotency, DLQ), 4) resilience + observability (OpenTelemetry, SLOs), 5) system design/RCA stories, 6) cloud/Kubernetes basics, 7) AI-assisted engineering and GenAI integration, 8) security/supply chain. Verify versions before quoting them.
 

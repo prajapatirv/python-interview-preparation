@@ -2,6 +2,8 @@
 id: 16-troubleshooting-rca
 title: Production Troubleshooting & Root Cause Analysis (RCA)
 focus: Incident method, JVM/DB/Kafka/K8s failure patterns, writing RCAs (rated 8/10 - tell real stories)
+deep_dive: 18
+examples: 18_production_troubleshooting
 ---
 Use the **STAR + metrics** form for stories: Situation, Task, Action (what you checked, in order), Result (time to detect/mitigate/resolve, what you prevented next time).
 

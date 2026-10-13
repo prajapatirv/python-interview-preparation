@@ -2,6 +2,8 @@
 id: 15-system-design
 title: Distributed Systems & System Design
 focus: Core theory plus worked design questions (rated 6/10 - invest here)
+deep_dive: 16,19
+examples: 16_system_design
 ---
 Design answer template: **1) clarify requirements and scale -> 2) APIs and data model -> 3) high-level components -> 4) deep dive on the bottleneck -> 5) failure modes and trade-offs -> 6) metrics/operations.** Say assumptions out loud.
 

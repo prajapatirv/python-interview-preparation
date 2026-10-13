@@ -2,6 +2,8 @@
 id: 00-example-topic
 title: Example Topic Title
 focus: One line - why this topic matters in interviews
+deep_dive: 01,02              # optional: deep_dive/NN_*.md chapter numbers shown in QUESTION_INDEX.md
+examples: 01_java8_core       # optional: examples/ folders shown in QUESTION_INDEX.md
 ---
 Optional intro shown above the questions (2-3 lines: how to approach this topic in an interview).
 

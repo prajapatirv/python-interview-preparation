@@ -2,6 +2,8 @@
 id: 14-observability
 title: Observability - Splunk, Grafana, Prometheus (+ your Datadog & CloudWatch)
 focus: Zero-experience tools; explain concepts via Datadog/CloudWatch you have used, plus SLOs and alerting
+deep_dive: 14
+examples: 14_observability_splunk
 ---
 You have used Datadog and CloudWatch. Splunk (logs), Prometheus (metrics) and Grafana (dashboards) solve the same problems. Learn the vocabulary below and map: Datadog metrics = Prometheus + Grafana; Datadog/CloudWatch Logs = Splunk; Datadog APM = Tempo/Jaeger/OpenTelemetry.
 

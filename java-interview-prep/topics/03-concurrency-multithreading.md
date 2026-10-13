@@ -2,6 +2,8 @@
 id: 03-concurrency
 title: Concurrency & Multithreading
 focus: Thread safety, executors, CompletableFuture, locks, Java Memory Model
+deep_dive: 04
+examples: 04_concurrency
 ---
 Interviewers look for: "can you find the race condition", "can you size a pool", "do you know the JMM".
 

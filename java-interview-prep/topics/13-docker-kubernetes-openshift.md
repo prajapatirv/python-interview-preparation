@@ -2,6 +2,8 @@
 id: 13-k8s-openshift
 title: Docker, Kubernetes & OpenShift for Java Services
 focus: Weak-ish area (K8s 4/10, OpenShift none) - core objects, deployment, troubleshooting, OpenShift differences
+deep_dive: 07
+examples: 07_spring_boot
 ---
 
 ### Q1 [basic] Container vs VM? What is a Docker image vs container?

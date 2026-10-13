@@ -2,6 +2,8 @@
 id: 18-testing-cicd
 title: Testing, CI/CD, Code Quality & Security Hygiene
 focus: JUnit 5, Mockito, Testcontainers, pipelines, quality gates, supply-chain security
+deep_dive: 15
+examples: 15_testing
 ---
 
 ### Q1 [basic] What is the test pyramid?

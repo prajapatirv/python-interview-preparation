@@ -2,6 +2,8 @@
 id: 19-resume-stack
 title: Resume Tech-Stack Deep Dive (Quarkus, Dropwizard, Spring Batch, RabbitMQ, OpenSearch, AWS)
 focus: Questions an interviewer asks about technologies listed on a Java lead's resume (Python/Groovy/Grails excluded)
+deep_dive: 11,12
+examples: 11_microservices,12_kafka
 ---
 Interviewers pick 2-3 resume items and drill down. For each, prepare: what the system did, your decision, a trade-off, a number, and a failure you handled. Replace placeholders in answers with your real figures.
 

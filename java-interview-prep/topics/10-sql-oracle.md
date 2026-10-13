@@ -2,6 +2,8 @@
 id: 10-sql-oracle
 title: SQL & Oracle (with PostgreSQL/MySQL notes)
 focus: Query tuning, indexes, transactions, window functions, Oracle specifics
+deep_dive: 09
+examples: 09_spring_data_jpa
 ---
 
 ### Q1 [basic] What are the SQL join types?

@@ -2,6 +2,8 @@
 id: 02-modern-java
 title: Modern Java (11 -> 25 LTS)
 focus: What changed since Java 8 and which LTS to target - a favourite opener for Lead profiles
+deep_dive: 03
+examples: 03_java11_and_modern
 ---
 LTS releases: 8, 11, 17, 21, **25 (Sept 2025)**. Spring Boot 4 requires Java 17 as a minimum and supports Java 25 first-class. Be ready to say "I moved/would move from 8 to 17 to 21/25 in these steps".
 

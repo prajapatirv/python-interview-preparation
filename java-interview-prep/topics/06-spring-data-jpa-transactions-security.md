@@ -2,6 +2,8 @@
 id: 06-data-security
 title: Spring Data, JPA/Hibernate, Transactions & Spring Security
 focus: Persistence pitfalls, transaction boundaries, OAuth2/JWT security
+deep_dive: 09,10
+examples: 09_spring_data_jpa,10_spring_security
 ---
 
 ### Q1 [basic] What is JPA vs Hibernate vs Spring Data JPA?
