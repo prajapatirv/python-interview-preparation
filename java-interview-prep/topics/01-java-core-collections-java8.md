@@ -30,7 +30,8 @@ Checked exceptions (`IOException`) must be declared or caught; unchecked (`Runti
 
 ### Q7 [intermediate] How does HashMap work internally (Java 8+)?
 Array of buckets; index = `(n-1) & hash(key)`. Collisions form a linked list; when a bucket reaches 8 entries and the table is at least 64 long, it becomes a red-black tree (O(log n) worst case). Default capacity 16, load factor 0.75, resize doubles the table and redistributes. Not thread-safe: concurrent resize can lose data.
-> Follow-up they may ask: why capacity is a power of two (fast bit-mask index).
+Flow to recite: `hashCode` -> spread (`h ^ h>>>16`) -> `(n-1) &` -> compare `hash` then `equals` -> store/replace. Resize moves each node by `oldCap` using one hash bit. Treeify at 8 only if table >= 64 (else resize), untreeify at 6. Average O(1); the tree only bounds the worst bucket.
+> Follow-up they may ask: why capacity is a power of two (fast bit-mask index); same hash different keys; mutable keys; Java 7 resize infinite loop. Full answer: `deep_dive/02_collections.md` Q1-Q7.
 
 ### Q8 [intermediate] HashMap vs Hashtable vs ConcurrentHashMap vs Collections.synchronizedMap?
 `Hashtable` and `synchronizedMap` lock the whole map. `ConcurrentHashMap` (Java 8+) uses CAS plus per-bucket `synchronized`, so reads are lock-free and writes lock only one bucket. It forbids null keys/values and gives atomic `computeIfAbsent`, `merge`. Prefer it for shared caches/counters.
