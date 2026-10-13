@@ -169,6 +169,64 @@ Order Service -> KafkaProducer -> topic order-events [P0 | P1 | P2] -> consumer 
 | Retry topic vs DLT, poison messages | Q14 |
 | Monitoring | Q16 |
 
+### Q20. How do you monitor Kafka in production?
+
+**Framework to say first:** *Lag + throughput + errors + rebalances + replication health + broker/JVM/infra + business SLA.* Metrics say **what**, logs say **why**, and the business SLA says **whether it matters**.
+
+```text
+brokers / producers / consumers --JMX--> JMX exporter / Micrometer --> Prometheus --> Grafana (dashboards, alert rules) -> PagerDuty / Teams
+                                        broker + app logs ----------> Splunk (search, correlate on topic/partition/offset/trace id)
+                                        lag exporter / Burrow / Kafka UI  (consumer-group view independent of the app)
+```
+
+**1. Consumer side (most important)**
+- **Lag** = log end offset - committed offset, per partition. Watch the **trend and per-partition skew**, not one number: lag that grows steadily means consume rate < produce rate; a single high partition means a hot key or a stuck/poison record.
+- **Offset lag vs time lag**: 50,000 records may be 2 seconds or 2 hours behind. Time lag (age of the oldest unprocessed record) maps to the SLA.
+- Client metrics: `records-lag-max`, `records-consumed-rate`, `fetch-latency-avg`, `commit-rate`, `rebalance-rate-per-hour`, `last-poll-seconds-ago`, plus your own **processing latency p99**, error count and DLT depth.
+- Distinguish **consumer lag** (backlog in Kafka) from **processing latency** (time per record): high latency causes lag, but lag can also come from too few consumers.
+
+**2. Broker / cluster health** (JMX)
+- `ActiveControllerCount` summed across the cluster must be **1**. `OfflinePartitionsCount` must be **0** (those partitions are unavailable: page immediately).
+- `UnderReplicatedPartitions` > 0 sustained and **`UnderMinIsrPartitionCount` > 0** (with `acks=all` producers start failing). `IsrShrinksPerSec` / `IsrExpandsPerSec` flapping = unstable follower, slow disk or network.
+- `LeaderElectionRateAndTimeMs`, `UncleanLeaderElectionsPerSec` (must be 0: data loss risk).
+- Throughput and latency: `BytesInPerSec` / `BytesOutPerSec`, request `TotalTimeMs` for Produce and FetchConsumer, `RequestHandlerAvgIdlePercent` and `NetworkProcessorAvgIdlePercent` (low idle = broker saturated).
+- Capacity: disk used and growth rate (retention vs ingress), disk I/O wait, open file descriptors, partition and leader **distribution** across brokers.
+
+**3. Producer side**: `record-send-rate`, `record-error-rate`, `record-retry-rate`, `request-latency-avg`, `batch-size-avg`, `buffer-available-bytes` / `bufferpool-wait-ratio` (buffer exhaustion = blocking `send`). Rising errors: broker down, leader change, `NOT_ENOUGH_REPLICAS`, timeouts, oversize records, serialisation.
+
+**4. JVM and infrastructure** (brokers *and* clients): heap and old-gen trend, GC pause time, thread count, CPU, network. A long GC pause on a broker looks like a missed heartbeat and triggers ISR shrink or rebalances.
+
+**5. Logs (Splunk)**: broker logs (`Leader election`, `Shrinking ISR`, `Request timeout`), and consumer logs (`rebalance`, `commit failed`, `CommitFailedException`). One structured line per record with `topic, partition, offset, key, outcome, duration_ms, traceId` lets you jump from a lag spike to the exact failing record (see `14_observability_splunk.md` Q12).
+
+**6. Alert design - actionable, not noisy**
+
+| Severity | Condition |
+|---|---|
+| Page | `OfflinePartitions > 0`; `ActiveController != 1`; broker down; `UnderMinIsr > 0`; disk > ~85% and growing; DLT receiving records at a high rate |
+| Page / ticket | **time lag** above SLA for N minutes; lag *growing* (positive slope) over 10-15 min and drain time (`lag / (consume - produce)`) never finishing |
+| Warn | sustained under-replicated partitions; ISR flapping; rebalance rate high; producer error / retry rate; request latency p99 up; GC pauses rising |
+
+Alert on **symptoms with a duration** ("lag growing for 10 min") rather than raw CPU or a single spike.
+
+**7. Business impact (the senior point).** Lag of 50,000 on an analytics topic may be fine; lag of 500 on `payment-events` with a 2-second SLA is an incident. So track **end-to-end latency** (event time -> processed time), payment/order success rate, DLT depth and reconciliation counts next to the Kafka metrics, and alert on SLA, using lag as the diagnostic.
+
+**8. Lag troubleshooting runbook** (Detect -> Identify -> Correlate -> Fix -> Verify)
+1. Confirm real lag: `kafka-consumer-groups.sh --describe --group <g>` or the dashboard; per partition, trend vs a stuck consumer.
+2. One partition or all? One = hot key / poison message / one slow instance; all = capacity or a downstream issue.
+3. Compare **produce rate vs consume rate**; did traffic spike (100 -> 500 TPS) or did consume slow?
+4. Check consumer: errors/retries, handler latency, **rebalances**, GC, pool saturation, poll interval.
+5. Check downstreams (DB pool, partner API latency): consumers are usually waiting, not slow.
+6. Check assignment: consumers <= partitions? Adding more consumers than partitions does nothing.
+7. Fix: batch/async the slow call, scale consumers up to the partition count, add partitions only if key remapping is acceptable, DLT the poison record, temporarily raise capacity to drain.
+8. Verify the lag slope turns negative and time lag returns under the SLA; write the post-incident alert/test.
+
+**9. Duplicate processing.** Monitor rebalance count (each rebalance replays uncommitted work), the **idempotency-key conflict / skipped-duplicate** counter, DLT replays, and reconcile source vs sink counts. Duplicates are expected under at-least-once; the metric tells you the idempotency layer is working, not that something is wrong.
+
+**Tooling:** JMX -> Prometheus JMX exporter (or Micrometer in Spring Boot clients) -> Grafana; `kafka_exporter` / Burrow / Kafka UI for group lag; Splunk for logs; Confluent Control Center / Cruise Control if you run those.
+
+**Spoken answer (about 60 seconds):**
+> "I monitor Kafka at four levels and tie them to the business SLA. For consumers, the key signal is lag per partition and its trend, and I prefer time lag because it maps to the SLA, along with consume rate, processing latency, error and DLT counts and rebalance rate. For brokers I watch availability, the active controller count, offline and under-replicated partitions, under-min-ISR, ISR flapping, request latency and handler idle percent, plus disk growth against retention and JVM GC pauses. For producers I watch send, error and retry rates and buffer exhaustion. Metrics come through JMX into Prometheus and Grafana, and logs are in Splunk so I can correlate by topic, partition, offset and trace id. Alerts are on symptoms with a duration, like lag growing for ten minutes or any offline partition, not on single spikes. When lag rises I check whether production increased or consumption slowed, whether it's one partition or all, rebalances, the downstream DB or API, and whether consumers are already at the partition count, then fix the bottleneck and confirm the lag slope reverses."
+
 ## A worked example
 
 Work through the four examples in order; each answers the next interview question:
