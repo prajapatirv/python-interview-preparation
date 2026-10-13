@@ -59,7 +59,7 @@ without any infra when you just want to see the pattern.
 ## Source material
 
 The concept notes and deep dives are distilled from the interview-prep PDFs in
-[`../material_ref/`](../material_ref/): *Python Developer Deep-Dive Interview Q&A* (37pp),
+[`../../shared/material_ref/`](../../shared/material_ref/): *Python Developer Deep-Dive Interview Q&A* (37pp),
 *Python Advanced Interview Topics* (35pp — framework dev, scaling, Kafka, caching, queues,
 production stability, AI-first), and the *Python & Kafka Interview Q&A Handbook* (58pp, 194
 questions across the 14 topics the `deep_dive/` set mirrors). This project turns their Q&A into

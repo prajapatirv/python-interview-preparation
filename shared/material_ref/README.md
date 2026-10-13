@@ -1,7 +1,7 @@
 # material_ref — source interview-prep PDFs
 
-Read-only reference. The notes in [`../python-interview-prep/`](../python-interview-prep/) — both
-the folder crib sheets and the 21 [`deep_dive/`](../python-interview-prep/deep_dive/) documents —
+Read-only reference. The notes in [`../python-interview-prep/`](../../python/python-interview-prep/) — both
+the folder crib sheets and the 21 [`deep_dive/`](../../python/python-interview-prep/deep_dive/) documents —
 are distilled from these.
 
 ## What's actually in each file
@@ -44,25 +44,25 @@ not, and will hand you `3\WKRQ` instead of `Python`.
 
 | Source topic | Deep dive |
 |---|---|
-| T01 Data structures + `collections` | [01](../python-interview-prep/deep_dive/01_data_structures_collections.md) |
-| T02 Comprehensions | [02](../python-interview-prep/deep_dive/02_comprehensions_map_filter_reduce.md) |
-| T03 Decorators | [03](../python-interview-prep/deep_dive/03_decorators.md) |
-| T04 Generators, iterators, iterables | [04](../python-interview-prep/deep_dive/04_generators_iterators.md) |
-| T05 Context managers, descriptors, metaclasses | [05](../python-interview-prep/deep_dive/05_context_managers_descriptors_metaclasses.md) |
-| T06 OOP in depth | [06](../python-interview-prep/deep_dive/06_oop_inheritance_mro.md) |
-| T07 Concurrency | [07](../python-interview-prep/deep_dive/07_concurrency.md) |
-| T08 Error handling | [08](../python-interview-prep/deep_dive/08_error_handling.md) |
-| T09 Pandas | [09](../python-interview-prep/deep_dive/09_pandas.md) |
-| T10 Django / Flask / FastAPI | [10](../python-interview-prep/deep_dive/10_web_frameworks.md) |
-| T11 Kafka core | [13](../python-interview-prep/deep_dive/13_kafka_core.md) |
-| T12 Kafka pipelines & delivery semantics | [14](../python-interview-prep/deep_dive/14_kafka_pipelines_delivery_semantics.md) |
-| T13 Kafka failure handling | [15](../python-interview-prep/deep_dive/15_kafka_failure_handling.md) |
-| T14 Kafka schema management | [16](../python-interview-prep/deep_dive/16_kafka_schema_management.md) |
-| Section A — Framework development | [11](../python-interview-prep/deep_dive/11_python_framework_development.md) |
-| Section B — Scaling | [12](../python-interview-prep/deep_dive/12_scaling_applications.md) |
-| Section D — Caching | [17](../python-interview-prep/deep_dive/17_caching.md) |
-| Section E — Queue architectures | [18](../python-interview-prep/deep_dive/18_queue_architectures.md) |
-| Section F — Production stability | [19](../python-interview-prep/deep_dive/19_production_stability_monitoring.md) |
-| Section G — AI-first technologies | [20](../python-interview-prep/deep_dive/20_ai_first_technologies.md) |
-| Java/Scala → Python migration | [21](../python-interview-prep/deep_dive/21_java_to_python_bridge.md) |
-| Camel, Couchbase, Airflow, Terraform/Databricks | [QUESTION_INDEX.md Part 2](../python-interview-prep/QUESTION_INDEX.md) — concept-only |
+| T01 Data structures + `collections` | [01](../../python/python-interview-prep/deep_dive/01_data_structures_collections.md) |
+| T02 Comprehensions | [02](../../python/python-interview-prep/deep_dive/02_comprehensions_map_filter_reduce.md) |
+| T03 Decorators | [03](../../python/python-interview-prep/deep_dive/03_decorators.md) |
+| T04 Generators, iterators, iterables | [04](../../python/python-interview-prep/deep_dive/04_generators_iterators.md) |
+| T05 Context managers, descriptors, metaclasses | [05](../../python/python-interview-prep/deep_dive/05_context_managers_descriptors_metaclasses.md) |
+| T06 OOP in depth | [06](../../python/python-interview-prep/deep_dive/06_oop_inheritance_mro.md) |
+| T07 Concurrency | [07](../../python/python-interview-prep/deep_dive/07_concurrency.md) |
+| T08 Error handling | [08](../../python/python-interview-prep/deep_dive/08_error_handling.md) |
+| T09 Pandas | [09](../../python/python-interview-prep/deep_dive/09_pandas.md) |
+| T10 Django / Flask / FastAPI | [10](../../python/python-interview-prep/deep_dive/10_web_frameworks.md) |
+| T11 Kafka core | [13](../../python/python-interview-prep/deep_dive/13_kafka_core.md) |
+| T12 Kafka pipelines & delivery semantics | [14](../../python/python-interview-prep/deep_dive/14_kafka_pipelines_delivery_semantics.md) |
+| T13 Kafka failure handling | [15](../../python/python-interview-prep/deep_dive/15_kafka_failure_handling.md) |
+| T14 Kafka schema management | [16](../../python/python-interview-prep/deep_dive/16_kafka_schema_management.md) |
+| Section A — Framework development | [11](../../python/python-interview-prep/deep_dive/11_python_framework_development.md) |
+| Section B — Scaling | [12](../../python/python-interview-prep/deep_dive/12_scaling_applications.md) |
+| Section D — Caching | [17](../../python/python-interview-prep/deep_dive/17_caching.md) |
+| Section E — Queue architectures | [18](../../python/python-interview-prep/deep_dive/18_queue_architectures.md) |
+| Section F — Production stability | [19](../../python/python-interview-prep/deep_dive/19_production_stability_monitoring.md) |
+| Section G — AI-first technologies | [20](../../python/python-interview-prep/deep_dive/20_ai_first_technologies.md) |
+| Java/Scala → Python migration | [21](../../python/python-interview-prep/deep_dive/21_java_to_python_bridge.md) |
+| Camel, Couchbase, Airflow, Terraform/Databricks | [QUESTION_INDEX.md Part 2](../../python/python-interview-prep/QUESTION_INDEX.md) — concept-only |

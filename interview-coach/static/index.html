@@ -1,0 +1,674 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Interview Coach</title>
+<style>
+:root {
+  --bg: #f6f7f9; --panel: #ffffff; --panel-2: #f0f2f5; --text: #1b1f24; --muted: #5d6673; --line: #dde1e6;
+  --accent: #2f5bd3; --accent-soft: #e6edff; --good: #1f8a4c; --good-soft: #e3f4ea; --warn: #a15c00; --warn-soft: #fff1dc;
+  --bad: #b3261e; --code: #eef0f3; --shadow: 0 1px 2px rgba(0,0,0,.06), 0 2px 8px rgba(0,0,0,.04);
+  --lv-fresher: #1f8a4c; --lv-mid: #2f5bd3; --lv-senior: #8a3fd1; --lv-architect: #b3261e;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #111418; --panel: #191d23; --panel-2: #20252c; --text: #e6e9ee; --muted: #9aa4b2; --line: #2c333c;
+    --accent: #7d9cff; --accent-soft: #1f2a48; --good: #5cc98a; --good-soft: #17301f; --warn: #f0b35a; --warn-soft: #33270f;
+    --bad: #ff8a80; --code: #232931; --shadow: none;
+    --lv-fresher: #5cc98a; --lv-mid: #7d9cff; --lv-senior: #c39bff; --lv-architect: #ff8a80;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #111418; --panel: #191d23; --panel-2: #20252c; --text: #e6e9ee; --muted: #9aa4b2; --line: #2c333c;
+  --accent: #7d9cff; --accent-soft: #1f2a48; --good: #5cc98a; --good-soft: #17301f; --warn: #f0b35a; --warn-soft: #33270f;
+  --bad: #ff8a80; --code: #232931; --shadow: none;
+  --lv-fresher: #5cc98a; --lv-mid: #7d9cff; --lv-senior: #c39bff; --lv-architect: #ff8a80;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+body { background: var(--bg); color: var(--text); font: 15px/1.55 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+a { color: var(--accent); }
+button, input, select, textarea { font: inherit; color: inherit; }
+button { cursor: pointer; }
+code { background: var(--code); padding: 1px 5px; border-radius: 4px; font: 13px/1.4 ui-monospace, Consolas, monospace; }
+pre { background: var(--code); padding: 10px 12px; border-radius: 6px; overflow-x: auto; }
+pre code { background: none; padding: 0; }
+table { border-collapse: collapse; margin: 8px 0; display: block; overflow-x: auto; }
+th, td { border: 1px solid var(--line); padding: 5px 9px; text-align: left; vertical-align: top; }
+th { background: var(--panel-2); }
+blockquote { margin: 8px 0; padding: 4px 12px; border-left: 3px solid var(--line); color: var(--muted); }
+
+header { position: sticky; top: 0; z-index: 10; background: var(--panel); border-bottom: 1px solid var(--line); }
+.bar { display: flex; align-items: center; gap: 10px; padding: 8px 16px; flex-wrap: wrap; max-width: 1240px; margin: 0 auto; }
+.brand { font-weight: 700; font-size: 17px; margin-right: 6px; white-space: nowrap; }
+.seg { display: inline-flex; border: 1px solid var(--line); border-radius: 8px; overflow: hidden; }
+.seg button { border: 0; background: transparent; padding: 5px 12px; }
+.seg button.on { background: var(--accent); color: #fff; }
+nav.views { display: flex; gap: 2px; flex-wrap: wrap; }
+nav.views button { border: 0; background: transparent; padding: 6px 10px; border-radius: 6px; color: var(--muted); }
+nav.views button.on { background: var(--accent-soft); color: var(--accent); font-weight: 600; }
+.spacer { flex: 1; }
+.pill { font-size: 12px; padding: 3px 9px; border-radius: 99px; background: var(--panel-2); color: var(--muted); white-space: nowrap; }
+.pill.live { background: var(--good-soft); color: var(--good); }
+.icon-btn { border: 1px solid var(--line); background: var(--panel); border-radius: 6px; padding: 4px 9px; }
+
+main { max-width: 1240px; margin: 0 auto; padding: 18px 16px 60px; }
+h1 { font-size: 22px; margin: 0 0 4px; } h2 { font-size: 18px; margin: 18px 0 8px; } h3 { font-size: 16px; margin: 14px 0 6px; }
+.sub { color: var(--muted); margin: 0 0 14px; }
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 12px; }
+.card { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 14px; box-shadow: var(--shadow); }
+.topic-card { cursor: pointer; display: flex; flex-direction: column; gap: 6px; }
+.topic-card:hover { border-color: var(--accent); }
+.topic-card h3 { margin: 0; }
+.topic-card p { margin: 0; color: var(--muted); font-size: 13.5px; flex: 1; }
+.counts { display: flex; flex-wrap: wrap; gap: 4px; }
+.chip { font-size: 12px; padding: 2px 8px; border-radius: 99px; background: var(--panel-2); color: var(--muted); border: 1px solid transparent; }
+button.chip { border: 1px solid var(--line); background: var(--panel); }
+button.chip.on { background: var(--accent-soft); color: var(--accent); border-color: var(--accent); }
+.progress { height: 6px; background: var(--panel-2); border-radius: 99px; overflow: hidden; }
+.progress > i { display: block; height: 100%; background: var(--good); }
+.hero { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; margin-bottom: 18px; }
+.hero .card { cursor: pointer; }
+.hero .card b { display: block; margin-bottom: 2px; }
+.hero .card span { color: var(--muted); font-size: 13.5px; }
+
+.layout { display: grid; grid-template-columns: minmax(0, 1fr) 280px; gap: 18px; align-items: start; }
+@media (max-width: 900px) { .layout { grid-template-columns: minmax(0, 1fr); } }
+.layout > *, .grid > *, .q, .card { min-width: 0; }
+.q > .qh .t { min-width: 0; overflow-wrap: anywhere; }
+@media (max-width: 600px) { .q > .qh .kind { display: none; } nav.views button { padding: 6px 7px; } }
+.toolbar { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin: 10px 0 12px; }
+.toolbar input[type=search] { flex: 1; min-width: 180px; padding: 7px 10px; border: 1px solid var(--line); border-radius: 8px; background: var(--panel); }
+.toggles { display: flex; gap: 14px; flex-wrap: wrap; font-size: 13.5px; color: var(--muted); margin-bottom: 10px; }
+.toggles label { display: inline-flex; gap: 6px; align-items: center; cursor: pointer; }
+
+.q { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; margin-bottom: 8px; }
+.q > .qh { display: flex; gap: 10px; align-items: flex-start; padding: 10px 12px; cursor: pointer; }
+.q > .qh .t { flex: 1; font-weight: 550; }
+.q.mastered > .qh .t::after { content: "  \2713"; color: var(--good); }
+.lv { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .03em; padding: 2px 7px; border-radius: 4px; white-space: nowrap; border: 1px solid currentColor; }
+.lv.fresher { color: var(--lv-fresher); } .lv.mid { color: var(--lv-mid); } .lv.senior { color: var(--lv-senior); } .lv.architect { color: var(--lv-architect); }
+.kind { font-size: 11px; color: var(--muted); white-space: nowrap; padding-top: 2px; }
+.qb { padding: 0 14px 14px; border-top: 1px solid var(--line); }
+.sec { margin-top: 12px; }
+.sec > .lbl { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; color: var(--muted); margin-bottom: 2px; }
+.sec.spoken { background: var(--accent-soft); border-radius: 8px; padding: 8px 12px; }
+.sec.spoken > .lbl { color: var(--accent); }
+.sec.scenario { background: var(--warn-soft); border-radius: 8px; padding: 8px 12px; }
+.sec.scenario > .lbl { color: var(--warn); }
+.md p { margin: 6px 0; } .md ul, .md ol { margin: 6px 0; padding-left: 22px; } .md li { margin: 2px 0; }
+.actions { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 12px; }
+.btn { border: 1px solid var(--line); background: var(--panel); border-radius: 7px; padding: 6px 12px; }
+.btn:hover { border-color: var(--accent); }
+.btn.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+.btn.good { color: var(--good); border-color: var(--good); }
+.btn:disabled { opacity: .55; cursor: default; }
+textarea { width: 100%; min-height: 130px; padding: 10px; border: 1px solid var(--line); border-radius: 8px; background: var(--panel); resize: vertical; }
+select { padding: 6px 8px; border: 1px solid var(--line); border-radius: 7px; background: var(--panel); }
+.ai { margin-top: 12px; border: 1px solid var(--accent); border-radius: 10px; padding: 4px 14px 10px; background: var(--panel); }
+.ai .who { font-size: 12px; color: var(--accent); font-weight: 700; margin-top: 8px; }
+.ai.busy .who::after { content: " ..."; animation: blink 1s infinite; }
+@keyframes blink { 50% { opacity: .2; } }
+.side .card { margin-bottom: 12px; }
+.side h3 { margin: 0 0 8px; font-size: 14px; }
+.side ul { margin: 0; padding-left: 18px; font-size: 13.5px; }
+.side li { margin: 3px 0; overflow-wrap: anywhere; }
+.side code { font-size: 12px; }
+.empty { color: var(--muted); padding: 20px 0; }
+.more { text-align: center; margin: 12px 0; }
+.score-row { display: grid; grid-template-columns: 170px 1fr 34px; gap: 8px; align-items: center; font-size: 13.5px; margin: 4px 0; }
+.meter { height: 8px; background: var(--panel-2); border-radius: 99px; overflow: hidden; }
+.meter > i { display: block; height: 100%; background: var(--accent); }
+.form-row { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin: 8px 0; }
+.check-list { display: flex; flex-wrap: wrap; gap: 6px; }
+.banner { padding: 10px 14px; border-radius: 8px; margin: 10px 0; }
+.banner.ok { background: var(--good-soft); color: var(--good); }
+.banner.bad { background: var(--warn-soft); color: var(--warn); }
+.modal { position: fixed; inset: 0; background: rgba(0,0,0,.45); display: none; z-index: 50; padding: 30px 16px; overflow-y: auto; }
+.modal.open { display: block; }
+.modal .card { max-width: 900px; margin: 0 auto; }
+.modal .close { float: right; }
+@media (max-width: 600px) { .score-row { grid-template-columns: 110px 1fr 30px; } .brand { font-size: 15px; } }
+</style>
+</head>
+<body>
+<header>
+  <div class="bar">
+    <span class="brand">Interview Coach</span>
+    <span class="seg" id="stacks"></span>
+    <nav class="views" id="views">
+      <button data-view="home">Topics</button>
+      <button data-view="ask">Ask anything</button>
+      <button data-view="mock">Mock interview</button>
+      <button data-view="jd">Job description</button>
+      <button data-view="coverage">Coverage</button>
+    </nav>
+    <span class="spacer"></span>
+    <span class="pill" id="ai-pill">AI: ...</span>
+    <button class="icon-btn" id="theme" title="Toggle theme">&#9680;</button>
+  </div>
+</header>
+<main id="main"></main>
+<div class="modal" id="modal"><div class="card"><button class="btn close" id="modal-close">Close</button><div id="modal-body"></div></div></div>
+
+<script>
+"use strict";
+// ---------------------------------------------------------------- helpers
+const $ = (s, el = document) => el.querySelector(s);
+const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const store = {
+  get(k, d) { try { const v = localStorage.getItem('coach.' + k); return v === null ? d : JSON.parse(v); } catch (e) { return d; } },
+  set(k, v) { try { localStorage.setItem('coach.' + k, JSON.stringify(v)); } catch (e) { /* storage unavailable */ } }
+};
+async function api(path, opts) {
+  const r = await fetch(path, opts);
+  const ct = r.headers.get('content-type') || '';
+  const body = ct.includes('json') ? await r.json() : await r.text();
+  if (!r.ok) throw new Error((body && body.detail) || r.statusText);
+  return body;
+}
+const LEVELS = ['fresher', 'mid', 'senior', 'architect'];
+const LEVEL_HINT = { fresher: '0-2 yrs', mid: '3-6 yrs', senior: '6-10 yrs', architect: '10+ yrs' };
+const KIND_LABEL = { scenario: 'Scenario', crib: 'Crib sheet', deepdive: 'Deep dive', guide: 'Guide', index: 'Index' };
+const DIMS = [['scenario', 'Scenario & context'], ['depth', 'Technical depth'], ['tradeoffs', 'Trade-offs'],
+              ['monitoring', 'Monitoring & ops'], ['clarity', 'Clarity & structure']];
+
+// ---------------------------------------------------------------- markdown (offline subset)
+function inline(s) {
+  const codes = [];
+  s = s.replace(/`([^`]+)`/g, (_, c) => { codes.push(c); return '\u0000' + (codes.length - 1) + '\u0000'; });
+  s = esc(s);
+  s = s.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
+       .replace(/(^|[^*])\*([^*\s][^*]*)\*/g, '$1<em>$2</em>')
+       .replace(/\[([^\]]+)\]\(([^)\s]+)\)/g, (_, text, href) => {
+         href = href.replace(/&amp;/g, '&');
+         if (/^https?:\/\//.test(href)) return '<a href="' + esc(href) + '" target="_blank" rel="noopener">' + text + '</a>';
+         if (/\.md(#.*)?$/.test(href)) return '<a href="#" data-doc-rel="' + esc(href.split('#')[0]) + '">' + text + '</a>';
+         return text;
+       });
+  return s.replace(/\u0000(\d+)\u0000/g, (_, i) => '<code>' + esc(codes[+i]) + '</code>');
+}
+function md(text) {
+  const lines = String(text || '').replace(/\r\n/g, '\n').split('\n');
+  const out = []; let i = 0;
+  const isSep = l => /^\s*\|?\s*:?-{2,}:?\s*(\|\s*:?-{2,}:?\s*)*\|?\s*$/.test(l);
+  const cells = l => l.trim().replace(/^\|/, '').replace(/\|$/, '').split(/(?<!\\)\|/).map(c => c.trim());
+  const listRe = /^\s*([-*+]|\d+[.)])\s+/;
+  while (i < lines.length) {
+    const l = lines[i]; let m;
+    if (/^\s*```/.test(l)) {
+      const buf = []; i++;
+      while (i < lines.length && !/^\s*```/.test(lines[i])) buf.push(lines[i++]);
+      i++; out.push('<pre><code>' + esc(buf.join('\n')) + '</code></pre>');
+    } else if ((m = /^(#{1,6})\s+(.*)$/.exec(l))) {
+      const n = Math.min(6, m[1].length + 1); out.push('<h' + n + '>' + inline(m[2]) + '</h' + n + '>'); i++;
+    } else if (/^\s*(-{3,}|\*{3,})\s*$/.test(l)) { out.push('<hr>'); i++; }
+    else if (/^\s*>/.test(l)) {
+      const buf = [];
+      while (i < lines.length && /^\s*>/.test(lines[i])) buf.push(lines[i++].replace(/^\s*>\s?/, ''));
+      out.push('<blockquote>' + md(buf.join('\n')) + '</blockquote>');
+    } else if (l.includes('|') && i + 1 < lines.length && isSep(lines[i + 1])) {
+      let h = '<table><thead><tr>' + cells(l).map(c => '<th>' + inline(c) + '</th>').join('') + '</tr></thead><tbody>'; i += 2;
+      while (i < lines.length && lines[i].includes('|') && lines[i].trim()) h += '<tr>' + cells(lines[i++]).map(c => '<td>' + inline(c) + '</td>').join('') + '</tr>';
+      out.push(h + '</tbody></table>');
+    } else if (listRe.test(l)) {
+      const stack = []; let html = '';
+      while (i < lines.length && (listRe.test(lines[i]) || (/^\s+\S/.test(lines[i]) && stack.length))) {
+        const lm = /^(\s*)([-*+]|\d+[.)])\s+(.*)$/.exec(lines[i]);
+        if (!lm) { html += ' ' + inline(lines[i].trim()); i++; continue; }
+        const depth = Math.floor(lm[1].length / 2), tag = /\d/.test(lm[2]) ? 'ol' : 'ul';
+        while (stack.length && stack[stack.length - 1].d > depth) html += '</li></' + stack.pop().t + '>';
+        if (stack.length && stack[stack.length - 1].d === depth) html += '</li>';
+        else { html += '<' + tag + '>'; stack.push({ d: depth, t: tag }); }
+        html += '<li>' + inline(lm[3]); i++;
+      }
+      while (stack.length) html += '</li></' + stack.pop().t + '>';
+      out.push(html);
+    } else if (!l.trim()) { i++; }
+    else {
+      const buf = [l]; i++;
+      while (i < lines.length && lines[i].trim() && !/^(#{1,6}\s|\s*```|\s*>)/.test(lines[i]) && !listRe.test(lines[i])
+             && !(lines[i].includes('|') && i + 1 < lines.length && isSep(lines[i + 1]))) buf.push(lines[i++]);
+      out.push('<p>' + inline(buf.join(' ')) + '</p>');
+    }
+  }
+  return out.join('\n');
+}
+
+// ---------------------------------------------------------------- state
+const S = {
+  stacks: [], stack: store.get('stack', 'java'), view: 'home', topic: null, status: null,
+  mastered: new Set(store.get('mastered', [])),
+  filters: store.get('filters', { level: '', kinds: [], q: '', practice: false, quick: false }),
+  shown: 40,
+};
+const topicCache = {};
+function saveMastered() { store.set('mastered', [...S.mastered]); }
+function curStack() { return S.stacks.find(s => s.id === S.stack) || S.stacks[0]; }
+
+// ---------------------------------------------------------------- routing (hash: #/java/topic/kafka)
+function go(view, topic) {
+  const h = '#/' + S.stack + '/' + view + (topic ? '/' + topic : '');
+  if (location.hash !== h) location.hash = h; else route();
+}
+function route() {
+  const [, stack, view, topic] = (location.hash || '').split('/');
+  if (stack && S.stacks.some(s => s.id === stack)) { S.stack = stack; store.set('stack', stack); }
+  S.view = view || 'home'; S.topic = topic || null;
+  document.querySelectorAll('#views button').forEach(b => b.classList.toggle('on', b.dataset.view === (S.view === 'topic' ? 'home' : S.view)));
+  document.querySelectorAll('#stacks button').forEach(b => b.classList.toggle('on', b.dataset.stack === S.stack));
+  window.scrollTo(0, 0);
+  render();
+}
+window.addEventListener('hashchange', route);
+document.querySelectorAll('#views button').forEach(b => b.onclick = () => go(b.dataset.view));
+$('#theme').onclick = () => {
+  const cur = document.documentElement.dataset.theme;
+  const dark = cur ? cur === 'dark' : matchMedia('(prefers-color-scheme: dark)').matches;
+  document.documentElement.dataset.theme = dark ? 'light' : 'dark';
+  store.set('theme', document.documentElement.dataset.theme);
+};
+{ const t = store.get('theme', null); if (t) document.documentElement.dataset.theme = t; }
+
+function render() {
+  const main = $('#main');
+  const v = S.view;
+  if (v === 'topic' && S.topic) return renderTopic(main, S.topic);
+  if (v === 'ask') return renderAsk(main);
+  if (v === 'mock') return renderMock(main);
+  if (v === 'jd') return renderJD(main);
+  if (v === 'coverage') return renderCoverage(main);
+  if (v === 'q' && S.topic) { renderHome(main); openQuestion(S.topic).catch(() => {}); return; }   // deep link to one question
+  return renderHome(main);
+}
+
+// ---------------------------------------------------------------- AI streaming
+async function streamAI(payload, box, onDone) {
+  box.classList.add('busy');
+  const who = '<div class="who">' + (S.status && S.status.ai.provider === 'claude' ? 'AI coach (' + esc(S.status.ai.model) + ')' : 'Coach (offline mock)') + '</div>';
+  box.innerHTML = who + '<div class="md"></div>';
+  const out = $('.md', box);
+  let text = '', pending = false;
+  const paint = () => { pending = false; out.innerHTML = md(text.replace(/\nSCORES:.*$/m, '')); };
+  let resp;
+  try {
+    resp = await fetch('/api/ai', { method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(Object.assign({ stack: S.stack }, payload)) });
+    if (!resp.ok) { const e = await resp.json().catch(() => ({})); throw new Error(e.detail || resp.statusText); }
+    const reader = resp.body.getReader(), dec = new TextDecoder();
+    for (;;) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      text += dec.decode(value, { stream: true });
+      if (!pending) { pending = true; requestAnimationFrame(paint); }
+    }
+    text += dec.decode();
+  } catch (e) { text += '\n\n> Error: ' + e.message; }
+  box.classList.remove('busy');
+  paint();
+  if (onDone) onDone(text, resp);
+}
+function parseScores(text) {
+  const m = /SCORES:\s*(.*)$/m.exec(text || '');
+  if (!m) return null;
+  const s = {};
+  m[1].replace(/(\w+)=(\d)/g, (_, k, v) => { s[k] = +v; });
+  return Object.keys(s).length ? s : null;
+}
+
+// ---------------------------------------------------------------- question card
+function sectionsHtml(q, quick) {
+  if (!q.sections || !q.sections.length) return '<div class="md">' + md(q.body) + '</div>';
+  const secs = quick ? q.sections.filter(s => s.key === 'spoken') : q.sections;
+  return secs.map(s => '<div class="sec ' + esc(s.key) + '"><div class="lbl">' + esc(s.label) + '</div><div class="md">' + md(s.md) + '</div></div>').join('');
+}
+function qCard(q, opts = {}) {
+  const el = document.createElement('div');
+  el.className = 'q' + (S.mastered.has(q.id) ? ' mastered' : '');
+  el.innerHTML = '<div class="qh"><span class="lv ' + q.level + '">' + q.level + '</span><span class="t">' + inline(q.title) +
+    '</span><span class="kind">' + (KIND_LABEL[q.kind] || q.kind) + '</span></div>';
+  let body = null;
+  const open = () => {
+    if (body) { body.remove(); body = null; return; }
+    body = document.createElement('div'); body.className = 'qb';
+    const practice = opts.practice ?? S.filters.practice, quick = opts.quick ?? S.filters.quick;
+    body.innerHTML = practice
+      ? '<p class="sub" style="margin-top:12px">Answer out loud or type it first, then get feedback or reveal the model answer.</p><textarea placeholder="Your answer..."></textarea>' +
+        '<div class="actions"><button class="btn primary" data-a="grade">Get feedback</button><button class="btn" data-a="improve">Rewrite my answer</button><button class="btn" data-a="reveal">Reveal model answer</button></div><div class="ans"></div>'
+      : '<div class="ans">' + sectionsHtml(q, quick) + '</div>' +
+        '<div class="actions"><button class="btn good" data-a="master">' + (S.mastered.has(q.id) ? 'Unmark' : 'I can answer this') + '</button>' +
+        '<button class="btn" data-a="deeper">Go deeper (AI)</button><button class="btn" data-a="practice">Practice this</button>' +
+        (quick && q.sections && q.sections.length ? '<button class="btn" data-a="full">Full answer</button>' : '') + '</div>';
+    const aiBox = document.createElement('div'); aiBox.className = 'ai'; aiBox.style.display = 'none';
+    body.appendChild(aiBox);
+    body.onclick = ev => {
+      const a = ev.target.dataset && ev.target.dataset.a; if (!a) return;
+      const show = () => { aiBox.style.display = ''; return aiBox; };
+      if (a === 'master') {
+        S.mastered.has(q.id) ? S.mastered.delete(q.id) : S.mastered.add(q.id); saveMastered();
+        el.classList.toggle('mastered', S.mastered.has(q.id)); ev.target.textContent = S.mastered.has(q.id) ? 'Unmark' : 'I can answer this';
+      } else if (a === 'deeper') streamAI({ mode: 'explain', question_id: q.id }, show());
+      else if (a === 'practice') { body.remove(); body = null; openWith({ practice: true }); }
+      else if (a === 'full') { $('.ans', body).innerHTML = sectionsHtml(q, false); ev.target.remove(); }
+      else if (a === 'reveal') { $('.ans', body).innerHTML = sectionsHtml(q, false); }
+      else if (a === 'grade' || a === 'improve') {
+        const answer = $('textarea', body).value.trim();
+        if (!answer) { $('textarea', body).focus(); return; }
+        streamAI({ mode: a === 'grade' ? 'interview' : 'improve', question_id: q.id, answer, level: q.level }, show(), t => {
+          const sc = parseScores(t); if (sc) recordScore(q, sc);
+        });
+      }
+    };
+    el.appendChild(body);
+  };
+  const openWith = o => { const saved = opts; opts = Object.assign({}, opts, o); open(); opts = saved; };
+  $('.qh', el).onclick = open;
+  if (opts.expanded) open();
+  return el;
+}
+function recordScore(q, scores) {
+  const hist = store.get('scores', []);
+  hist.push({ id: q.id, topic: q.topic, stack: q.stack, at: Date.now(), scores });
+  store.set('scores', hist.slice(-500));
+}
+async function openQuestion(id) {
+  const q = await api('/api/question/' + encodeURIComponent(id));
+  const body = $('#modal-body'); body.innerHTML = '';
+  body.appendChild(qCard(q, { expanded: true, practice: false, quick: false }));
+  $('#modal').classList.add('open');
+}
+async function openDoc(path) {
+  const text = await api('/api/doc?path=' + encodeURIComponent(path));
+  const body = $('#modal-body');
+  body.innerHTML = '<p class="sub">' + esc(path) + '</p><div class="md doc">' + md(text) + '</div>';
+  body.dataset.path = path;
+  $('#modal').classList.add('open');
+  $('#modal').scrollTop = 0;
+}
+$('#modal-close').onclick = () => $('#modal').classList.remove('open');
+$('#modal').onclick = e => { if (e.target.id === 'modal') $('#modal').classList.remove('open'); };
+document.addEventListener('keydown', e => { if (e.key === 'Escape') $('#modal').classList.remove('open'); });
+document.addEventListener('click', e => {
+  const a = e.target.closest('a[data-doc-rel]');
+  if (!a) return;
+  e.preventDefault();
+  const base = ($('#modal-body').dataset.path || '').split('/').slice(0, -1);
+  for (const part of a.dataset.docRel.split('/')) { if (part === '..') base.pop(); else if (part && part !== '.') base.push(part); }
+  openDoc(base.join('/')).catch(err => alert('That document is not part of the library: ' + err.message));
+});
+
+// ---------------------------------------------------------------- views
+function progressOf(topicId) {
+  const t = topicCache[S.stack + '/' + topicId];
+  if (!t) return null;
+  const done = t.questions.filter(q => S.mastered.has(q.id)).length;
+  return { done, total: t.questions.length };
+}
+function renderHome(main) {
+  const st = curStack();
+  main.innerHTML = '<h1>' + esc(st.title) + ' interview preparation</h1><p class="sub">' + esc(st.tagline) + ' &middot; ' + st.total +
+    ' questions from every source in the repo, organised by topic. Scenario answers come first.</p>' +
+    '<div class="hero">' +
+      '<div class="card" data-go="ask"><b>Ask anything</b><span>Type a real interview question and get a scenario-based answer grounded on your bank.</span></div>' +
+      '<div class="card" data-go="mock"><b>Mock interview</b><span>Answer questions under interview conditions and get a five-dimension scorecard.</span></div>' +
+      '<div class="card" data-go="jd"><b>Paste a job description</b><span>Get a study plan and the questions that role is likely to ask.</span></div>' +
+    '</div><h2>Topics</h2><div class="grid" id="topics"></div>';
+  main.querySelectorAll('[data-go]').forEach(c => c.onclick = () => go(c.dataset.go));
+  const grid = $('#topics');
+  for (const t of st.topics) {
+    if (!t.total) continue;
+    const c = document.createElement('div'); c.className = 'card topic-card';
+    const k = t.kinds;
+    const p = progressOf(t.id);
+    c.innerHTML = '<h3>' + esc(t.title) + '</h3><p>' + esc(t.summary) + '</p><div class="counts">' +
+      Object.keys(KIND_LABEL).filter(x => k[x]).map(x => '<span class="chip">' + k[x] + ' ' + KIND_LABEL[x].toLowerCase() + '</span>').join('') +
+      '</div>' + (p ? '<div class="progress" title="' + p.done + ' of ' + p.total + ' marked confident"><i style="width:' + (100 * p.done / Math.max(1, p.total)) + '%"></i></div>' : '');
+    c.onclick = () => go('topic', t.id);
+    grid.appendChild(c);
+  }
+  // load the topics once in the background so the cards can show progress bars
+  const stackId = S.stack;
+  const missing = st.topics.filter(t => t.total && !topicCache[stackId + '/' + t.id]);
+  if (missing.length) Promise.all(missing.map(t => loadTopic(t.id).catch(() => null)))
+    .then(() => { if (S.view === 'home' && S.stack === stackId) renderHome(main); });
+}
+
+async function loadTopic(id) {
+  const key = S.stack + '/' + id;
+  if (!topicCache[key]) topicCache[key] = await api('/api/topics/' + S.stack + '/' + id);
+  return topicCache[key];
+}
+async function renderTopic(main, id) {
+  main.innerHTML = '<p class="empty">Loading...</p>';
+  let t;
+  try { t = await loadTopic(id); } catch (e) { main.innerHTML = '<p class="empty">Unknown topic.</p>'; return; }
+  const f = S.filters;
+  const kindsPresent = Object.keys(KIND_LABEL).filter(k => t.questions.some(q => q.kind === k));
+  main.innerHTML =
+    '<p class="sub"><a href="#/' + S.stack + '/home">' + esc(curStack().title) + '</a> / topic</p>' +
+    '<h1>' + esc(t.title) + '</h1><p class="sub">' + esc(t.summary) + '</p>' +
+    '<div class="layout"><div>' +
+      '<div class="toolbar"><input type="search" id="tq" placeholder="Search this topic (e.g. rebalancing, timeout, idempotent)" value="' + esc(f.q) + '"></div>' +
+      '<div class="toolbar" id="lv"></div><div class="toolbar" id="kd"></div>' +
+      '<div class="toggles"><label><input type="checkbox" id="tp"' + (f.practice ? ' checked' : '') + '> Practice mode (answer first)</label>' +
+      '<label><input type="checkbox" id="tk"' + (f.quick ? ' checked' : '') + '> Quick revision (60-second answers)</label></div>' +
+      '<div id="ql"></div></div>' +
+    '<aside class="side"><div class="card"><h3>Your progress</h3><div id="prog"></div></div>' +
+      '<div class="card"><h3>Coach tools</h3><div class="actions" style="margin-top:0">' +
+        '<button class="btn" id="t-ask">Ask about ' + esc(t.title) + '</button><button class="btn" id="t-mock">Mock round on this topic</button>' +
+        '<button class="btn" id="t-gen">Draft a new scenario question</button></div><div id="gen"></div></div>' +
+      (t.docs.length ? '<div class="card"><h3>Reading list</h3><ul>' + t.docs.map(d => '<li><a href="#" data-doc="' + esc(d.path) + '">' + esc(d.title) + '</a></li>').join('') + '</ul></div>' : '') +
+      (t.examples.files.length ? '<div class="card"><h3>Runnable examples</h3><p class="sub" style="margin:0 0 6px;font-size:13px">' + esc(t.examples.folder) + '</p><ul>' + t.examples.files.map(x => '<li><code>' + esc(x) + '</code></li>').join('') + '</ul></div>' : '') +
+    '</aside></div>';
+  const lv = $('#lv');
+  lv.innerHTML = '<button class="chip' + (!f.level ? ' on' : '') + '" data-l="">All levels</button>' +
+    LEVELS.map(l => '<button class="chip' + (f.level === l ? ' on' : '') + '" data-l="' + l + '">' + l + ' <span style="opacity:.7">' + LEVEL_HINT[l] + '</span></button>').join('');
+  lv.onclick = e => { const b = e.target.closest('[data-l]'); if (!b) return; f.level = b.dataset.l; persist(); renderTopic(main, id); };
+  const kd = $('#kd');
+  kd.innerHTML = kindsPresent.map(k => '<button class="chip' + (f.kinds.includes(k) ? ' on' : '') + '" data-k="' + k + '">' + KIND_LABEL[k] + ' (' + t.questions.filter(q => q.kind === k).length + ')</button>').join('');
+  kd.onclick = e => { const b = e.target.closest('[data-k]'); if (!b) return; const k = b.dataset.k;
+    f.kinds = f.kinds.includes(k) ? f.kinds.filter(x => x !== k) : f.kinds.concat(k); persist(); renderTopic(main, id); };
+  $('#tq').oninput = e => { f.q = e.target.value; persist(); S.shown = 40; list(); };
+  $('#tp').onchange = e => { f.practice = e.target.checked; persist(); list(); };
+  $('#tk').onchange = e => { f.quick = e.target.checked; persist(); list(); };
+  main.querySelectorAll('[data-doc]').forEach(a => a.onclick = ev => { ev.preventDefault(); openDoc(a.dataset.doc); });
+  $('#t-ask').onclick = () => { store.set('askTopic', id); go('ask'); };
+  $('#t-mock').onclick = () => { store.set('mockTopics', [id]); go('mock'); };
+  $('#t-gen').onclick = () => renderGenerate($('#gen'), t);
+  const prog = () => {
+    const done = t.questions.filter(q => S.mastered.has(q.id)).length;
+    $('#prog').innerHTML = '<div class="progress"><i style="width:' + (100 * done / Math.max(1, t.questions.length)) + '%"></i></div>' +
+      '<p class="sub" style="margin:6px 0 0;font-size:13px">' + done + ' of ' + t.questions.length + ' marked "I can answer this".</p>';
+  };
+  function list() {
+    const words = f.q.toLowerCase().split(/\s+/).filter(Boolean);
+    const qs = t.questions.filter(q => (!f.level || q.level === f.level) && (!f.kinds.length || f.kinds.includes(q.kind)) &&
+      words.every(w => (q.title + ' ' + q.tags.join(' ') + ' ' + q.body).toLowerCase().includes(w)));
+    const ql = $('#ql'); ql.innerHTML = '';
+    if (!qs.length) { ql.innerHTML = '<p class="empty">No questions match these filters.</p>'; return; }
+    qs.slice(0, S.shown).forEach(q => ql.appendChild(qCard(q)));
+    if (qs.length > S.shown) {
+      const more = document.createElement('div'); more.className = 'more';
+      more.innerHTML = '<button class="btn">Show more (' + (qs.length - S.shown) + ' left)</button>';
+      more.onclick = () => { S.shown += 60; list(); };
+      ql.appendChild(more);
+    }
+    ql.onclick = prog;
+  }
+  function persist() { store.set('filters', f); }
+  S.shown = 40; list(); prog();
+}
+
+function renderGenerate(box, t) {
+  box.innerHTML = '<div style="margin-top:10px"><select id="g-level">' + LEVELS.map(l => '<option' + (l === 'senior' ? ' selected' : '') + '>' + l + '</option>').join('') +
+    '</select><textarea id="g-hint" style="min-height:70px;margin-top:6px" placeholder="Optional focus, e.g. Kafka consumer lag after a deploy"></textarea>' +
+    '<div class="actions"><button class="btn primary" id="g-go">Draft question</button></div><div class="ai" id="g-out" style="display:none"></div><div id="g-save"></div></div>';
+  $('#g-go').onclick = () => {
+    const out = $('#g-out'); out.style.display = '';
+    streamAI({ mode: 'generate', topic: t.id, level: $('#g-level').value, text: $('#g-hint').value }, out, text => {
+      const save = $('#g-save');
+      if (!S.status.allow_save || S.status.ai.provider !== 'claude' || !/^###\s+Q\d+\s*\[/m.test(text)) return;
+      save.innerHTML = '<div class="actions"><button class="btn good" id="g-keep">Save to the ' + esc(t.title) + ' bank</button></div>';
+      $('#g-keep').onclick = async () => {
+        try {
+          const r = await api('/api/questions/save', { method: 'POST', headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ stack: S.stack, topic: t.id, markdown: text.replace(/\n>[^\n]*$/g, '') }) });
+          save.innerHTML = '<div class="banner ok">Saved to ' + esc(r.saved_to) + ' (tagged ai-draft; review it there).</div>';
+          delete topicCache[S.stack + '/' + t.id];
+          await loadStacks();
+        } catch (e) { save.innerHTML = '<div class="banner bad">' + esc(e.message) + '</div>'; }
+      };
+    });
+  };
+}
+
+function topicOptions(sel) {
+  return '<option value="">All topics</option>' + curStack().topics.filter(t => t.total).map(t => '<option value="' + t.id + '"' + (t.id === sel ? ' selected' : '') + '>' + esc(t.title) + '</option>').join('');
+}
+function renderAsk(main) {
+  const topic = store.get('askTopic', '');
+  main.innerHTML = '<h1>Ask anything</h1><p class="sub">Type the question exactly as an interviewer would ask it. The coach answers scenario-first, grounded on the closest questions in your ' + esc(curStack().title) + ' bank.</p>' +
+    '<div class="card"><div class="form-row"><select id="a-topic">' + topicOptions(topic) + '</select><select id="a-level">' +
+    LEVELS.map(l => '<option' + (l === 'senior' ? ' selected' : '') + '>' + l + '</option>').join('') + '</select></div>' +
+    '<textarea id="a-q" placeholder="e.g. How can we do rebalancing in Kafka?  /  How do we handle third-party REST APIs and still give a proper response?">' + esc(store.get('askDraft', '')) + '</textarea>' +
+    '<div class="actions"><button class="btn primary" id="a-go">Ask the coach</button></div></div>' +
+    '<div class="ai" id="a-out" style="display:none"></div><div id="a-refs"></div>';
+  $('#a-q').oninput = e => store.set('askDraft', e.target.value);
+  $('#a-topic').onchange = e => store.set('askTopic', e.target.value);
+  const ask = () => {
+    const text = $('#a-q').value.trim(); if (!text) return;
+    const out = $('#a-out'); out.style.display = ''; $('#a-refs').innerHTML = '';
+    streamAI({ mode: 'ask', topic: $('#a-topic').value, level: $('#a-level').value, text }, out, (t, resp) => {
+      const refs = resp && resp.headers.get('X-AI-Refs');
+      if (!refs) return;
+      $('#a-refs').innerHTML = '<div class="card" style="margin-top:12px"><h3 style="margin-top:0">Grounded on these questions from your bank</h3><ul>' +
+        JSON.parse(refs).map(r => '<li><a href="#" data-q="' + esc(r.id) + '">' + esc(r.title) + '</a> <span class="kind">' + (KIND_LABEL[r.kind] || r.kind) + '</span></li>').join('') + '</ul></div>';
+      $('#a-refs').querySelectorAll('[data-q]').forEach(a => a.onclick = e => { e.preventDefault(); openQuestion(a.dataset.q); });
+    });
+  };
+  $('#a-go').onclick = ask;
+  $('#a-q').onkeydown = e => { if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) ask(); };
+}
+
+function renderMock(main) {
+  const chosen = new Set(store.get('mockTopics', []));
+  main.innerHTML = '<h1>Mock interview</h1><p class="sub">Questions come from your bank (scenario questions first). Answer as you would in the room; the coach scores five dimensions and asks a follow-up.</p>' +
+    '<div class="card" id="m-setup"><h3 style="margin-top:0">Topics</h3><div class="check-list" id="m-topics">' +
+    curStack().topics.filter(t => t.total).map(t => '<button class="chip' + (chosen.has(t.id) ? ' on' : '') + '" data-t="' + t.id + '">' + esc(t.title) + '</button>').join('') +
+    '</div><div class="form-row"><label>Level <select id="m-level"><option value="">any</option>' + LEVELS.map(l => '<option>' + l + '</option>').join('') + '</select></label>' +
+    '<label>Questions <select id="m-n"><option>3</option><option selected>5</option><option>8</option><option>10</option></select></label></div>' +
+    '<div class="actions"><button class="btn primary" id="m-go">Start the round</button></div></div><div id="m-run"></div><div id="m-history"></div>';
+  $('#m-topics').onclick = e => { const b = e.target.closest('[data-t]'); if (!b) return;
+    chosen.has(b.dataset.t) ? chosen.delete(b.dataset.t) : chosen.add(b.dataset.t); b.classList.toggle('on'); store.set('mockTopics', [...chosen]); };
+  $('#m-go').onclick = async () => {
+    const qs = await api('/api/round/' + S.stack + '?n=' + $('#m-n').value + '&level=' + $('#m-level').value + '&topics=' + [...chosen].join(','));
+    if (!qs.length) { $('#m-run').innerHTML = '<p class="empty">No questions for that selection.</p>'; return; }
+    runRound(qs);
+  };
+  renderHistory();
+}
+async function runRound(list) {
+  const run = $('#m-run'), results = [];
+  $('#m-setup').style.display = 'none';
+  for (let i = 0; i < list.length; i++) {
+    const q = await api('/api/question/' + list[i].id);
+    const sc = await new Promise(resolve => {
+      run.innerHTML = '<div class="card"><p class="sub">Question ' + (i + 1) + ' of ' + list.length + ' &middot; <span class="lv ' + q.level + '">' + q.level + '</span></p>' +
+        '<h2 style="margin-top:0">' + inline(q.title) + '</h2><textarea id="m-ans" placeholder="Your answer. Start with a real situation, then your decisions, trade-offs and how you would monitor it."></textarea>' +
+        '<div class="actions"><button class="btn primary" id="m-sub">Submit answer</button><button class="btn" id="m-skip">Skip</button></div><div class="ai" id="m-out" style="display:none"></div><div id="m-next"></div></div>';
+      $('#m-ans').focus();
+      $('#m-skip').onclick = () => resolve(null);
+      $('#m-sub').onclick = () => {
+        const answer = $('#m-ans').value.trim(); if (!answer) return;
+        $('#m-sub').disabled = true; $('#m-skip').disabled = true;
+        const out = $('#m-out'); out.style.display = '';
+        streamAI({ mode: 'interview', question_id: q.id, answer, level: q.level }, out, t => {
+          const s = parseScores(t); if (s) recordScore(q, s);
+          $('#m-next').innerHTML = '<div class="actions"><button class="btn" id="m-model">Show model answer</button><button class="btn primary" id="m-nx">' + (i + 1 < list.length ? 'Next question' : 'Finish') + '</button></div><div id="m-model-box"></div>';
+          $('#m-model').onclick = () => { $('#m-model-box').innerHTML = sectionsHtml(q, false); };
+          $('#m-nx').onclick = () => resolve(s);
+        });
+      };
+    });
+    results.push({ q, sc });
+  }
+  const scored = results.filter(r => r.sc);
+  const avg = {};
+  DIMS.forEach(([k]) => { avg[k] = scored.length ? scored.reduce((a, r) => a + (r.sc[k] || 0), 0) / scored.length : 0; });
+  const weakest = DIMS.slice().sort((a, b) => avg[a[0]] - avg[b[0]])[0];
+  run.innerHTML = '<div class="card"><h2 style="margin-top:0">Round summary</h2>' +
+    (scored.length ? DIMS.map(([k, label]) => '<div class="score-row"><span>' + label + '</span><div class="meter"><i style="width:' + (avg[k] * 20) + '%"></i></div><b>' + avg[k].toFixed(1) + '</b></div>').join('') +
+      '<p>Focus next on <b>' + weakest[1] + '</b>. ' + ({ scenario: 'Open every answer with a concrete production situation and numbers.', depth: 'Name the mechanism and the real config or API behind your answer.', tradeoffs: 'Say what can go wrong and what you gave up.', monitoring: 'End with the metric, log search or alert that proves it works.', clarity: 'Use a numbered structure and finish with a 60-second summary.' })[weakest[0]] + '</p>'
+      : '<p class="empty">No answers were scored.</p>') +
+    '<ul>' + results.map(r => '<li>' + esc(r.q.title) + (r.sc ? ' &mdash; ' + DIMS.map(([k]) => r.sc[k]).join('/') : ' &mdash; skipped') + '</li>').join('') + '</ul>' +
+    '<div class="actions"><button class="btn primary" id="m-again">New round</button></div></div>';
+  $('#m-again').onclick = () => render();
+  renderHistory();
+}
+function renderHistory() {
+  const box = $('#m-history'); if (!box) return;
+  const hist = store.get('scores', []).filter(h => h.stack === S.stack);
+  if (!hist.length) { box.innerHTML = ''; return; }
+  const byTopic = {};
+  hist.forEach(h => { (byTopic[h.topic] = byTopic[h.topic] || []).push(h); });
+  box.innerHTML = '<h2>Your scores so far</h2><div class="card">' + Object.entries(byTopic).map(([t, hs]) => {
+    const total = hs.reduce((a, h) => a + DIMS.reduce((b, [k]) => b + (h.scores[k] || 0), 0) / DIMS.length, 0) / hs.length;
+    const title = (curStack().topics.find(x => x.id === t) || { title: t }).title;
+    return '<div class="score-row"><span>' + esc(title) + '</span><div class="meter"><i style="width:' + total * 20 + '%"></i></div><b>' + total.toFixed(1) + '</b></div>';
+  }).join('') + '<p class="sub" style="margin:8px 0 0;font-size:13px">' + hist.length + ' scored answers (average of the five dimensions, 1-5).</p></div>';
+}
+
+function renderJD(main) {
+  main.innerHTML = '<h1>Plan from a job description</h1><p class="sub">Paste the requirement (skills, summary, responsibilities). The coach maps it onto your topics, builds a study plan and predicts the questions.</p>' +
+    '<div class="card"><textarea id="j-text" style="min-height:180px" placeholder="Primary skill: Java/J2EE ... Apache Kafka - topics, partitions, consumer groups, offsets, rebalancing, lag ...">' + esc(store.get('jd', '')) + '</textarea>' +
+    '<div class="actions"><button class="btn primary" id="j-go">Build my plan</button></div></div><div id="j-topics"></div><div class="ai" id="j-out" style="display:none"></div>';
+  $('#j-text').oninput = e => store.set('jd', e.target.value);
+  $('#j-go').onclick = () => {
+    const text = $('#j-text').value.trim(); if (!text) return;
+    const out = $('#j-out'); out.style.display = '';
+    streamAI({ mode: 'jd', text }, out, (t, resp) => {
+      const tops = resp && resp.headers.get('X-AI-Topics');
+      if (!tops) return;
+      $('#j-topics').innerHTML = '<div class="card" style="margin-top:12px"><h3 style="margin-top:0">Matching topics, strongest first</h3><div class="check-list">' +
+        JSON.parse(tops).map(x => '<a class="chip" href="#/' + S.stack + '/topic/' + x.id + '">' + esc(x.title) + ' (' + x.hits + ')</a>').join('') + '</div></div>';
+    });
+  };
+}
+
+async function renderCoverage(main) {
+  main.innerHTML = '<p class="empty">Checking every question source...</p>';
+  const cov = await api('/api/coverage');
+  main.innerHTML = '<h1>Coverage</h1><p class="sub">Every Markdown file in the content repos that contains questions, and how many of its questions the coach shows. Nothing is left out: if a new question file appears and is not wired in, it is listed in orange.</p>' +
+    cov.stacks.map(s => '<h2>' + esc(s.stack) + ' &mdash; ' + s.total + ' questions</h2>' +
+      '<div class="counts">' + Object.entries(s.by_kind).map(([k, n]) => '<span class="chip">' + n + ' ' + (KIND_LABEL[k] || k).toLowerCase() + '</span>').join('') + '</div>' +
+      (s.unreferenced.length ? '<div class="banner bad">Not wired in yet: ' + s.unreferenced.map(u => esc(u.path) + ' (' + u.questions + ')').join(', ') + '</div>'
+                             : '<div class="banner ok">All question sources are included.</div>') +
+      '<table><thead><tr><th>Source</th><th>Kind</th><th>Topic</th><th>Questions</th></tr></thead><tbody>' +
+      s.sources.map(x => '<tr><td>' + esc(x.path) + '</td><td>' + (KIND_LABEL[x.kind] || x.kind) + '</td><td>' + esc(x.topic || 'classified per question') + '</td><td>' + x.questions + '</td></tr>').join('') +
+      '</tbody></table>').join('');
+}
+
+// ---------------------------------------------------------------- boot
+async function loadStacks() {
+  S.stacks = await api('/api/stacks');
+  if (!S.stacks.some(s => s.id === S.stack)) S.stack = S.stacks[0].id;
+  $('#stacks').innerHTML = S.stacks.map(s => '<button data-stack="' + s.id + '">' + esc(s.title) + '</button>').join('');
+  $('#stacks').querySelectorAll('button').forEach(b => b.onclick = () => { S.stack = b.dataset.stack; store.set('stack', S.stack); go(S.view === 'topic' ? 'home' : S.view); });
+}
+(async function boot() {
+  try {
+    S.status = await api('/api/status');
+    const pill = $('#ai-pill');
+    pill.textContent = S.status.ai.provider === 'claude' ? 'AI: ' + S.status.ai.model : 'AI: offline mock';
+    pill.classList.toggle('live', S.status.ai.provider === 'claude');
+    pill.title = S.status.ai.provider === 'claude' ? 'Answers stream from the Claude API' : 'Set ANTHROPIC_API_KEY and restart to use the real AI coach';
+    await loadStacks();
+    route();
+  } catch (e) {
+    $('#main').innerHTML = '<p class="empty">Could not reach the server: ' + esc(e.message) + '</p>';
+  }
+})();
+</script>
+</body>
+</html>

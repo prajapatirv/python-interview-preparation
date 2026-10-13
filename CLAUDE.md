@@ -4,8 +4,24 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## What this workspace is
 
-`E:\Ravi_Workspace\python-interview-preparation` is a personal practice/interview-prep workspace, not
-a single deployable application. It holds **two real projects plus reference material**:
+A personal interview-preparation workspace (the folder is planned to be renamed `interview-coach-workspace`;
+nothing inside depends on the root folder's name). It is **organised by technology**:
+
+```text
+interview-coach/              the AI Interview Coach app (FastAPI) - serves BOTH stacks; see its section below
+java/java-interview-prep/     Java content: examples, deep_dive/, topics/ crib sheets, Q&A guides,
+                              interview-scenarios/ (scenario answer banks)
+java/javaprep-live/           zero-dependency Java runner for the Java examples
+python/python-interview-prep/ Python content: 14 topic folders, deep_dive/, QUESTION_INDEX.md
+python/pyprep-live/           FastAPI runner for the Python examples
+shared/material_ref/          source PDFs (read-only)      shared/java-interview-prep.zip  archive
+scratch/Java/, scratch/example/   unstructured scratch files
+PLAN.md                       design doc for pyprep-live   PLAN_INTERVIEW_COACH.md  design doc for the coach
+```
+
+Each live app finds its content as a **sibling folder** (`../python-interview-prep`, `../java-interview-prep`),
+so an app and its content must always move together. The sections below use project names
+(`python-interview-prep/`, `pyprep-live/`, ...) relative to their technology folder.
 
 - **`python-interview-prep/`** — the content project: a hands-on Python interview-prep lab with 14
   numbered topic folders (core language through Kafka, GenAI patterns, framework internals,
@@ -20,16 +36,21 @@ a single deployable application. It holds **two real projects plus reference mat
 - **`java-interview-prep/`** + **`javaprep-live/`** — the Java counterpart (Java 8/11, Spring Boot,
   microservices, REST, Kafka, NoSQL, Splunk): runnable single-file examples, `deep_dive/` docs, a Q&A
   bank, and a zero-dependency Java runner app. See "Java projects" at the end of this file.
-- **`material_ref/`** — the source interview-prep PDFs the notes are distilled from. Read-only
-  reference; see `material_ref/README.md` for which three of the six actually contain content.
-- **`Java/`**, **`python-interview-prep/legacy_examples/`**, **`example/`** — unstructured scratch
-  files with no build system or tests. Reference material only, not code to maintain to the same
-  standard.
+- **`interview-coach/`** — the scenario-based Interview Coach for both stacks, with the Claude API.
+  See "Interview Coach" near the end of this file.
+- **`shared/material_ref/`** — the source interview-prep PDFs the notes are distilled from. Read-only
+  reference; see `shared/material_ref/README.md` for which three of the six actually contain content.
+- **`scratch/Java/`**, **`python-interview-prep/legacy_examples/`**, **`scratch/example/`** — unstructured
+  scratch files with no build system or tests. Reference material only, not code to maintain to the
+  same standard.
 - **`PLAN.md`** (workspace root) — the design document for `pyprep-live`: findings, options
   considered, phases. Its section 13 records what was actually built. `pyprep-live/PLAN.md` is the
-  project-local copy.
+  project-local copy. **`PLAN_INTERVIEW_COACH.md`** is the plan for the coach and the restructure.
 
-Unless told otherwise, assume `python-interview-prep/` is the working root.
+Unless told otherwise, assume `python/python-interview-prep/` is the working root for Python work.
+
+**Windows gotcha:** the filesystem is case-insensitive, so `java/` and the old scratch folder `Java/`
+collide — that is why scratch lives under `scratch/`. Don't create a top-level `Java/` again.
 
 ## Interpreter: use `py`, not `python`
 
@@ -42,7 +63,7 @@ interpreter.** Two options:
 
 ```bash
 # A. create one (what the project README tells a learner to do)
-cd python-interview-prep
+cd python/python-interview-prep
 py -m venv .venv
 source .venv/Scripts/activate     # Git Bash on Windows
 pip install -r requirements.txt   # see the file for which folder needs which extra
@@ -59,7 +80,7 @@ pip install -r requirements.txt   # see the file for which folder needs which ex
 05_web_apis_fastapi/tests 11_coding_challenges`). **68 tests total**, 54 of them in folder 11.
 
 ```bash
-cd python-interview-prep
+cd python/python-interview-prep
 pytest                                   # the whole suite (folders 04, 05, 11)
 pytest 11_coding_challenges -v
 pytest 11_coding_challenges/01_anagram_grouping.py::test_sorted_key -v   # a single test
@@ -70,7 +91,7 @@ pytest --cov=src --cov-report=term-missing   # needs pytest-cov (not in requirem
 ### Tests — `pyprep-live/`
 
 ```bash
-cd pyprep-live
+cd python/pyprep-live
 .venv/Scripts/python.exe -m pytest -q          # 32 tests
 .venv/Scripts/python.exe -m pytest tests/test_real_repo.py -q   # integration vs the real prep repo
 ```
@@ -83,7 +104,7 @@ absent) — it is the test that catches structural breakage in the content proje
 Every numbered `.py` file in every topic folder is directly executable and self-contained:
 
 ```bash
-cd python-interview-prep
+cd python/python-interview-prep
 py 01_python_core/03_decorators.py
 py 02_concurrency/benchmark_concurrency_models.py
 ```
@@ -94,10 +115,10 @@ py 02_concurrency/benchmark_concurrency_models.py
 
 ```bash
 # the prep lab's own teaching FastAPI app
-cd python-interview-prep/05_web_apis_fastapi && uvicorn app.main:app --reload   # :8000, docs at /docs
+cd python/python-interview-prep/05_web_apis_fastapi && uvicorn app.main:app --reload   # :8000, docs at /docs
 
 # the Live Runner (creates its own venv on first run; `docker` arg for the container path)
-cd pyprep-live && ./start.sh        # Windows: start.cmd   |   stop with ./stop.sh / stop.cmd
+cd python/pyprep-live && ./start.sh        # Windows: start.cmd   |   stop with ./stop.sh / stop.cmd
 ```
 
 ### Optional local Kafka (`06_kafka/`)
@@ -105,7 +126,7 @@ cd pyprep-live && ./start.sh        # Windows: start.cmd   |   stop with ./stop.
 Only `01_producer_basics.py` and `02_consumer_basics.py` need it; the rest are simulations.
 
 ```bash
-cd python-interview-prep/06_kafka
+cd python/python-interview-prep/06_kafka
 docker compose -f docker-compose.kafka.yml up -d
 py 01_producer_basics.py
 py 02_consumer_basics.py       # in a second terminal
@@ -167,7 +188,7 @@ visible without provisioning infrastructure. Only `03_pandas_data_handling/`,
 All **59 stdlib-only examples** are expected to exit 0. Verify with:
 
 ```bash
-cd python-interview-prep
+cd python/python-interview-prep
 for f in 01_python_core/*.py 02_concurrency/*.py 06_kafka/0[3-8]*.py 07_caching_queues/*.py \
          08_scaling_production_resilience/*.py 09_aws_lambda_streaming/*.py \
          10_genai_llm_patterns/*.py 11_coding_challenges/*.py 12_framework_internals/*.py \
@@ -349,7 +370,7 @@ Independent of the Python projects above. **Only a JDK is needed** (21 is instal
 There is no Maven/Gradle in this environment, so nothing here uses a build tool.
 
 ```bash
-cd java-interview-prep
+cd java/java-interview-prep
 java examples/12_kafka/02_consumer_groups_rebalancing_and_lag.java   # single-file source launch
 ./verify_examples.sh                  # all 50 examples, stdout redirected, expects exit 0 (~2 min)
 ./verify_examples.sh 12_kafka         # one chapter
@@ -374,3 +395,41 @@ start.cmd                             # or ./start.sh -> http://127.0.0.1:8090 ;
   parallel `ArrayList::add`, `15_testing` last assertion) must still **exit 0**; keep them that way.
 - `01_java8_core/04_completable_future` and `03_java11_and_modern/03_virtual_threads_java21` take several seconds
   (deliberate sleeps / a 200-thread-pool comparison). `10_spring_security/01` spends ~0.5 s per PBKDF2 hash on purpose.
+
+## Interview Coach — `interview-coach/`
+
+The scenario-based coach for **both** stacks (FastAPI + one static page + the Claude API, offline mock
+without a key). Full detail in `interview-coach/README.md`; research notes in `interview-coach/docs/RESEARCH.md`.
+
+```bash
+cd interview-coach
+./start.sh                                  # Windows: start.cmd -> http://127.0.0.1:8100 ; stop: ./stop.sh
+.venv/Scripts/python.exe -m pytest          # 27 tests, incl. tests/test_real_repo.py against the real content
+```
+
+- **Content is file-driven.** `skills/<stack>/_persona.md` (stack, content root, mixed `guides`, Python
+  `index`; body = AI persona) and `skills/<stack>/NN_topic.md` (one topic: `crib`, `docs`, `examples`,
+  `folders`, `keywords`; body = the AI instruction pack). Scenario banks live in
+  `<content root>/interview-scenarios/*.md` and attach to a topic by front-matter `skill:`.
+  Adding content never needs a code change.
+- **Every existing question is included** — crib sheets, deep-dive Q&A, the three Java guides,
+  `deep_dive/19_docx_gap_topics.md`, the Python `QUESTION_INDEX.md` (1,096 Java + 687 Python at the
+  time of writing). Mixed guides are classified by `keywords:`; unmatched ones land in `general`.
+  `java-interview-prep/QUESTION_INDEX.md` is deliberately not read (generated from `topics/`).
+- **The canary:** `tests/test_real_repo.py` fails if any question-bearing `.md` under a content root is not
+  wired in, if the crib count changes from 473, if a scenario answer lacks a required section, or if
+  `general` grows past 10. **Adding a new Q&A file means wiring it into a skill/persona file**, not
+  loosening the test. The in-app **Coverage** screen shows the same report.
+- **Scenario answer format is machine-read** (parser: `app/services/bank.py`): `### Q<n> [fresher|mid|senior|architect] text`,
+  a `tags:` line, then bold section labels — *The live scenario*, *What the interviewer is really checking*,
+  *How I answer it*, *Trade-offs and what can go wrong*, *How I'd monitor it*, optional *Numbers I quote*,
+  *Follow-ups to expect* (`- *question* -> answer`), *60-second answer*, optional *Minimal config*.
+  Renaming those labels breaks the section rendering and the mock scorer.
+- **Known weak areas from real interview feedback (2026-10-13)** — API response time/throughput, CPU/memory
+  efficiency, performance-measurement tools, Kafka tuning at scale. Covered by the `performance` topic
+  (`skills/java/15_performance.md`, banks 06–08) and Kafka bank 03; give these priority when extending content.
+- **Answer style the user wants**: scenario-first, spoken-interview narrative, minimal code (a few config
+  lines at most). The `_persona.md` files encode it for the AI; keep new bank entries in the same voice.
+- AI: `ANTHROPIC_MODEL` defaults to `claude-sonnet-5-5` (the user's choice), `AI_EFFORT=medium`, system prompt
+  cached per topic, server-side refusal fallback on. Question ids are a hash of (stack, source, label, title),
+  so browser progress survives re-ordering but not retitling.

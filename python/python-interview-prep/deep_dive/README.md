@@ -107,7 +107,7 @@ from Python), `13`–`16` (Kafka), `17`, `18`.
 
 ## Where the material comes from
 
-Distilled from the interview-prep documents in [`../../material_ref/`](../../material_ref/) —
+Distilled from the interview-prep documents in [`../../../shared/material_ref/`](../../../shared/material_ref/) —
 principally the *Python & Kafka Interview Q&A Handbook* (58 pages, 194 questions across the
 14 topics this set mirrors) and *Python Advanced Interview Topics* (35 pages: framework
 development, scaling, caching, queues, production stability, AI-first) — then expanded with
