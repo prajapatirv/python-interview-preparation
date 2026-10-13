@@ -156,6 +156,7 @@ def workspace(tmp_path, monkeypatch):
     monkeypatch.setattr(config, "WORKSPACE_ROOT", root.resolve())
     monkeypatch.setattr(config, "SKILLS_DIR", (root / "skills").resolve())
     monkeypatch.setattr(config, "AI_MODE", "mock")
+    monkeypatch.setattr(config, "DATA_DIR", (root / "data").resolve())
     return root
 
 

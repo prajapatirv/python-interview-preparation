@@ -1,6 +1,21 @@
 # Design — a self-improving Interview Coach
 
-Status: **PROPOSAL, nothing built yet.** Decisions needed are in section 9.
+Status (2026-10-14): **Phases A, B, C and E built; D (LangGraph curator) not built.** Built with the recommended
+defaults of section 9. What differs from the plan above:
+
+- **A**: `POST /api/check`, `checker.py`, "Check my answer" in Practice mode. Uses the SDK directly (no LangGraph).
+  Web search is not wired into the checker yet; verdicts the bank cannot settle come back `unverifiable`.
+- **B**: `supabase/schema.sql` (tables + RLS), `SupabaseStore` over PostgREST, `auth.py`, a sign-in button, and
+  `scripts/migrate_sqlite_to_supabase.py`. **Not verified against a live Supabase project** - only against a fake
+  PostgREST in tests. **pgvector retrieval is not built** (no embedding model is called; keyword retrieval stays).
+  Tables `profiles`, `feedback`, `gaps`, `drafts`, `question_stats`, `embeddings` are deferred to when used;
+  `question_stats` is computed on the fly by `insights.py`.
+- **C**: submit -> automatic gate -> review queue -> promotion writes the section into the question's own file.
+  Promotion edits the file directly (not a GitHub PR; that arrives with D).
+- **E**: `insights.py` (Progress screen), `evaluation.py`, `evals/checker_cases.json` (4 cases, 8 planted claims -
+  a seed, grow it from the Repeated-mistakes list), `scripts/run_eval.py`. The eval only means something with
+  an API key; the offline mock is reported as not evaluable.
+- **D** remains a proposal: signals -> drafts -> verify -> human review -> PR.
 
 ## 1. What we want
 

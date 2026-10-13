@@ -300,6 +300,19 @@ class Library:
         return _rel(path, self.root)
 
 
+    def add_alternative(self, question_id: str, angle: str, body: str) -> str:
+        """Writes an approved alternative answer into the question's own source file. Returns its path."""
+        q = self.question(question_id)
+        if q is None or q["kind"] != "scenario":
+            raise ValueError("alternatives can only be added to scenario questions")
+        if any(a["md"].strip() == body.strip() for a in bank.alternatives(q)):
+            raise ValueError("this alternative is already in the bank")
+        path = self.root / q["source"]
+        path.write_text(bank.insert_into_question(_read(path), q["label"], q["title"],
+                                                  bank.render_alternative(angle, body)), encoding="utf-8")
+        return q["source"]
+
+
 class LibraryHolder:
     """Lets /api/reload swap the library atomically while requests keep reading the old one."""
 

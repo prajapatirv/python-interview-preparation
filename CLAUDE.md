@@ -404,7 +404,7 @@ without a key). Full detail in `interview-coach/README.md`; research notes in `i
 ```bash
 cd interview-coach
 ./start.sh                                  # Windows: start.cmd -> http://127.0.0.1:8100 ; stop: ./stop.sh
-.venv/Scripts/python.exe -m pytest          # 27 tests, incl. tests/test_real_repo.py against the real content
+.venv/Scripts/python.exe -m pytest          # 61 tests, incl. tests/test_real_repo.py against the real content
 ```
 
 - **Content is file-driven.** `skills/<stack>/_persona.md` (stack, content root, mixed `guides`, Python
@@ -430,6 +430,12 @@ cd interview-coach
   (`skills/java/15_performance.md`, banks 06–08) and Kafka bank 03; give these priority when extending content.
 - **Answer style the user wants**: scenario-first, spoken-interview narrative, minimal code (a few config
   lines at most). The `_persona.md` files encode it for the AI; keep new bank entries in the same voice.
+- **Self-improving layer** (design: `interview-coach/docs/SELF_IMPROVING_DESIGN.md`): `POST /api/check` fact-checks
+  an answer and stores an *attempt*; saved answers can be submitted as alternatives, gated, reviewed, and promoted
+  into the bank file as `**Another strong answer (<angle>)**` (`bank.alternatives()`). Evidence lives in SQLite
+  (`data/coach.db`, gitignored) or Supabase; **truth stays in Markdown in git**. `scripts/run_eval.py` gates checker
+  prompt/model changes on `evals/checker_cases.json`; its case titles must exist in the bank (canary test).
+  Supabase store and auth are tested only against a fake PostgREST, never a live project.
 - AI: `ANTHROPIC_MODEL` defaults to `claude-sonnet-5-5` (the user's choice), `AI_EFFORT=medium`, system prompt
   cached per topic, server-side refusal fallback on. Question ids are a hash of (stack, source, label, title),
   so browser progress survives re-ordering but not retitling.

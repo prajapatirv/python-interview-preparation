@@ -35,3 +35,17 @@ AI_FALLBACKS = os.getenv("AI_FALLBACKS", "1") not in ("0", "false", "no")   # se
 
 # Saving AI-generated questions writes into the content repo; allow turning it off for a shared deployment.
 ALLOW_SAVE = os.getenv("COACH_ALLOW_SAVE", "1") not in ("0", "false", "no")
+
+# Interaction data (attempts, saved answers). SQLite today; the Store interface lets Supabase replace it.
+DATA_DIR = Path(os.getenv("COACH_DATA", BASE_DIR / "data")).resolve()
+
+# Supabase (Phase B). Without SUPABASE_URL the app is single-user on local SQLite and the user is the reviewer.
+SUPABASE_URL = os.getenv("SUPABASE_URL", "").strip()
+SUPABASE_ANON_KEY = os.getenv("SUPABASE_ANON_KEY", "").strip()           # public; the browser signs in with it
+SUPABASE_SERVICE_KEY = os.getenv("SUPABASE_SERVICE_KEY", "").strip()     # server only; bypasses RLS
+REVIEWERS = {v.strip().lower() for v in os.getenv("COACH_REVIEWERS", "").split(",") if v.strip()}
+
+# The automatic gate a submitted alternative must pass before it reaches the review queue.
+GATE_MIN_DEPTH = int(os.getenv("GATE_MIN_DEPTH", "4"))
+GATE_MIN_TRADEOFFS = int(os.getenv("GATE_MIN_TRADEOFFS", "4"))
+GATE_MIN_WORDS = int(os.getenv("GATE_MIN_WORDS", "40"))

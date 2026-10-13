@@ -130,6 +130,13 @@ select { padding: 6px 8px; border: 1px solid var(--line); border-radius: 7px; ba
 .modal .card { max-width: 900px; margin: 0 auto; }
 .modal .close { float: right; }
 @media (max-width: 600px) { .score-row { grid-template-columns: 110px 1fr 30px; } .brand { font-size: 15px; } }
+
+.claim { border-left: 4px solid var(--line); padding: 6px 10px; margin: 6px 0; background: var(--panel-2); border-radius: 0 6px 6px 0; }
+.claim.correct { border-color: var(--good); background: var(--good-soft); }
+.claim.partially_correct, .claim.outdated, .claim.unverifiable { border-color: var(--warn); background: var(--warn-soft); }
+.claim.incorrect { border-color: var(--bad); }
+.claim .v { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; color: var(--muted); }
+.claim .fix { color: var(--muted); font-size: 13.5px; margin-top: 2px; }
 </style>
 </head>
 <body>
@@ -142,10 +149,13 @@ select { padding: 6px 8px; border: 1px solid var(--line); border-radius: 7px; ba
       <button data-view="ask">Ask anything</button>
       <button data-view="mock">Mock interview</button>
       <button data-view="jd">Job description</button>
+      <button data-view="progress">Progress</button>
+      <button data-view="review">Review</button>
       <button data-view="coverage">Coverage</button>
     </nav>
     <span class="spacer"></span>
     <span class="pill" id="ai-pill">AI: ...</span>
+    <button class="icon-btn" id="auth" style="display:none"></button>
     <button class="icon-btn" id="theme" title="Toggle theme">&#9680;</button>
   </div>
 </header>
@@ -161,8 +171,47 @@ const store = {
   get(k, d) { try { const v = localStorage.getItem('coach.' + k); return v === null ? d : JSON.parse(v); } catch (e) { return d; } },
   set(k, v) { try { localStorage.setItem('coach.' + k, JSON.stringify(v)); } catch (e) { /* storage unavailable */ } }
 };
+const auth = {
+  get() { return store.get('session', null); },
+  header() { const t = this.get(); return t ? { Authorization: 'Bearer ' + t.access_token } : {}; },
+  async call(path, body) {
+    const a = S.status.auth;
+    const r = await fetch(a.supabase_url.replace(/\/$/, '') + path, { method: 'POST',
+      headers: { apikey: a.anon_key, 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+    return { ok: r.ok, data: await r.json().catch(() => ({})) };
+  },
+  async refresh() {
+    const t = this.get(); if (!t || !t.refresh_token) return false;
+    const r = await this.call('/auth/v1/token?grant_type=refresh_token', { refresh_token: t.refresh_token });
+    if (r.ok && r.data.access_token) { store.set('session', r.data); return true; }
+    store.set('session', null); return false;
+  },
+  async signIn() {
+    const email = prompt('Email'); if (!email) return;
+    const password = prompt('Password (at least 6 characters)'); if (!password) return;
+    let r = await this.call('/auth/v1/token?grant_type=password', { email, password });
+    if (!r.ok && confirm('Sign-in failed. Create a new account for ' + email + '?')) {
+      r = await this.call('/auth/v1/signup', { email, password });
+      if (r.ok && !r.data.access_token) { alert('Check your email to confirm the account, then sign in.'); return; }
+    }
+    if (r.ok && r.data.access_token) { store.set('session', r.data); location.reload(); }
+    else alert((r.data && (r.data.msg || r.data.error_description)) || 'Could not sign in');
+  },
+  signOut() { store.set('session', null); location.reload(); },
+};
+function paintAuth() {
+  const b = $('#auth');
+  if (!S.status || !S.status.auth) { b.style.display = 'none'; return; }
+  const t = auth.get();
+  b.style.display = ''; b.textContent = t ? 'Sign out' + (t.user && t.user.email ? ' (' + t.user.email + ')' : '') : 'Sign in';
+  b.onclick = () => t ? auth.signOut() : auth.signIn();
+}
 async function api(path, opts) {
-  const r = await fetch(path, opts);
+  opts = Object.assign({}, opts); opts.headers = Object.assign({}, opts.headers, auth.header());
+  let r = await fetch(path, opts);
+  if (r.status === 401 && await auth.refresh()) {
+    opts.headers = Object.assign({}, opts.headers, auth.header()); r = await fetch(path, opts);
+  }
   const ct = r.headers.get('content-type') || '';
   const body = ct.includes('json') ? await r.json() : await r.text();
   if (!r.ok) throw new Error((body && body.detail) || r.statusText);
@@ -279,6 +328,8 @@ function render() {
   if (v === 'mock') return renderMock(main);
   if (v === 'jd') return renderJD(main);
   if (v === 'coverage') return renderCoverage(main);
+  if (v === 'progress') return renderProgress(main);
+  if (v === 'review') return renderReview(main);
   if (v === 'q' && S.topic) { renderHome(main); openQuestion(S.topic).catch(() => {}); return; }   // deep link to one question
   return renderHome(main);
 }
@@ -335,7 +386,7 @@ function qCard(q, opts = {}) {
     const practice = opts.practice ?? S.filters.practice, quick = opts.quick ?? S.filters.quick;
     body.innerHTML = practice
       ? '<p class="sub" style="margin-top:12px">Answer out loud or type it first, then get feedback or reveal the model answer.</p><textarea placeholder="Your answer..."></textarea>' +
-        '<div class="actions"><button class="btn primary" data-a="grade">Get feedback</button><button class="btn" data-a="improve">Rewrite my answer</button><button class="btn" data-a="reveal">Reveal model answer</button></div><div class="ans"></div>'
+        '<div class="actions"><button class="btn primary" data-a="grade">Get feedback</button><button class="btn" data-a="check">Check my answer</button><button class="btn" data-a="improve">Rewrite my answer</button><button class="btn" data-a="reveal">Reveal model answer</button></div><div class="ans"></div>'
       : '<div class="ans">' + sectionsHtml(q, quick) + '</div>' +
         '<div class="actions"><button class="btn good" data-a="master">' + (S.mastered.has(q.id) ? 'Unmark' : 'I can answer this') + '</button>' +
         '<button class="btn" data-a="deeper">Go deeper (AI)</button><button class="btn" data-a="practice">Practice this</button>' +
@@ -352,7 +403,11 @@ function qCard(q, opts = {}) {
       else if (a === 'practice') { body.remove(); body = null; openWith({ practice: true }); }
       else if (a === 'full') { $('.ans', body).innerHTML = sectionsHtml(q, false); ev.target.remove(); }
       else if (a === 'reveal') { $('.ans', body).innerHTML = sectionsHtml(q, false); }
-      else if (a === 'grade' || a === 'improve') {
+      else if (a === 'check') {
+        const answer = $('textarea', body).value.trim();
+        if (!answer) { $('textarea', body).focus(); return; }
+        runCheck(q, answer, show());
+      } else if (a === 'grade' || a === 'improve') {
         const answer = $('textarea', body).value.trim();
         if (!answer) { $('textarea', body).focus(); return; }
         streamAI({ mode: a === 'grade' ? 'interview' : 'improve', question_id: q.id, answer, level: q.level }, show(), t => {
@@ -366,6 +421,54 @@ function qCard(q, opts = {}) {
   $('.qh', el).onclick = open;
   if (opts.expanded) open();
   return el;
+}
+// ---------------------------------------------------------------- check my answer
+const VERDICT_LABEL = { correct: 'Correct', partially_correct: 'Partly correct', incorrect: 'Incorrect',
+                        outdated: 'Outdated', unverifiable: 'Could not verify' };
+function checkHtml(a) {
+  const c = a.check;
+  const claims = c.claims.map(x => '<div class="claim ' + esc(x.verdict) + '"><div class="v">' + (VERDICT_LABEL[x.verdict] || esc(x.verdict)) +
+    '</div><div>' + inline(x.text) + '</div>' + (x.correction ? '<div class="fix">' + inline(x.correction) + '</div>' : '') + '</div>').join('');
+  const rows = DIMS.map(([k, label]) => '<tr><td>' + esc(label) + '</td><td>' + c.scores[k] + ' / 5</td></tr>').join('');
+  return '<div class="who">Answer check (' + (c.provider === 'claude' ? 'AI coach' : 'offline mock') + ') &middot; average ' + a.total_score + ' / 5</div>' +
+    (c.note ? '<blockquote>' + esc(c.note) + '</blockquote>' : '') +
+    '<h4>Your claims</h4>' + (claims || '<p class="sub">No factual claims found - add specifics.</p>') +
+    (c.missing.length ? '<h4>What was missing</h4><ul>' + c.missing.map(m => '<li>' + inline(m) + '</li>').join('') + '</ul>' : '') +
+    '<h4>Scorecard</h4><table><tbody>' + rows + '</tbody></table>' +
+    (c.improved_answer ? '<h4>A stronger answer</h4><div class="md">' + md(c.improved_answer) + '</div>' : '') +
+    (c.follow_up ? '<h4>Follow-up</h4><p>' + inline(c.follow_up) + '</p>' : '') +
+    '<div class="actions"><button class="btn" data-save="' + a.id + '">Save as one of my answers</button></div>';
+}
+async function runCheck(q, answer, box) {
+  box.classList.add('busy'); box.innerHTML = '<div class="who">Checking your answer...</div>';
+  try {
+    const a = await api('/api/check', { method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ stack: S.stack, question_id: q.id, level: q.level, answer }) });
+    box.innerHTML = checkHtml(a);
+    recordScore(q, a.check.scores);
+    box.onclick = async ev => {
+      const id = ev.target.dataset && ev.target.dataset.save; if (!id) return;
+      const label = prompt('Label for this answer (e.g. "Spring Kafka angle")', '');
+      if (label === null) return;
+      await api('/api/attempts/' + id + '/save', { method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ label }) });
+      ev.target.textContent = 'Saved'; ev.target.disabled = true;
+      if (q.kind === 'scenario') ev.target.insertAdjacentHTML('afterend',
+        ' <button class="btn" data-submit="' + id + '" data-angle="' + esc(label) + '">Submit as another strong answer</button>');
+    };
+    box.addEventListener('click', async ev => {
+      const id = ev.target.dataset && ev.target.dataset.submit; if (!id) return;
+      ev.target.disabled = true;
+      try {
+        const sub = await api('/api/attempts/' + id + '/submit', { method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ angle: ev.target.dataset.angle || '' }) });
+        ev.target.outerHTML = sub.status === 'pending'
+          ? '<span class="pill live">Sent for review' + (sub.gate.unverified ? ' (checked by the offline mock only)' : '') + '</span>'
+          : '<div class="claim incorrect"><div class="v">Not submitted</div><div>' + sub.gate.reasons.map(esc).join('<br>') + '</div></div>';
+      } catch (e) { ev.target.outerHTML = '<span class="pill">' + esc(e.message) + '</span>'; }
+    });
+  } catch (e) { box.innerHTML = '<blockquote>Error: ' + esc(e.message) + '</blockquote>'; }
+  box.classList.remove('busy');
 }
 function recordScore(q, scores) {
   const hist = store.get('scores', []);
@@ -636,6 +739,76 @@ function renderJD(main) {
   };
 }
 
+// ---------------------------------------------------------------- progress (is the coach improving?)
+function table(head, rows) {
+  return '<table><thead><tr>' + head.map(h => '<th>' + esc(h) + '</th>').join('') + '</tr></thead><tbody>' +
+    rows.map(r => '<tr>' + r.map(c => '<td>' + c + '</td>').join('') + '</tr>').join('') + '</tbody></table>';
+}
+const pct = v => v === null || v === undefined ? '-' : Math.round(v * 100) + '%';
+async function renderProgress(main) {
+  main.innerHTML = '<h1>Progress</h1><p class="sub">Built from every answer check. Weak topics and repeated mistakes are what the coach should teach next.</p><div id="pg">Loading...</div>';
+  const box = $('#pg');
+  try {
+    const d = await api('/api/insights');
+    if (!d.attempts) { box.innerHTML = '<p class="sub">No checked answers yet. Open a question, switch to Practice and press <b>Check my answer</b>.</p>'; }
+    else {
+      box.innerHTML = '<div class="grid"><div class="card"><b>' + d.attempts + '</b><span>answers checked</span></div>' +
+        '<div class="card"><b>' + d.avg_score + ' / 5</b><span>average score</span></div>' +
+        '<div class="card"><b>' + pct(d.wrong_claim_rate) + '</b><span>claims judged wrong</span></div></div>' +
+        '<h3>By topic (weakest first)</h3>' + table(['Topic', 'Answers', 'Avg', 'Wrong claims', 'Trend (7d)'],
+          d.by_topic.map(t => [esc(t.topic), t.attempts, t.avg_score, pct(t.wrong_claim_rate),
+                               t.trend === null ? '-' : (t.trend > 0 ? '+' : '') + t.trend])) +
+        '<h3>Questions to revisit</h3>' + (d.weakest_questions.length ? table(['Question', 'Tries', 'Avg'],
+          d.weakest_questions.map(w => [inline(w.title), w.attempts, w.avg_score])) : '<p class="sub">Answer a question twice to see it here.</p>') +
+        '<h3>Repeated mistakes</h3>' + (d.misconceptions.length ? table(['Claim', 'Times', 'Correction'],
+          d.misconceptions.map(m => [inline(m.claim), m.count, inline(m.correction)])) : '<p class="sub">None flagged. (The offline mock cannot flag wrong claims.)</p>');
+    }
+    const ev = await api('/api/evals').catch(() => null);
+    if (ev) {
+      box.insertAdjacentHTML('beforeend', '<h3>Checker eval</h3><p class="sub">Planted-error answers with known truth. It must not get worse when the prompt or model changes.</p>' +
+        (ev.length ? table(['Prompt', 'Model', 'Error recall', 'False alarms', 'Result'],
+          ev.slice().reverse().map(e => [esc(e.prompt_version), esc(e.model), pct(e.error_recall), pct(e.false_alarm_rate),
+            e.evaluable ? (e.passed ? 'pass' : 'FAIL') : 'not evaluable (mock)'])) : '') +
+        '<div class="actions"><button class="btn" id="run-eval">Run eval now</button></div><div id="eval-out"></div>');
+      $('#run-eval').onclick = async () => {
+        $('#eval-out').textContent = 'Running...';
+        try { await api('/api/evals/run', { method: 'POST' }); renderProgress(main); }
+        catch (e) { $('#eval-out').textContent = 'Error: ' + e.message; }
+      };
+    }
+  } catch (e) { box.innerHTML = '<blockquote>' + esc(e.message) + (/sign in/.test(e.message) ? ' - use Sign in at the top right.' : '') + '</blockquote>'; }
+}
+
+// ---------------------------------------------------------------- review queue (reviewers)
+async function renderReview(main) {
+  main.innerHTML = '<h1>Review</h1><p class="sub">Alternative answers that passed the automatic gate. Approving writes the answer into the question bank file.</p><div id="rv">Loading...</div>';
+  const box = $('#rv');
+  try {
+    const q = await api('/api/review');
+    if (!q.length) { box.innerHTML = '<p class="sub">Nothing waiting for review.</p>'; return; }
+    box.innerHTML = '';
+    q.forEach(s => {
+      const el = document.createElement('div'); el.className = 'card'; el.style.marginBottom = '12px';
+      el.innerHTML = '<b>' + inline(s.question_title) + '</b>' +
+        (s.gate.unverified ? '<p><span class="pill">Checked by the offline mock only - verify the facts yourself</span></p>' : '') +
+        '<div class="md" style="margin:8px 0">' + md(s.answer_text) + '</div>' +
+        '<p class="sub">Angle: <input type="text" class="angle" value="' + esc(s.angle) + '" maxlength="80"></p>' +
+        '<div class="actions"><button class="btn good" data-d="approve">Approve and add to bank</button>' +
+        '<button class="btn" data-d="reject">Reject</button></div><div class="msg"></div>';
+      el.onclick = async ev => {
+        const d = ev.target.dataset && ev.target.dataset.d; if (!d) return;
+        const note = d === 'reject' ? (prompt('Reason (shown to the author)', '') || '') : '';
+        try {
+          await api('/api/review/' + s.id, { method: 'POST', headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ decision: d, note, angle: $('.angle', el).value }) });
+          el.innerHTML = '<p class="sub">' + (d === 'approve' ? 'Added to the bank.' : 'Rejected.') + '</p>';
+        } catch (e) { $('.msg', el).textContent = 'Error: ' + e.message; }
+      };
+      box.appendChild(el);
+    });
+  } catch (e) { box.innerHTML = '<blockquote>' + esc(e.message) + '</blockquote>'; }
+}
+
 async function renderCoverage(main) {
   main.innerHTML = '<p class="empty">Checking every question source...</p>';
   const cov = await api('/api/coverage');
@@ -659,6 +832,7 @@ async function loadStacks() {
 (async function boot() {
   try {
     S.status = await api('/api/status');
+    paintAuth();
     const pill = $('#ai-pill');
     pill.textContent = S.status.ai.provider === 'claude' ? 'AI: ' + S.status.ai.model : 'AI: offline mock';
     pill.classList.toggle('live', S.status.ai.provider === 'claude');

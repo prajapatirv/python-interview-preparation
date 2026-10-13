@@ -33,7 +33,7 @@ SECTION_KEYS = [
     ("the live scenario", "scenario"), ("what the interviewer", "probe"), ("how i answer", "answer"),
     ("trade-offs", "tradeoffs"), ("how i'd monitor", "monitoring"), ("how i would monitor", "monitoring"),
     ("numbers i quote", "numbers"), ("follow-ups", "followups"), ("60-second", "spoken"),
-    ("minimal config", "config"),
+    ("minimal config", "config"), ("another strong answer", "alternative"),
 ]
 
 
@@ -171,6 +171,54 @@ def _finish(q: dict) -> None:
 
 def section(q: dict, key: str) -> str:
     return next((s["md"] for s in q.get("sections", []) if s["key"] == key), "")
+
+
+ALT_LABEL_RE = re.compile(r"^another strong answer\s*\((.*)\)\s*$", re.I)
+
+
+def alternatives(q: dict) -> list[dict]:
+    """Approved alternative answers: ``**Another strong answer (<angle>)**`` blocks -> [{angle, md}]."""
+    out = []
+    for s in q.get("sections", []):
+        if s["key"] == "alternative":
+            m = ALT_LABEL_RE.match(s["label"])
+            out.append({"angle": (m.group(1) if m else "").strip(), "md": s["md"]})
+    return out
+
+
+def render_alternative(angle: str, body: str) -> str:
+    angle = re.sub(r"[()*\n]+", " ", angle).strip() or "alternative"
+    return f"**Another strong answer ({angle})**\n{body.strip()}\n"
+
+
+def insert_into_question(text: str, label: str, title: str, block: str) -> str:
+    """Appends ``block`` at the end of question ``label``/``title`` in a bank file: before the next heading of
+    the same or a higher level and ahead of any trailing horizontal rule. Raises ValueError if not found."""
+    lines = text.replace("\r\n", "\n").split("\n")
+    start = depth = None
+    end = len(lines)
+    in_fence = False
+    for i, line in enumerate(lines):
+        if line.lstrip().startswith("```"):
+            in_fence = not in_fence
+        h = None if in_fence else HEADING_RE.match(line)
+        if not h:
+            continue
+        if start is None:
+            m = Q_RE.match(h.group(2))
+            if m and m.group(1) + m.group(2) == label and m.group(4).strip() == title:
+                start, depth = i, len(h.group(1))
+        elif len(h.group(1)) <= depth:
+            end = i
+            break
+    if start is None:
+        raise ValueError("question not found in its source file")
+    while end > start + 1 and lines[end - 1].strip() in ("", "---"):
+        end -= 1
+    tail = lines[end:]
+    if tail and tail[0].strip() != "":
+        tail = [""] + tail                       # keep a blank line before the next heading or rule
+    return "\n".join(lines[:end] + ["", *block.rstrip("\n").split("\n")] + tail)
 
 
 def followups(q: dict) -> list[str]:

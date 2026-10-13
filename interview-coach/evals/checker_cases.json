@@ -1,0 +1,42 @@
+{
+  "about": "Answers with planted claims of known truth. 'question_title' must match a bank question exactly; 'contains' is a substring of the claim text the checker will report. Add cases when the dashboard shows a misconception the checker missed.",
+  "cases": [
+    {
+      "id": "kafka-autocommit-1",
+      "question_title": "Auto-commit or manual commit? Tell me about losing messages with auto-commit.",
+      "answer": "Auto-commit runs on a timer controlled by auto.commit.interval.ms, which is five seconds by default. Auto-commit only commits an offset after my processing code has finished successfully, so it can never lose a message. In production I prefer manual commit after the database write succeeds.",
+      "planted": [
+        {"contains": "timer controlled by auto.commit.interval.ms", "truth": "right"},
+        {"contains": "only commits an offset after my processing code has finished", "truth": "wrong"}
+      ]
+    },
+    {
+      "id": "kafka-offset-reset-1",
+      "question_title": "What does auto.offset.reset do? We started a new consumer group and it processed nothing.",
+      "answer": "The default value of auto.offset.reset is latest, so a brand-new group skips everything already in the topic. auto.offset.reset is applied every time the consumer starts, even when the group already has committed offsets. Setting it to earliest makes a group with no committed offset begin at the start of the partition.",
+      "planted": [
+        {"contains": "default value of auto.offset.reset is latest", "truth": "right"},
+        {"contains": "applied every time the consumer starts", "truth": "wrong"},
+        {"contains": "earliest makes a group with no committed offset", "truth": "right"}
+      ]
+    },
+    {
+      "id": "kafka-consumer-group-1",
+      "question_title": "What is a consumer group, and what happens if I run more consumers than partitions?",
+      "answer": "Within a group each partition is assigned to at most one consumer. If I run more consumers than partitions, the extra consumers share partitions and process messages in parallel, which is how I scale beyond the partition count.",
+      "planted": [
+        {"contains": "each partition is assigned to at most one consumer", "truth": "right"},
+        {"contains": "extra consumers share partitions", "truth": "wrong"}
+      ]
+    },
+    {
+      "id": "kafka-rebalance-1",
+      "question_title": "What is a rebalance, what triggers it, and what actually happens during one?",
+      "answer": "A rebalance only happens when a new consumer joins the group. A consumer that does not call poll within max.poll.interval.ms is removed from the group, which also triggers a rebalance.",
+      "planted": [
+        {"contains": "only happens when a new consumer joins", "truth": "wrong"},
+        {"contains": "does not call poll within max.poll.interval.ms", "truth": "right"}
+      ]
+    }
+  ]
+}
