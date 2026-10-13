@@ -575,6 +575,73 @@ to see conditions and "your own bean makes the default back off" simulated; the 
 > Component scan finds the beans *you* wrote in your package tree. Auto-configuration loads candidate
 > configuration classes *from libraries* by a fixed list, then keeps only those whose conditions pass.
 
+### Q22. (V. IMP.) What is Spring Boot Actuator?
+
+**Actuator is a Spring Boot module (`spring-boot-starter-actuator`) that adds production-ready
+operational endpoints to your application: health, metrics, configuration, loggers, thread dumps and
+more, exposed over HTTP and JMX.** It answers "is it up, is it healthy, what is it doing, how is it
+configured?" without you writing any of that code.
+
+Add the starter and, with no code, you get (under `/actuator`):
+
+| Endpoint | What it gives you | Typical use |
+|---|---|---|
+| `health` | status `UP`/`DOWN` plus component details (DB, disk, Kafka, custom indicators) | load balancer and Kubernetes probes |
+| `health/liveness`, `health/readiness` | probe groups | "restart me" vs "send me traffic" |
+| `info` | build and git info, custom data | which version is running |
+| `metrics` | JVM, HTTP server, datasource-pool, cache metrics via **Micrometer** | dashboards, alerts |
+| `prometheus` | metrics in Prometheus scrape format | Prometheus / Grafana |
+| `loggers` | read **and change log levels at runtime** | debug a live issue without redeploying |
+| `env`, `configprops` | property sources and bound configuration | "which value won?" |
+| `conditions`, `beans`, `mappings` | auto-configuration report, bean graph, URL map | startup debugging |
+| `threaddump`, `heapdump` | JVM diagnostics | deadlocks, leaks |
+| `httpexchanges`, `auditevents` | recent requests, security events | light tracing and audit |
+| `shutdown` | graceful stop (disabled by default) | rarely; prefer the orchestrator |
+
+How it works: each capability is an **endpoint** (`@Endpoint`, with `@ReadOperation` /
+`@WriteOperation`) technology-neutral, then exposed as web (Spring MVC / WebFlux) and/or JMX adapters.
+Health is aggregated from `HealthIndicator` beans; a failing indicator turns the whole status `DOWN`
+(status order is configurable). Metrics are recorded through the **Micrometer** facade, which is to metrics
+what SLF4J is to logging, and shipped to Prometheus, Datadog, CloudWatch, Splunk and others by a registry.
+
+Custom health indicator:
+
+```java
+@Component
+class PaymentGatewayHealth implements HealthIndicator {
+    public Health health() {
+        return gatewayReachable() ? Health.up().withDetail("latencyMs", 42).build()
+                                  : Health.down().withDetail("reason", "timeout").build();
+    }
+}
+```
+
+**Production rules (this is where the marks are):**
+
+1. **Expose the minimum.** By default only `health` is exposed over HTTP:
+   `management.endpoints.web.exposure.include=health,info,prometheus`. Never `*` on an internet-facing port.
+2. **Secure the sensitive ones.** `env` (may show secrets, though values are sanitised), `heapdump`
+   (contains every object in memory, including passwords and tokens), `threaddump`, `loggers`
+   (write access changes behaviour). Require a role via Spring Security.
+3. **Separate management port** (`management.server.port=9001`) so it is not reachable through the public
+   gateway or ingress.
+4. **Liveness must not depend on downstream systems.** If the database is down and liveness fails,
+   Kubernetes restarts every pod and turns an outage into a bigger one. Put DB / Kafka checks in
+   **readiness** only (the example below proves the distinction).
+5. **Keep health checks cheap** and time-bounded; an expensive indicator hit by every probe is its own
+   incident. Use `show-details=when-authorized`.
+6. **Tag metrics with low-cardinality labels** (service, endpoint template) never user ids, or you will
+   flood the metrics backend.
+7. **Pair with graceful shutdown** (`server.shutdown=graceful`): readiness flips first, in-flight
+   requests drain, then the process stops.
+
+Run [`07_spring_boot/02_actuator_health_and_graceful_shutdown.java`](../examples/07_spring_boot/02_actuator_health_and_graceful_shutdown.java)
+for a real HTTP server showing liveness vs readiness and a graceful shutdown with a request in flight.
+Long form: [07 Spring Boot, Q8](07_spring_boot.md); metrics and Splunk side: [14](14_observability_splunk.md).
+
+> Follow-up they may ask: "How do you know which endpoint caused a latency spike?" `http.server.requests`
+> metric tagged by `uri` and `status`, plus a trace id in the logs (Micrometer Tracing / OpenTelemetry).
+
 ## Coverage map: the 52 problems from the reference list
 
 | Band | Problems | Where |
@@ -582,7 +649,7 @@ to see conditions and "your own bean makes the default back off" simulated; the 
 | Freshers 1-17 | prime, reverse, palindrome, factorial, swap, largest / second largest, sum of digits, Fibonacci, GCD, reverse words, vowels, anagram, dedupe chars, char frequency, permutations, quicksort | file 01 (all but quicksort, factorial; trivial, see drills) |
 | 2-3 yrs 18-34 | stack, infix-postfix, first non-repeating, merge sorted, max difference, Kadane, matrix rotate, pair sum, missing number, 0/1/2, Pascal, selection sort, binary search, group anagrams, longest substring | file 01 (stack/infix, matrix, Pascal, selection sort are drills) |
 | 5-10 yrs 35-52 | LRU, singleton, serialization, reverse list, producer-consumer, LCA, kth smallest, rotated search, cycle, max path sum, validate BST, serialize tree, islands, CompletableFuture, rate limiter | files 03 and 04 (serialization and rotated search are drills) |
-| Marked *V. IMP.* | JWT / token auth, DI and its types, when to use which, singleton scope pros/cons, circular dependencies, BeanFactory vs ApplicationContext, Boot auto-configuration | Q1-Q3, Q18-Q21 here, file 05 |
+| Marked *V. IMP.* | JWT / token auth, DI and its types, when to use which, singleton scope pros/cons, circular dependencies, BeanFactory vs ApplicationContext, Boot auto-configuration, Actuator | Q1-Q3, Q18-Q22 here, file 05 |
 | Added here | idempotent POST, stream collectors, output traps, token bucket, retry | Q4, files 02, 04, 06 |
 
 ## A worked example
@@ -646,6 +713,12 @@ of candidate configuration classes from each jar's `AutoConfiguration.imports` f
 guarded by conditions such as `@ConditionalOnClass` and `@ConditionalOnMissingBean`, so it only applies
 when the library is on the classpath and backs off if I define my own bean. Defaults are tuned through
 properties, and `--debug` prints the conditions report that shows what matched and why."
+
+**Actuator:** "It is Spring Boot's production-ops module: endpoints for health, metrics through
+Micrometer, loggers, env, thread and heap dumps, exposed over HTTP and JMX. In production I expose only
+health, info and prometheus, on a separate secured management port, keep liveness independent of
+downstream systems and put database and Kafka checks in readiness, so a dependency outage does not make
+Kubernetes restart every pod."
 
 **JWT:** "After login the server issues a signed, short-lived token: header, payload, signature. Each
 request carries it and any service can verify the signature without a session lookup, which is why it
