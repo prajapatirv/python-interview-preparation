@@ -123,6 +123,52 @@ Plain consumer/producer for application logic; **Streams** for stateful stream p
 `orders` topic keyed by `orderId` (ordering per order), 12–24 partitions, RF=3, minISR=2; producer idempotent with `acks=all`, events written through the **outbox**; consumers per bounded context in their own groups, manual commit after an idempotent DB write, retry/DLT per consumer, schema registry with backward compatibility, lag + DLT-depth alerts, trace/correlation id in record headers, a compacted `order-state` topic for lookups.
 Failure walk-through: broker down (producer buffers, `max.block.ms`, outbox keeps rows), consumer crash (rebalance, resume from commit, idempotency absorbs the replay), poison message (DLT), hot key (salting/dedicated topic).
 
+### Q19. "Have you produced and consumed messages in Kafka?" - walk me through it end to end.
+
+Don't answer "yes, producer and consumer". Give the **flow, then the failure handling**, because that is what proves production experience.
+
+```text
+Order Service -> KafkaProducer -> topic order-events [P0 | P1 | P2] -> consumer group payment-service (C1,C2,C3)
+                                                                     -> consumer group inventory-service (own offsets)
+```
+
+**Produce path.** The service serialises an `OrderCreated` event (Avro/JSON + schema registry) and calls `send(key=orderId, value)`. The producer picks the partition (`murmur2(key) % partitions`, so one order always lands on one partition and stays ordered), **batches** records per partition (`linger.ms`, `batch.size`, compression), and sends to the partition **leader**. With `acks=all` the leader acknowledges only after every in-sync replica has the record (`min.insync.replicas=2`); idempotent producer (`enable.idempotence=true`) stops retries creating duplicates. The leader appends to the partition log and assigns the **offset**.
+
+**Store path.** Records are an **append-only log**; consumers can only read up to the **high watermark** (replicated point). **Reading does not delete a record**: it stays until retention (`retention.ms`/`bytes`) or compaction removes it. That is what allows replay and many independent consumer groups, unlike a queue where consume = remove.
+
+**Consume path.** Each consumer in a group gets a disjoint set of partitions (one partition -> one consumer *per group*; 3 partitions with 5 consumers leaves 2 idle). It `poll()`s a batch, processes, then **commits the offset** (manual commit after the work is persisted). Each group tracks its own offsets in `__consumer_offsets`, so the Payment and Inventory services read the same events independently, and the producer doesn't care if one of them is down: it resumes from its committed offset when it returns (decoupling, bounded by retention).
+
+**Failure scenarios they will probe (and the answers):**
+
+| Scenario | What happens | Answer |
+|---|---|---|
+| Consumer crashes mid-processing | no commit -> rebalance -> another consumer re-reads from the last committed offset | at-least-once; handler must be idempotent (Q7, Q8) |
+| **DB commit succeeded, crash before offset commit** | record is redelivered, DB write would run twice | dedupe with a unique key / UPSERT / processed-event table in the *same DB transaction* as the business write; or commit the offset inside that design (Q7) |
+| Processing throws (transient: timeout, 503) | not committed | bounded retry with backoff, then retry topic (Q14) |
+| **Poison message** (bad payload, deserialisation, validation) | would block the partition forever if retried in place | `ErrorHandlingDeserializer`, classify as non-retryable, publish to **DLT** with original topic/partition/offset + exception headers, alert on DLT depth, replay idempotently after the fix (Q14) |
+| Producer can't reach broker | `send` retries until `delivery.timeout.ms`, then fails the callback | outbox row stays, relay retries; never fire-and-forget (Q12, Q18) |
+| Burst 100 -> 500 TPS | lag grows | check partition headroom first (consumers <= partitions), batch DB writes, scale consumers, add partitions only knowing keys remap (Q10, Q11; capacity math in 12/04) |
+
+**Spoken answer (about 60 seconds):**
+> "Yes. The order service publishes `OrderCreated` events to an `order-events` topic, keyed by order id so all events for an order go to one partition and stay ordered. We run the producer with `acks=all`, idempotence on and an outbox so a broker outage doesn't lose events. Payment and inventory are separate consumer groups, so each reads every event with its own offsets; inside a group, partitions are split across instances, and we size partitions for the parallelism we need because that is the ceiling. Kafka keeps the record after it's read, based on retention, so we can replay. We commit offsets manually after the DB write, which gives at-least-once, so handlers are idempotent with a unique key. Transient failures go through retry topics with backoff, poison messages go to a dead-letter topic with context headers and an alert, and we watch consumer lag, rebalances and DLT depth in production."
+
+**Where each likely follow-up is answered:**
+
+| Follow-up | See |
+|---|---|
+| Which partition does the producer pick? | Q4 |
+| Topic vs partition | Q2, Q3 |
+| Consumer group, assignment | Q5 |
+| Consumer crash / rebalance | Q8, Q9 |
+| Consumer lag, troubleshooting | Q10 |
+| 100 -> 500 TPS | Q10, Q11, example 12/04; also `16_system_design.md` |
+| Ordering guarantee | Q4 (per partition only) |
+| Crash after DB commit | Q7 + this question |
+| Idempotency | Q7 |
+| At-most / at-least / exactly once | Q7 |
+| Retry topic vs DLT, poison messages | Q14 |
+| Monitoring | Q16 |
+
 ## A worked example
 
 Work through the four examples in order; each answers the next interview question:

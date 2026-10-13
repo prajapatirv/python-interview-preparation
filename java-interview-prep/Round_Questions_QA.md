@@ -346,9 +346,29 @@ by the garbage collector.
 | Per thread? | each thread has its own | shared by all threads |
 | Cleanup | automatic when method ends | garbage collector |
 | Error | `StackOverflowError` (too deep recursion) | `OutOfMemoryError` |
+| Size / sizing | small, `-Xss` (about 1 MB per thread) | large, `-Xms` / `-Xmx` |
+| Thread safety | local data is private to its thread | shared, needs care for mutable objects |
+| Lifetime | tied to the method call | until no longer reachable |
 
 **Real-life example (e-commerce):** In `Order o = new Order();`, the variable `o` (just a pointer) sits on the
 stack, and the actual `Order` object with its items sits on the heap.
+
+```text
+Stack (this thread)        Heap (shared)
+process() frame            Order { id, amount, items -> List }
+  qty = 10                    ^
+  o  -------------------------+
+```
+
+**Senior add-ons:**
+- Only **local variables and parameters** are on the stack. A field such as `Department.employee` is part of its heap object.
+- Setting `o = null` does not free anything; the object just becomes *eligible* for GC when nothing reachable points to it.
+- Because each thread has its own stack, locals are thread-safe; the shared heap is where race conditions live.
+- The JIT's *escape analysis* can skip the heap allocation for an object that never leaves a method, so "heap is slow" is a simplification.
+- `StackOverflowError` -> look for runaway recursion. `OutOfMemoryError: Java heap space` -> look for a leak or oversized collection (heap dump). Class metadata lives in **Metaspace**, outside the heap.
+
+**Say it in one line:** *Stack is per-thread method execution; heap is shared memory for objects managed by the GC.*
+Full answer: `deep_dive/05_jvm_gc_performance.md` Q1.
 
 ## F7. What is the collection framework
 
@@ -1414,28 +1434,121 @@ String csv() { return service.salesAsCsv(); }
 **Simple answer:** Define **two DataSource beans** (one per database). Mark one as `@Primary`. Give each its own
 entity manager and transaction manager, and tell each repository package which one to use.
 
+**Mental model (say it in one breath):**
+
+```text
+DataSource-1 -> EntityManagerFactory-1 -> TransactionManager-1 -> Repositories in package A -> DB-1
+DataSource-2 -> EntityManagerFactory-2 -> TransactionManager-2 -> Repositories in package B -> DB-2
+```
+
 **Key points:**
-- Two sets of properties in `application.yml`.
-- Separate packages for each database's entities and repositories.
-- Choose the transaction manager with `@Transactional("name")`.
-- There is no automatic single transaction across both databases.
+- Two sets of properties in `application.yml` under your own prefix (not `spring.datasource`, which feeds the single auto-configured pool).
+- Separate packages for each database's entities and repositories; `@EnableJpaRepositories(basePackages=...)` and `.packages(...)` are what bind them to the right EMF.
+- One `DataSource` must be `@Primary`. Spring Boot's JPA auto-configuration (and the `EntityManagerFactoryBuilder` bean) only activates for a *single* candidate `DataSource`; with two and no `@Primary` you get `NoSuchBeanDefinitionException` or the wrong pool injected.
+- `@Transactional` with no name uses the **primary** transaction manager, so a method that writes to the second DB silently runs without a transaction there. Always name it: `@Transactional("reportsTx")`.
+- There is **no automatic single transaction across both databases**. That is the real interview question.
 
 **Real-life example (retail):** Orders are saved in PostgreSQL; sales reports are read from a MySQL reporting database.
 
 ```yaml
-app.datasource.orders.url: jdbc:postgresql://db1/orders
-app.datasource.reports.url: jdbc:mysql://db2/reports
+app:
+  datasource:
+    orders:
+      url: jdbc:postgresql://db1:5432/orders
+      username: app
+      password: ${ORDERS_DB_PASSWORD}
+      driver-class-name: org.postgresql.Driver
+    reports:
+      url: jdbc:mysql://db2:3306/reports
+      username: app
+      password: ${REPORTS_DB_PASSWORD}
+      driver-class-name: com.mysql.cj.jdbc.Driver
 ```
+
 ```java
 @Configuration
-@EnableJpaRepositories(basePackages = "com.shop.orders",
+@EnableJpaRepositories(basePackages = "com.shop.orders.repository",
                        entityManagerFactoryRef = "ordersEmf", transactionManagerRef = "ordersTx")
 class OrdersDbConfig {
+
     @Primary @Bean @ConfigurationProperties("app.datasource.orders")
     DataSource ordersDataSource() { return DataSourceBuilder.create().build(); }
-    // plus ordersEmf and ordersTx beans; repeat the same for the reports database
+
+    @Primary @Bean
+    LocalContainerEntityManagerFactoryBean ordersEmf(EntityManagerFactoryBuilder b,
+                                                     @Qualifier("ordersDataSource") DataSource ds) {
+        return b.dataSource(ds).packages("com.shop.orders.entity").persistenceUnit("orders").build();
+    }
+
+    @Primary @Bean
+    PlatformTransactionManager ordersTx(@Qualifier("ordersEmf") EntityManagerFactory emf) {
+        return new JpaTransactionManager(emf);
+    }
+}
+
+@Configuration
+@EnableJpaRepositories(basePackages = "com.shop.reports.repository",
+                       entityManagerFactoryRef = "reportsEmf", transactionManagerRef = "reportsTx")
+class ReportsDbConfig {
+    @Bean @ConfigurationProperties("app.datasource.reports")
+    DataSource reportsDataSource() { return DataSourceBuilder.create().build(); }
+
+    @Bean
+    LocalContainerEntityManagerFactoryBean reportsEmf(EntityManagerFactoryBuilder b,
+                                                      @Qualifier("reportsDataSource") DataSource ds) {
+        return b.dataSource(ds).packages("com.shop.reports.entity").persistenceUnit("reports").build();
+    }
+
+    @Bean
+    PlatformTransactionManager reportsTx(@Qualifier("reportsEmf") EntityManagerFactory emf) {
+        return new JpaTransactionManager(emf);
+    }
 }
 ```
+
+```text
+com.shop
+  orders/   entity/Order.java      repository/OrderRepository.java      <- only OrdersDbConfig scans this
+  reports/  entity/SalesRow.java   repository/SalesRepository.java     <- only ReportsDbConfig scans this
+```
+
+```java
+@Service
+class SalesService {
+    @Transactional("ordersTx")                  // explicit - never rely on the default here
+    public void placeOrder(Order o) { orderRepo.save(o); }
+
+    @Transactional(value = "reportsTx", readOnly = true)
+    public List<SalesRow> report() { return salesRepo.findAll(); }
+}
+```
+
+**The senior part: transactions across two databases.** One service may inject repositories from both DBs, and
+reads are easy (call both, merge in the service). Writes are the problem:
+
+```text
+orders DB:  INSERT order      -> COMMIT  (ordersTx)
+reports DB: INSERT summary    -> FAILS   (reportsTx)
+Result: order exists, summary missing. Each manager only knows its own database.
+```
+
+Options, in the order to mention them:
+1. **Redesign so you don't need it.** Make one DB the system of record and derive the other (CDC / events / nightly sync). Most "two DB" cases are really read-model cases.
+2. **Saga / compensating action** (microservices): do step 1, do step 2, on failure run a compensating step (cancel order). Eventual consistency; each step must be idempotent.
+3. **Outbox + Kafka**: write the business row and an `outbox` row in the **same** local transaction, a relay publishes the event, the other side consumes idempotently. Gives "at-least-once, effectively once" without XA.
+4. **JTA / XA (2PC)** with Atomikos or Narayana: true atomic commit across both, but needs XA-capable drivers and `XADataSource`, holds locks through prepare, is slower, has recovery logs to operate, and most brokers/NoSQL/REST don't support it. Use only when strong atomicity is a hard requirement.
+5. **"Best-effort 1PC" chained managers** (Spring's old `ChainedTransactionManager`, now deprecated): commit in reverse order; if the second commit fails after the first succeeded you are inconsistent. Mention it only as a trap.
+
+**Related variants (don't confuse them):**
+- *Same schema, many databases (one per tenant/region)* -> a single set of repositories with `AbstractRoutingDataSource` choosing the `DataSource` by a thread-bound key, not two EMFs.
+- *Read replica* -> a routing data source on `@Transactional(readOnly = true)`, not two repository sets.
+- *Two databases, no JPA* -> two `DataSource`s with two `JdbcTemplate`s and `DataSourceTransactionManager`s. Same idea.
+- *Microservices* -> prefer **database per service** and talk over APIs/events, instead of one service owning two DBs.
+
+**Spoken answer (about 60 seconds):**
+> "I define two separate `DataSource` beans with their own properties, mark one `@Primary`, and for JPA create an `EntityManagerFactory` and a `JpaTransactionManager` for each. I keep each database's entities and repositories in separate packages and bind them with `@EnableJpaRepositories(entityManagerFactoryRef, transactionManagerRef)`. In services I name the transaction manager explicitly, because the default is the primary one and a mistake there silently runs the other database without a transaction. Connecting two databases is the easy part. The hard part is atomicity across them: a normal `@Transactional` covers only one resource, so if I truly need all-or-nothing I'd weigh JTA/XA against a saga or outbox pattern, and in a microservice setup I'd usually avoid the problem with database-per-service and eventual consistency. Reading from both and combining in the service layer needs none of that."
+
+**Follow-ups to be ready for:** why `@Primary`? what does `@Transactional` do with no name? XA vs saga trade-offs? how to test (Testcontainers, one container per DB)? connection pool sizing per DataSource (HikariCP per pool, so total = sum of both)? `ddl-auto`/Flyway per database (one migration location each)?
 
 ## E30. How to do multithreading in Spring Boot
 
