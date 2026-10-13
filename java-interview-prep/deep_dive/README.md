@@ -18,7 +18,7 @@ The division of labour:
 | **`deep_dive/NN_*.md` (this folder)** | the full treatment: mechanisms, traps, trade-offs, what to say |
 | [`../examples/NN_*/*.java`](../examples) | runnable proof; each prints the behaviour the doc describes |
 
-Folder names match one-to-one: `examples/12_kafka/` is explained by `deep_dive/12_kafka.md`.
+Folder names match one-to-one: `examples/12_kafka/` is explained by `deep_dive/12_kafka.md`. Chapter **19** is the exception: it is a cross-cutting chapter with no `examples/19_*` folder.
 The live app uses that convention to link them, so keep numbering append-only.
 
 ## Requirement coverage map
@@ -35,6 +35,7 @@ The requirement profile for this role (Java/J2EE with Java 8 and 11, Spring Boot
 | **NoSQL**: Couchbase / MongoDB / Cassandra | [13](13_nosql.md) | `13_nosql/*` |
 | **Splunk** and observability | [14](14_observability_splunk.md) | `14_observability_splunk/*` |
 | Testing, design quality, production support | [15](15_testing.md), [17](17_design_patterns.md), [18](18_production_troubleshooting.md) | `15_*`, `17_*`, `18_*` |
+| **Gap topics from the 44-question `.docx`** (process vs thread, ConcurrentHashMap, retry vs breaker, retry topics, consumer death, 100->600 TPS, zero downtime, tracing, CAP) | [19](19_docx_gap_topics.md), index at its end | see the runnable list at the top of chapter 19 |
 
 ## The chapters
 
@@ -58,6 +59,21 @@ The requirement profile for this role (Java/J2EE with Java 8 and 11, Spring Boot
 | 16 | [System design: capacity, caching, zero downtime](16_system_design.md) | [16_system_design/](../examples/16_system_design) |
 | 17 | [Design patterns, SOLID, clean architecture](17_design_patterns.md) | [17_design_patterns/](../examples/17_design_patterns) |
 | 18 | [Production troubleshooting and RCA](18_production_troubleshooting.md) | [18_production_troubleshooting/](../examples/18_production_troubleshooting) |
+| 19 | [Interview-guide gap topics: core Java, Spring, REST, resilience, Kafka recovery, scaling, tracing, CAP](19_docx_gap_topics.md) | reuses 04, 11, 12, 14, 16 (no folder of its own) |
+
+## Question index: the 44-question `.docx` and the supplement
+
+Short answers: [`../Docx_Gap_Supplement_QA.md`](../Docx_Gap_Supplement_QA.md) (Q97-Q114). Long answers and the
+full docx-question -> answer table: [`19_docx_gap_topics.md`](19_docx_gap_topics.md#index-all-44-docx-questions---where-the-answer-is).
+
+| Topic | Question(s) | Guide / supplement | Deep dive |
+|---|---|---|---|
+| Core Java | process vs thread, HashMap vs ConcurrentHashMap, synchronized vs Lock, ExecutorService | Q97, Q98, Q99, Q114 | [19 Q1-Q4](19_docx_gap_topics.md) |
+| Spring | `@SpringBootApplication`, bean lifecycle | Q100, Q101 | [19 Q5-Q6](19_docx_gap_topics.md) |
+| REST | PUT vs PATCH | Q102 | [19 Q7](19_docx_gap_topics.md) |
+| Resilience | retry vs circuit breaker, timeout + bulkhead, API gateway | Q103, Q104, Q112 | [19 Q8-Q10](19_docx_gap_topics.md) |
+| Kafka | retry topic, consumer dies, payment slow + lag | Q105, Q106, Q111 | [19 Q11-Q13](19_docx_gap_topics.md) |
+| Scale / design | 100->600 TPS, aggregate APIs < 10 s, zero downtime, tracing, CAP | Q107, Q108, Q109, Q110, Q113 | [19 Q14-Q18](19_docx_gap_topics.md) |
 
 ## Seven-day plan (highest probability first for this profile)
 
@@ -69,6 +85,7 @@ The requirement profile for this role (Java/J2EE with Java 8 and 11, Spring Boot
 | 4 | Java 8 + 11 + collections (01, 02, 03) | streams drills, HashMap internals, 8 → 11 migration checklist |
 | 5 | Concurrency + JVM (04, 05) | thread pools, deadlock, leak diagnosis |
 | 6 | NoSQL + Splunk (13, 14) | data modelling questions, SPL queries, investigate-an-error-spike narration |
+| 6b | Gap topics (19) | read 19 Q8-Q13 aloud with answers hidden; they are the ones the guide covered least |
 | 7 | Mock | Q&A drill: **Mock random 10** with answers hidden; two system-design answers (16) and two incident stories (18) |
 
 ## Conventions (the live app depends on them)
