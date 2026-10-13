@@ -12,7 +12,7 @@ Q_RE = re.compile(r"^###\s+Q(\d+)\s+\[(basic|intermediate|advanced|design)\]\s+(
 # Anything that looks like a question heading but does not match Q_RE is reported, never skipped.
 LOOSE_Q_RE = re.compile(r"^#{2,4}\s*Q\s*\d+", re.I)
 LEVELS = ("basic", "intermediate", "advanced", "design")
-MIN_Q, MAX_Q, MIN_DESIGN = 15, 25, 3
+MIN_Q, MAX_Q, MIN_DESIGN = 15, 35, 3   # 35: topic 17 grew with the design-pattern interview set
 
 
 def parse_topic(path):

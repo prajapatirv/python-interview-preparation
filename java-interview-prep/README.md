@@ -24,9 +24,9 @@ java examples/12_kafka/02_consumer_groups_rebalancing_and_lag.java      # any ex
 
 | Path | What | Count |
 |---|---|---|
-| `examples/NN_*/*.java` | single-file, dependency-free runnable programs; Spring/Kafka/DB behaviour is **simulated** so failure modes are visible | 37 in 17 chapters |
+| `examples/NN_*/*.java` | single-file, dependency-free runnable programs; Spring/Kafka/DB behaviour is **simulated** so failure modes are visible | 40 in 17 chapters |
 | `deep_dive/NN_*.md` | long-form Q&A per chapter: probes, must-knows, full answers, worked example, drills, 60-second answer. Start at [`deep_dive/README.md`](deep_dive/README.md) (requirement coverage map + 7-day plan + `.docx` question index) | 19 |
-| `topics/*.md` | crib-sheet Q&A, one answer per question (feeds the app's Q&A drill and `build_site.py`) | 21 files, 458 Q |
+| `topics/*.md` | crib-sheet Q&A, one answer per question (feeds the app's Q&A drill and `build_site.py`) | 21 files, 473 Q |
 | `Java_SpringBoot_Kafka_Interview_QA_Guide.md` | 96 requirement-aligned questions with concise, conservative answers | 96 Q |
 | `Docx_Gap_Supplement_QA.md` | coverage map of the 44-question `.docx` + 18 extra Q&A (Q97-Q114) with small examples; long form in `deep_dive/19_docx_gap_topics.md` | 18 Q |
 | `QUESTION_INDEX.md` | auto-generated index of `topics/` | |
@@ -52,7 +52,7 @@ java examples/12_kafka/02_consumer_groups_rebalancing_and_lag.java      # any ex
 | 14 | **Splunk** and observability: structured logs + SPL, SLOs and burn rates | 2 |
 | 15 | Testing: test doubles, mini-Mockito | 1 |
 | 16 | System design: 100 -> 600 TPS capacity math, caching | 2 |
-| 17 | Design patterns and SOLID | 1 |
+| 17 | Design patterns and SOLID, plus a per-pattern creational/structural/behavioural set | 4 |
 | 18 | Production troubleshooting: incident triage runbook | 1 |
 
 ## How to study

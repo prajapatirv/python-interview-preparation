@@ -22,7 +22,7 @@ Stop with `Ctrl+C`.
 
 | Tab | What it does |
 |---|---|
-| **Labs** | 37+ runnable examples grouped by chapter. **Run** executes `java <file>` and streams the output; section chips jump to a numbered section of the output; **Show source** reveals the code; **Read the deep dive** opens the chapter document. |
+| **Labs** | 40+ runnable examples grouped by chapter. **Run** executes `java <file>` and streams the output; section chips jump to a numbered section of the output; **Show source** reveals the code; **Read the deep dive** opens the chapter document. |
 | **Study** | The `deep_dive/` chapter documents (full question + answer treatment), the requirement coverage map, README and the Q&A guide, rendered offline. |
 | **Q&A drill** | ~550 questions (`topics/*.md` plus `Java_SpringBoot_Kafka_Interview_QA_Guide.md`). Search, filter by level, hide answers for self-test, **Mock: random 10**, and "I can answer this" tracking saved in your browser. |
 

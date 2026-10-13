@@ -13,12 +13,12 @@ The division of labour:
 
 | Where | Use it for |
 |---|---|
-| [`../topics/*.md`](../topics) (21 files, 458 Q&A) | quick revision, one answer per question, drives the Q&A drill / mock mode |
+| [`../topics/*.md`](../topics) (21 files, 473 Q&A) | quick revision, one answer per question, drives the Q&A drill / mock mode |
 | [`../Java_SpringBoot_Kafka_Interview_QA_Guide.md`](../Java_SpringBoot_Kafka_Interview_QA_Guide.md) | 96 requirement-aligned Q&A, concise and conservative |
 | **`deep_dive/NN_*.md` (this folder)** | the full treatment: mechanisms, traps, trade-offs, what to say |
 | [`../examples/NN_*/*.java`](../examples) | runnable proof; each prints the behaviour the doc describes |
 
-Folder names match one-to-one: `examples/12_kafka/` is explained by `deep_dive/12_kafka.md`. Chapter **19** is the exception: it is a cross-cutting chapter with no `examples/19_*` folder.
+Folder names match one-to-one: `examples/12_kafka/` is explained by `deep_dive/12_kafka.md`. Chapters **19** and **20** are the exceptions: cross-cutting chapters with no `examples/NN_*` folder of their own (20 reuses `examples/17_design_patterns/`).
 The live app uses that convention to link them, so keep numbering append-only.
 
 ## Requirement coverage map
@@ -60,6 +60,7 @@ The requirement profile for this role (Java/J2EE with Java 8 and 11, Spring Boot
 | 17 | [Design patterns, SOLID, clean architecture](17_design_patterns.md) | [17_design_patterns/](../examples/17_design_patterns) |
 | 18 | [Production troubleshooting and RCA](18_production_troubleshooting.md) | [18_production_troubleshooting/](../examples/18_production_troubleshooting) |
 | 19 | [Interview-guide gap topics: core Java, Spring, REST, resilience, Kafka recovery, scaling, tracing, CAP](19_docx_gap_topics.md) | reuses 04, 11, 12, 14, 16 (no folder of its own) |
+| 20 | [Design patterns catalogue: every GoF pattern as a basic Q&A (intent, problem, structure, JDK/Spring, pros/cons)](20_design_patterns_catalogue.md) | reuses [17_design_patterns/](../examples/17_design_patterns) (02-04) |
 
 ## Question index: the 44-question `.docx` and the supplement
 

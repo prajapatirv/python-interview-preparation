@@ -69,3 +69,86 @@ Compare total cost (build + run + maintain), time to market, fit with requiremen
 
 ### Q20 [intermediate] What is an Architecture Decision Record (ADR)?
 A short document: context, options considered, decision, consequences. Stored in the repo, immutable (superseded by a new ADR). Gives new team members the "why", prevents repeated debates and shows leadership maturity.
+
+### Q21 [basic] What are Design Patterns? How many types are there?
+Named, reusable solutions to recurring object-oriented design problems - a shared vocabulary, not code you copy. The Gang-of-Four catalogue has **23 patterns in 3 categories**:
+- **Creational (5)** - how objects are made: Singleton, Factory Method, Abstract Factory, Builder, Prototype.
+- **Structural (7)** - how objects are composed: Adapter, Bridge, Composite, Decorator, Facade, Flyweight, Proxy.
+- **Behavioural (11)** - how objects collaborate: Chain of Responsibility, Command, Interpreter, Iterator, Mediator, Memento, Observer, State, Strategy, Template Method, Visitor.
+
+Beyond GoF: enterprise/J2EE patterns (DAO, DTO, Front Controller, Service Locator), concurrency patterns (producer-consumer, thread pool) and architectural patterns (see Q23).
+> Follow-up: which three have you actually used, and what was the alternative?
+
+### Q22 [intermediate] When should you NOT use a design pattern?
+When there is no real problem yet: patterns add indirection. Warning signs - a `Factory` with one implementation, a `Strategy` interface with one class, a `Singleton` that is really global state, a pattern chosen "because it is in the book" (over-engineering, speculative generality).
+Rules: apply YAGNI, wait for the second or third variation (rule of three), prefer a lambda/record/enum/DI when the language already solves it, and judge by readability for the next developer. Refactor *towards* a pattern when the pain appears.
+
+### Q23 [intermediate] Design pattern vs architectural pattern?
+| | Design pattern | Architectural pattern |
+|---|---|---|
+| Scope | classes/objects inside a component | structure of the whole system or a layer |
+| Examples | Singleton, Strategy, Observer, Decorator | Layered, MVC, Hexagonal, Event-driven, Microservices, CQRS |
+| Cost of change | a refactor | a re-platform / re-org |
+| Decided by | developer | architect + team |
+
+An architecture is usually *built from* design patterns (MVC uses Observer, Strategy and Front Controller).
+
+### Q24 [basic] Commonly used design patterns in Spring?
+- **Singleton** - default bean scope (one per container, not per JVM).
+- **Factory / Abstract Factory** - `BeanFactory`, `ApplicationContext`, `FactoryBean`.
+- **Proxy** - AOP, `@Transactional`, `@Cacheable`, `@Async`, Spring Data repositories.
+- **Template Method** - `JdbcTemplate`, `RestTemplate`, `TransactionTemplate`, `KafkaTemplate`.
+- **Observer** - `ApplicationEvent` / `@EventListener`.
+- **Strategy** - `AuthenticationProvider`, `HandlerMapping`, `ResourceLoader`, `PlatformTransactionManager`.
+- **Chain of Responsibility** - servlet / Spring Security filter chain, interceptors.
+- **Front Controller** - `DispatcherServlet`.  **Builder** - `HttpSecurity`, `UriComponentsBuilder`.  **Adapter** - `HandlerAdapter`.  **Dependency Injection / IoC** - the container itself (a principle, not a GoF pattern).
+
+### Q25 [intermediate] Is Spring MVC a design pattern? If yes, what is it?
+**MVC is an architectural pattern** (separating Model, View, Controller in the presentation layer); "Spring MVC" is the framework module that implements it. Request flow: `DispatcherServlet` (**Front Controller**) -> `HandlerMapping` (Strategy) -> interceptors (Chain of Responsibility) -> `@Controller` -> model -> `ViewResolver` -> view. In a REST API the view step is replaced by `HttpMessageConverter`s writing JSON.
+
+### Q26 [intermediate] How many ways can you create a Singleton? How is it broken?
+Ways: (1) eager `static final`, (2) lazy unsynchronized (**not** thread-safe), (3) `synchronized getInstance()` (safe, contended), (4) double-checked locking with `volatile`, (5) holder idiom (lazy, no locking), (6) **enum** (safest), plus (7) a container-managed Spring singleton bean.
+Breakers: **reflection** (`setAccessible(true)` on the private constructor - guard in the constructor; enum is immune), **serialization** (add `readResolve()`; enum is immune), **cloning** (don't implement `Cloneable`), and **multiple classloaders** (one instance per loader). Prefer a Spring bean; it also fixes testability.
+
+### Q27 [intermediate] Which pattern handles boilerplate like cleanly closing connections?
+**Template Method** (in its callback/execute-around form): the template owns acquire -> use -> release -> translate exceptions, the caller supplies only the varying part. `JdbcTemplate.query(sql, rowMapper)` never exposes `Connection`/`ResultSet`, so a leak is impossible. In plain Java the language-level equivalent is **try-with-resources** (`AutoCloseable`). Not Strategy (swaps algorithms) and not Decorator (adds behaviour).
+
+### Q28 [intermediate] How many design patterns are there in microservices?
+There is no fixed number - it is a catalogue (microservices.io lists dozens) grouped by problem:
+- **Decomposition**: by business capability / subdomain, strangler fig.
+- **Data**: database per service, saga, CQRS, event sourcing, outbox, API composition.
+- **Communication**: API gateway, BFF, service discovery, async messaging, idempotent consumer.
+- **Resilience**: circuit breaker, retry + backoff, bulkhead, timeout, rate limiter.
+- **Observability**: distributed tracing, log aggregation, health check, metrics.
+- **Deployment/config**: sidecar, externalised configuration, blue-green / canary.
+- **Security**: access token (JWT/OAuth2), mTLS.
+
+Name the group and 1-2 patterns per group, with the problem each solves.
+
+### Q29 [intermediate] Tell me a use case of a design pattern you used.
+Structure: **problem -> pattern -> why not the alternative -> outcome**. Example: "Court-record files arrived in 100+ formats and every new source meant editing a growing `if/else`. I introduced a `FileParser` **Strategy** with a registry (Spring `Map<String, FileParser>`), so a new source is a new bean; a **Template Method** base class handled streaming, validation and quarantine; the output was a canonical record via an **Adapter** (anti-corruption layer). Onboarding a source dropped from days to hours and the shared code stopped changing." Only claim patterns you can defend with their trade-offs.
+
+### Q30 [intermediate] Factory Method vs Abstract Factory vs Builder vs Prototype - and Singleton vs a static class?
+- **Factory Method**: one product, a method (or subclass) decides the concrete type. **Abstract Factory**: a *family* of related products that must match (`UiFactory` -> Button + Checkbox for one theme).
+- **Builder**: one complex object assembled step by step (many optional fields, validation in `build()`); a factory returns it in a single call.
+- **Prototype**: create by copying an existing instance (`clone()`/copy constructor) when construction is expensive; prefer copy constructors over `Cloneable`.
+- **Singleton vs static class**: a singleton is a real object - it can implement interfaces, be injected, mocked, lazily created and hold state; a static class cannot. That is why Spring beans beat static utility access.
+
+### Q31 [intermediate] Proxy vs Decorator vs Adapter vs Facade vs Bridge - and when is Composite or Flyweight used?
+- **Proxy**: same interface, *controls access* (lazy load, security, remote, caching; Spring AOP, Hibernate lazy entities). **Decorator**: same interface, *adds behaviour*, stackable (`BufferedReader(new FileReader())`). **Adapter**: *converts* one interface to another after the fact. **Facade**: one simpler interface over a subsystem. **Bridge**: split abstraction from implementation up front so both vary independently (JDBC `Driver`).
+- **Composite**: treat a leaf and a group uniformly (file system, menu, UI tree). **Flyweight**: share immutable state to save memory (`Integer.valueOf` cache, String pool).
+- Trap: Facade simplifies, Adapter makes compatible, Mediator centralises *peer* communication.
+
+### Q32 [intermediate] Command, Iterator, Memento, Mediator, Null Object - what are they and where have you seen them?
+- **Command**: request as an object (queue, undo, retry; `Runnable`, `Callable`, Kafka messages as commands). **Iterator**: traverse without exposing the structure (`Iterable`, fail-fast iterators). **Memento**: snapshot and restore state (undo, editor history). **Mediator**: peers talk through a hub (event bus, chat room, `DispatcherServlet` coordination). **Null Object**: a do-nothing implementation instead of `null` checks (`Collections.emptyList()`, `Optional`, a no-op logger).
+- Chain of Responsibility vs Decorator: a chain handler may *stop* the request; a decorator always delegates and adds to the result.
+
+### Q33 [intermediate] DAO vs Repository vs Service layer; DTO vs VO; Unit of Work; CQRS?
+DAO: persistence-centric CRUD abstraction over a table. Repository: domain-centric collection of aggregates (Spring Data `JpaRepository`). Service layer: business rules and transaction boundary, calls repositories. DTO: carries data across a boundary (API, remote call), no behaviour. Value Object: immutable, compared by value (`Money`). Unit of Work: tracks changes and flushes once per transaction (JPA persistence context). CQRS: separate the write model from read models; use it only when read/write needs genuinely diverge.
+
+### Q34 [intermediate] Which design patterns are used inside the JDK, Hibernate and Spring?
+JDK: Singleton (`Runtime.getRuntime()`), Factory (`Calendar.getInstance`, `List.of`), Flyweight (`Integer.valueOf` cache), Decorator (`BufferedReader`, `Collections.unmodifiableList`), Adapter (`Arrays.asList`, `InputStreamReader`), Iterator, Strategy (`Comparator`), Observer (`PropertyChangeListener`), Template Method (`AbstractList`), Builder (`StringBuilder`, `HttpClient.newBuilder`). Hibernate: Factory (`SessionFactory`), Proxy (lazy loading), Unit of Work + Identity Map (persistence context), Template/DAO. Spring: see Q24.
+
+### Q35 [intermediate] DI vs Service Locator? How do you choose a pattern, and what mistakes do people make?
+DI: dependencies are pushed in from outside (visible in the constructor, easy to fake). Service Locator: the class pulls what it needs from a registry (hidden dependencies, global state, harder tests) - an anti-pattern in most application code.
+Choosing: classify the problem (creation / structure / behaviour), pick the simplest option the language already offers, name the force it resolves, and check the cost. Common mistakes: patterns with one implementation, Singleton as global state, inheritance where composition fits, God-factories, ignoring SOLID, and cargo-culting names (`AbstractSingletonProxyFactoryBean` is a joke for a reason).

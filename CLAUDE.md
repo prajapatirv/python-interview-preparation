@@ -351,7 +351,7 @@ There is no Maven/Gradle in this environment, so nothing here uses a build tool.
 ```bash
 cd java-interview-prep
 java examples/12_kafka/02_consumer_groups_rebalancing_and_lag.java   # single-file source launch
-./verify_examples.sh                  # all 37 examples, stdout redirected, expects exit 0 (~1.5 min)
+./verify_examples.sh                  # all 40 examples, stdout redirected, expects exit 0 (~1.5 min)
 ./verify_examples.sh 12_kafka         # one chapter
 
 cd ../javaprep-live
@@ -360,7 +360,7 @@ start.cmd                             # or ./start.sh -> http://127.0.0.1:8090 ;
 
 - **Content layout**: `examples/NN_chapter/NN_file.java` (runnable) ↔ `deep_dive/NN_chapter.md` (long-form
   Q&A) — **same `NN_chapter` stem**, which is how the app links them. `topics/*.md` is the older crib-sheet
-  Q&A (458 Q, parsed by `build_site.py` and by the app). `Java_SpringBoot_Kafka_Interview_QA_Guide.md` is a
+  Q&A (473 Q, parsed by `build_site.py` and by the app). `Java_SpringBoot_Kafka_Interview_QA_Guide.md` is a
   96-question guide the app also parses (`# N. Section` / `## Qn. Question` headings).
 - **Examples are single-file programs**: no imports from sibling files (JDK 21 source launcher can't), classes
   are deliberately **not** `public`, output is **ASCII only** (stdout is redirected on Windows), and Spring /
