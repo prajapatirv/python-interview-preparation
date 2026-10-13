@@ -3,7 +3,7 @@
 The docx has **44 questions**. Each was checked against
 [`Java_SpringBoot_Kafka_Interview_QA_Guide.md`](Java_SpringBoot_Kafka_Interview_QA_Guide.md) (96 Q), `topics/` and `deep_dive/`.
 Most are covered. This file adds the ones that were **missing or only a one-line mention**, each with a
-**small example** (kept deliberately simple). Numbering continues from the guide (Q97+).
+**small example** (kept deliberately simple). Numbering continues from the guide (Q97-Q119).
 
 **Long-form version of every answer below** (mechanisms, failure modes, trade-offs, 60-second answers) is
 [`deep_dive/19_docx_gap_topics.md`](deep_dive/19_docx_gap_topics.md); the question index is in
@@ -532,6 +532,102 @@ I/O-bound : threads ~ cores x (1 + wait_time / compute_time)    e.g. 8 x (1 + 9)
 **Pitfalls:** `Executors.newFixedThreadPool` uses an **unbounded** queue (can OOM);
 `newCachedThreadPool` can create unbounded threads; always `shutdown()`; name your threads for debugging.
 On Java 21, virtual threads (`Executors.newVirtualThreadPerTaskExecutor()`) suit blocking I/O.
+
+---
+
+---
+
+## Q115. Producer `acks=0 / 1 / all`?
+
+`acks` = how many brokers must confirm a write.
+
+| acks | Confirmed by | Risk | Use for |
+|---|---|---|---|
+| `0` | nobody | lost silently, even on a network blip | logs/metrics you can drop |
+| `1` | leader only | lost if leader dies before followers copy | speed over safety |
+| `all` | leader + all in-sync replicas | almost none (needs ISR to fail) | orders, payments |
+
+```properties
+acks=all
+enable.idempotence=true
+# topic: replication.factor=3, min.insync.replicas=2
+```
+
+**Say:** `acks=all` is only as strong as `min.insync.replicas`; with 3 replicas and min ISR 2 you survive one
+broker loss without losing an acknowledged message.
+
+---
+
+## Q116. A Kafka consumer is slow. What do you do?
+
+Slow consumer -> lag grows -> if one poll takes longer than `max.poll.interval.ms` the consumer is kicked out and
+the group rebalances (it gets worse).
+
+1. **Measure where time goes:** your processing code (DB / HTTP call) vs poll vs commit vs rebalances.
+2. **Fix the slow part:** timeout + batch DB writes + cache; lower `max.poll.records` so a batch fits in the time budget.
+3. **Parallelise:** more consumers up to the **partition count**; or `concurrency=N` in `@KafkaListener`.
+4. **Poison message?** send to retry topic / DLT instead of retrying forever.
+
+```java
+@KafkaListener(topics = "orders", concurrency = "3")   // needs >= 3 partitions
+void handle(Order o) { service.process(o); }           // keep it fast and idempotent
+```
+
+---
+
+## Q117. How do you tune Kafka performance?
+
+| Where | Setting | Effect |
+|---|---|---|
+| Producer | `batch.size` + `linger.ms` | bigger batches, more throughput |
+| Producer | `compression.type=lz4` | less network, a bit of CPU |
+| Consumer | `max.poll.records`, `fetch.min.bytes` | per-poll work and fetch size |
+| Consumer | commit per **batch**, not per record | fewer round-trips |
+| Topic | partitions | parallelism ceiling |
+| App | batch DB writes, fast serializer | usually the biggest win |
+
+**Rules:** measure first, change one thing at a time, never trade durability for speed without agreeing the loss
+tolerance.
+
+---
+
+## Q118. Exactly-once semantics - what is it really?
+
+- **Idempotent producer** (`enable.idempotence=true`): retries do not create duplicates.
+- **Transactions** (`transactional.id`): write to several topics + commit consumer offsets **atomically**;
+  consumers use `isolation.level=read_committed`.
+- Works **inside Kafka** (read-process-write). It does **not** make an HTTP call or DB update exactly once.
+
+```java
+producer.beginTransaction();
+producer.send(new ProducerRecord<>("out", key, value));
+producer.sendOffsetsToTransaction(offsets, consumer.groupMetadata());
+producer.commitTransaction();
+```
+
+**Say:** for external side effects use at-least-once + an idempotent handler (unique key / upsert).
+
+---
+
+## Q119. Distributed transactions - why not 2PC?
+
+2PC (two-phase commit) = coordinator asks all to *prepare*, then *commit*. It holds locks, has a single point of
+failure, is as slow as the slowest participant, and Kafka / most NoSQL / REST do not support it.
+
+Use instead: **Saga** (local transactions + compensations) + **outbox** (event published atomically) +
+**idempotent consumers**.
+
+```
+Order PENDING -> reserve stock -> charge payment -> Order CONFIRMED
+payment fails -> release stock (compensation) -> Order REJECTED
+```
+
+---
+
+## Priority-list check (all five groups)
+
+Every item of the priority list is now answered somewhere. The item-by-item table is at the end of
+[`deep_dive/19_docx_gap_topics.md`](deep_dive/19_docx_gap_topics.md#priority-checklist-coverage-the-five-priority-groups).
 
 ---
 

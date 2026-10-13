@@ -16,7 +16,7 @@
 This chapter is the long-form treatment of the questions in the interview-prep `.docx` that were **missing or only
 a one-liner** in the 96-question guide. It has no `examples/19_*` folder of its own: every mechanism here is
 already runnable in an earlier chapter (listed per question). The index at the end maps all 44 docx questions to
-their answer.
+their answer, and the priority-checklist table maps the five interview priority groups to answers.
 
 ## What interviewers are actually probing
 
@@ -583,6 +583,196 @@ recommendations lean AP.
 Designing for AP means accepting its consequences: idempotent writes, conflict resolution (last-write-wins,
 vector clocks, CRDTs), read-repair/anti-entropy, and user-visible "your change may take a moment".
 *Run:* `13_nosql/02` demonstrates quorum arithmetic.
+
+---
+
+### 7. Priority-checklist additions (acks, slow consumer, tuning, exactly-once, distributed transactions)
+
+#### Q19. Producer `acks=0 / 1 / all` and what each really guarantees (supplement Q115)
+
+`acks` is how many brokers must confirm a write before the producer treats it as sent.
+
+| `acks` | Who confirms | Loses data when | Latency | Use for |
+|---|---|---|---|---|
+| `0` | nobody (fire and forget) | any failure, even a dropped packet; producer never knows | lowest | metrics, click logs you can lose |
+| `1` | partition **leader** only | leader crashes after ack but before followers copy | low | tolerable loss, high throughput |
+| `all` (`-1`) | leader + all **in-sync replicas** | only if every ISR member is lost at once | highest | orders, payments, anything that matters |
+
+`acks=all` alone is not enough: pair it with **`min.insync.replicas=2`** and **replication factor 3**. With
+`acks=all` and `min.insync.replicas=1`, a shrunken ISR of one leader behaves like `acks=1`. With `min.insync.replicas=2`
+a write fails (`NotEnoughReplicasException`) if fewer than 2 replicas are in sync - you choose **consistency over
+availability** on purpose.
+
+```properties
+acks=all
+enable.idempotence=true          # retries cannot create duplicates inside a partition
+retries=2147483647               # bounded in practice by delivery.timeout.ms
+delivery.timeout.ms=120000
+max.in.flight.requests.per.connection=5   # ordering is preserved with idempotence on
+```
+
+Topic side: `replication.factor=3`, `min.insync.replicas=2`, `unclean.leader.election.enable=false`.
+*Say:* "`acks=all` + RF 3 + minISR 2 survives one broker loss without losing acknowledged data."
+
+#### Q20. A consumer is slow. How do you find out why and fix it? (supplement Q116)
+
+Slow means `processing time per record x records per poll` is large, so lag grows and, past
+`max.poll.interval.ms`, the consumer is evicted and the group rebalances (a *rebalance storm* makes it worse).
+
+Diagnose by splitting the time:
+
+```
+poll time      -> broker / network / fetch settings
+process time   -> YOUR code: DB, HTTP calls, serialization, locks
+commit time    -> too-frequent sync commits
+rebalance time -> evictions, deployments, GC pauses
+```
+
+Then fix the part that is actually slow:
+
+1. **Downstream is slow** (most common) - timeout, bulkhead, batch the writes (`saveAll`), cache lookups.
+2. **Batch too big for the time budget** - lower `max.poll.records`, or raise `max.poll.interval.ms`.
+3. **Single-threaded I/O-bound work** - hand records to a bounded worker pool *per key* to keep ordering, commit only the
+   contiguous completed prefix; or use `concurrency=N` in the Spring listener container (up to partition count).
+4. **Not enough partitions** - consumers beyond partition count are idle; plan the increase (key mapping changes).
+5. **Poison message** retried forever - route to retry topic/DLT.
+6. **GC pauses / CPU throttling** in the container - heap sizing, CPU limits.
+
+```java
+@KafkaListener(topics = "orders", concurrency = "6")      // 6 consumer threads, needs >= 6 partitions
+void handle(List<ConsumerRecord<String, Order>> batch) {  // batch listener: one DB round-trip per poll
+    repo.saveAll(batch.stream().map(r -> map(r.value())).toList());
+}
+```
+
+*Metrics to watch:* records-lag-max, time-lag, `records-consumed-rate`, poll interval, rebalance rate, processing p99.
+
+#### Q21. Kafka performance tuning: producer, broker and consumer (supplement Q117)
+
+Tune against a **goal** (throughput vs latency vs durability), changing one thing at a time.
+
+| Side | Knob | Effect |
+|---|---|---|
+| Producer | `batch.size`, `linger.ms` | bigger batches = more throughput, a little more latency |
+| Producer | `compression.type=lz4/zstd` | less network/disk; some CPU |
+| Producer | `buffer.memory`, `max.in.flight` | backpressure and pipelining |
+| Producer | key distribution | hot key = hot partition |
+| Broker | partitions, RF, `min.insync.replicas` | parallelism vs durability and overhead |
+| Broker | disk (sequential I/O, SSD), page cache, network | usually the real ceiling |
+| Consumer | `fetch.min.bytes`, `fetch.max.wait.ms` | bigger fetches vs latency |
+| Consumer | `max.poll.records`, `concurrency` | per-poll work and parallelism |
+| Consumer | manual commit **per batch**, not per record | far fewer commit round-trips |
+| App | serialization (Avro/Protobuf vs JSON), idempotent writes, batching DB calls | often the biggest win |
+
+Rules of thumb: measure first (`kafka-producer-perf-test`, lag, request latency); never trade durability for speed
+without a stated loss tolerance; partitions are the unit of parallelism, so peak throughput =
+`min(partitions, consumers) x per-consumer rate`. See `12_kafka/04` for the capacity math.
+
+#### Q22. Exactly-once semantics (EOS): what Kafka gives and what it does not (supplement Q118)
+
+Three layers, often confused:
+
+1. **Idempotent producer** (`enable.idempotence=true`): broker de-duplicates retries using producer ID + sequence
+   number. Removes duplicates caused by *producer retries* within one partition and session.
+2. **Transactions** (`transactional.id`): atomic write to **multiple partitions/topics** together with the
+   **consumed offsets**. Consumers with `isolation.level=read_committed` see only committed data.
+3. **Kafka Streams** `processing.guarantee=exactly_once_v2`: packages (2) for read-process-write.
+
+```java
+producer.initTransactions();
+producer.beginTransaction();
+producer.send(new ProducerRecord<>("payments-out", key, result));
+producer.sendOffsetsToTransaction(offsetsOfInput, consumer.groupMetadata()); // offsets commit atomically
+producer.commitTransaction();                                                // all-or-nothing
+```
+
+**What it does not cover:** a side effect outside Kafka - an HTTP call, an email, a database update. Those can still
+run twice after a crash. For those, the realistic target is **at-least-once delivery + idempotent processing**
+(unique constraint, upsert, dedupe table keyed by event ID, or the transactional outbox). Say it this way:
+"Exactly-once is an *effect* I build with idempotency; Kafka transactions give it inside Kafka."
+
+#### Q23. Distributed transactions: why not 2PC, and what instead? (supplement Q119)
+
+A **distributed transaction** spans several services/databases that must all commit or all roll back.
+
+**Two-phase commit (2PC / XA):** a coordinator asks every participant to *prepare*, then *commit*. It gives atomicity,
+but participants hold locks while waiting, the coordinator is a single point of failure, latency is the slowest
+participant, and many modern stores/brokers (Kafka, most NoSQL, REST APIs) do not support XA. It does not fit
+microservices that must stay independently available.
+
+**Practical alternatives:**
+
+| Pattern | Idea | Trade-off |
+|---|---|---|
+| **Saga** (orchestrated / choreographed) | local transactions + compensations | eventual consistency, compensations must be designed |
+| **Transactional outbox** | write state + event in one local DB transaction; relay publishes | at-least-once, consumers idempotent |
+| **Idempotent consumers** | dedupe by event ID | extra table/state |
+| **Try-Confirm/Cancel (TCC)** | reserve, then confirm or cancel | explicit reservation logic |
+| **Design it away** | keep related data in one service/aggregate | boundaries must be right |
+
+```
+Order: PENDING -> Inventory.reserve -> Payment.charge -> Order: CONFIRMED
+                      failure at payment -> Inventory.release (compensation) -> Order: REJECTED
+```
+
+*Say:* "No global ACID. Each service commits locally, an outbox guarantees the event is published, and a saga with
+compensations plus idempotent consumers gets the business to a consistent end state." *Run:* `11_microservices/02`, `11/03`.
+
+---
+
+## Priority-checklist coverage (the five priority groups)
+
+Where every item of the interview priority list is answered. **G** = Java_SpringBoot_Kafka_Interview_QA_Guide.md,
+**S** = Docx_Gap_Supplement_QA.md, **D** = deep_dive chapter.
+
+| Item | Where |
+|---|---|
+| **Priority 1 - Kafka** | |
+| What is Kafka; topic vs partition | G Q55-Q57, D [12](12_kafka.md) Q1-Q3 |
+| Consumer vs consumer group; partition assignment | G Q59, D 12 Q5 (Range, RoundRobin, Sticky, CooperativeSticky) |
+| Offset; consumer offset commit | G Q60, Q62, D 12 Q6 (auto vs manual, `AckMode`) |
+| Lag; high-lag troubleshooting | G Q63, Q91, D 12 Q10, S Q111, D 19 Q13 |
+| Rebalancing | G Q64-Q65, D 12 Q8-Q9 |
+| Message ordering | G Q58, Q67, D 12 Q4 |
+| Producer acknowledgment `acks=0/1/all` | **S Q115, D 19 Q19**, G Q70 |
+| At-most/at-least/exactly-once | G Q61, D 12 Q7, **S Q118, D 19 Q22** |
+| Retry topic; DLT/DLQ | G Q68, S Q105, D 12 Q14, D 19 Q11 |
+| Kafka scaling | G Q72, D 12 Q11 |
+| Consumer failure | G Q64, S Q106, D 19 Q12 |
+| Slow consumer | **S Q116, D 19 Q20** |
+| Performance tuning | G Q70, **S Q117, D 19 Q21**, D 12 Q12 |
+| **Priority 2 - Microservices** | |
+| Circuit breaker; retry; timeout; bulkhead | G Q50, S Q103-Q104, D 11 Q4-Q6, D 19 Q8-Q9 |
+| Idempotency | G Q40, Q80, Q92, D 08, D 11 |
+| Saga; distributed transactions | G Q51-Q53, D 11 Q7, **S Q119, D 19 Q23** |
+| Service-to-service communication | G Q48, D 11 Q3 |
+| API Gateway | S Q112, D 19 Q10 |
+| Service discovery | G Q49, D 11 |
+| Distributed tracing | G Q54, Q86, S Q110, D 19 Q17 |
+| Zero-downtime deployment | G Q95, S Q109, D 16 Q6, D 19 Q16 |
+| **Priority 3 - Spring Boot** | |
+| IoC/DI; stereotypes | G Q28, Q31, D 06 |
+| Bean lifecycle | S Q101, D 19 Q6 |
+| `@Transactional` | G Q37, D 09 |
+| Auto-configuration; `@SpringBootApplication` | G Q30, S Q100, D 07, D 19 Q5 |
+| Actuator | G Q35, D 07 |
+| Exception handling | G Q34, D 07/08 |
+| REST API design | G Q39-Q46, D 08 |
+| **Priority 4 - Core Java** | |
+| Java 8 features; streams; Optional | G Q11-Q16, D 01 |
+| HashMap internals; ConcurrentHashMap | G Q10, S Q98, D 02, D 19 Q2 |
+| equals/hashCode; immutable objects | G Q5, Q7, D 02 |
+| Thread vs process; ExecutorService | S Q97, Q114, D 04, D 19 Q1, Q4 |
+| CompletableFuture | G Q18, D 01 |
+| synchronized vs Lock | G Q23, S Q99, D 19 Q3 |
+| JVM memory; GC | G Q26-Q27, D 05 Q1-Q4 |
+| Java 8 vs Java 11 | G Q19, Q22, D 03 |
+| **Priority 5 - NoSQL + production** | |
+| MongoDB vs Cassandra | G Q75, D 13 Q2 |
+| CAP; eventual consistency | G Q76, S Q113, D 13 Q5, Q10, D 19 Q18 |
+| Database scaling | D 16 Q9 (replicas, sharding), D 13 Q6-Q9, S Q107 |
+| Splunk troubleshooting | G Q82-Q87, D 14 |
+| Production incident scenario | G Q87, Q90-Q96, D 18, S Q111 |
 
 ---
 
