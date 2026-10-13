@@ -29,6 +29,7 @@ java examples/12_kafka/02_consumer_groups_rebalancing_and_lag.java      # any ex
 | `topics/*.md` | crib-sheet Q&A, one answer per question (feeds the app's Q&A drill and `build_site.py`) | 21 files, 473 Q |
 | `Java_SpringBoot_Kafka_Interview_QA_Guide.md` | 96 requirement-aligned questions with concise, conservative answers | 96 Q |
 | `Docx_Gap_Supplement_QA.md` | coverage map of the 44-question `.docx` + 23 extra Q&A (Q97-Q119) with small examples; long form in `deep_dive/19_docx_gap_topics.md` | 23 Q |
+| `Round_Questions_QA.md` | 102 real interview-round questions (Cybage list, fresher, experienced, Kafka round, other) in simple language; each has a simple answer, key points and one industry example | 102 Q |
 | `QUESTION_INDEX.md` | auto-generated index of `topics/` | |
 | `build_site.py`, `index.html` | the original standalone static study site (works offline, no server) | |
 
