@@ -1,0 +1,481 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Java Prep Live</title>
+<style>
+:root{
+  --bg:#f6f7f9; --panel:#ffffff; --panel2:#f0f2f5; --text:#1b1f24; --muted:#5b6670; --line:#d9dee4;
+  --accent:#b4531a; --accent2:#0b6e99; --ok:#1a7f37; --bad:#c62828; --warn:#9a6700;
+  --term-bg:#0f1419; --term-text:#d6e1ea; --term-dim:#7d8b99; --term-head:#ffcf6b;
+  --code-bg:#eef1f4;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#101317; --panel:#171b21; --panel2:#1e242c; --text:#e6ebf0; --muted:#98a4b0; --line:#2b323b;
+    --accent:#ff9d5c; --accent2:#5cc2ee; --ok:#4cc26a; --bad:#ff7b72; --warn:#e3b341; --code-bg:#222a33;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#101317; --panel:#171b21; --panel2:#1e242c; --text:#e6ebf0; --muted:#98a4b0; --line:#2b323b;
+  --accent:#ff9d5c; --accent2:#5cc2ee; --ok:#4cc26a; --bad:#ff7b72; --warn:#e3b341; --code-bg:#222a33;
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{margin:0;background:var(--bg);color:var(--text);font:15px/1.55 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+button{font:inherit;color:inherit;cursor:pointer}
+a{color:var(--accent2)}
+header{display:flex;align-items:center;gap:16px;padding:10px 16px;background:var(--panel);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:5}
+header h1{font-size:16px;margin:0;white-space:nowrap}
+header h1 span{color:var(--accent)}
+nav{display:flex;gap:4px}
+nav button{background:none;border:1px solid transparent;border-radius:6px;padding:6px 12px;color:var(--muted)}
+nav button.on{background:var(--panel2);border-color:var(--line);color:var(--text);font-weight:600}
+.spacer{flex:1}
+.meta{color:var(--muted);font-size:12px}
+.layout{display:grid;grid-template-columns:300px minmax(0,1fr);height:calc(100% - 53px)}
+aside{overflow:auto;border-right:1px solid var(--line);background:var(--panel);padding:10px}
+main{overflow:auto;padding:18px 24px 60px}
+.search{width:100%;padding:8px 10px;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--text);margin-bottom:8px}
+.chap{margin:2px 0}
+.chap>button.head{width:100%;text-align:left;background:none;border:0;padding:6px 6px;border-radius:6px;font-weight:600;display:flex;gap:8px;align-items:baseline}
+.chap>button.head:hover{background:var(--panel2)}
+.chap .num{color:var(--accent);font-variant-numeric:tabular-nums;min-width:22px}
+.chap .count{margin-left:auto;color:var(--muted);font-weight:400;font-size:12px}
+.chap ul{list-style:none;margin:0 0 6px 28px;padding:0}
+.chap li button{width:100%;text-align:left;background:none;border:0;padding:4px 8px;border-radius:6px;color:var(--muted);font-size:13.5px}
+.chap li button:hover{background:var(--panel2);color:var(--text)}
+.chap li button.on{background:var(--panel2);color:var(--text);font-weight:600;box-shadow:inset 2px 0 0 var(--accent)}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:16px 18px;margin-bottom:16px}
+h2{margin:0 0 4px;font-size:20px}
+.sub{color:var(--muted);margin:0 0 12px}
+.row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.btn{background:var(--panel2);border:1px solid var(--line);border-radius:6px;padding:7px 14px}
+.btn:hover{border-color:var(--accent)}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:600}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.status{font-size:13px;margin-left:6px}
+.status.ok{color:var(--ok)} .status.bad{color:var(--bad)} .status.run{color:var(--warn)}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin:10px 0 0}
+.chip{border:1px solid var(--line);background:var(--bg);border-radius:999px;padding:2px 10px;font-size:12.5px;color:var(--muted)}
+.chip:hover{border-color:var(--accent);color:var(--text)}
+pre.term{background:var(--term-bg);color:var(--term-text);border-radius:8px;padding:14px 16px;margin:12px 0 0;overflow:auto;max-height:68vh;font:13px/1.5 ui-monospace,SFMono-Regular,Consolas,Menlo,monospace;white-space:pre-wrap;word-break:break-word}
+pre.term .h{color:var(--term-head);font-weight:700}
+pre.term .dim{color:var(--term-dim)}
+pre.term .err{color:#ff7b72}
+pre.src{background:var(--code-bg);border-radius:8px;padding:14px 16px;overflow:auto;max-height:68vh;font:13px/1.5 ui-monospace,Consolas,monospace;margin:12px 0 0}
+.md h1{font-size:26px;border-bottom:1px solid var(--line);padding-bottom:6px;margin-top:0}
+.md h2{font-size:20px;margin-top:30px;border-bottom:1px solid var(--line);padding-bottom:4px}
+.md h3{font-size:16.5px;margin-top:22px}
+.md p,.md li{max-width:92ch}
+.md code{background:var(--code-bg);padding:1px 5px;border-radius:4px;font:0.9em ui-monospace,Consolas,monospace}
+.md pre{background:var(--code-bg);border-radius:8px;padding:12px 14px;overflow:auto;font:13px/1.5 ui-monospace,Consolas,monospace}
+.md pre code{background:none;padding:0}
+.md table{border-collapse:collapse;margin:12px 0;display:block;overflow:auto}
+.md th,.md td{border:1px solid var(--line);padding:6px 10px;text-align:left;vertical-align:top}
+.md th{background:var(--panel2)}
+.md blockquote{margin:12px 0;padding:4px 14px;border-left:3px solid var(--accent);color:var(--muted);background:var(--panel2);border-radius:0 6px 6px 0}
+.md hr{border:0;border-top:1px solid var(--line);margin:24px 0}
+.q{border:1px solid var(--line);border-radius:10px;background:var(--panel);margin-bottom:10px}
+.q>.qh{display:flex;gap:10px;align-items:flex-start;padding:10px 14px;cursor:pointer}
+.q .qn{color:var(--muted);font-variant-numeric:tabular-nums;min-width:30px}
+.q .qt{flex:1;font-weight:600}
+.lvl{font-size:11.5px;text-transform:uppercase;letter-spacing:.04em;border-radius:4px;padding:1px 7px;border:1px solid var(--line);color:var(--muted)}
+.lvl.basic{color:var(--ok)} .lvl.intermediate{color:var(--accent2)} .lvl.advanced{color:var(--warn)} .lvl.design{color:var(--accent)}
+.q .qa{padding:0 16px 12px 54px;display:none}
+.q.open .qa{display:block}
+.q.hideans.open .qa{display:none}
+.q label{font-size:12.5px;color:var(--muted);white-space:nowrap}
+.bar{height:6px;background:var(--panel2);border-radius:99px;overflow:hidden;margin:6px 0 10px}
+.bar>div{height:100%;background:var(--ok)}
+.qa-top{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:14px}
+select,input[type=text]{background:var(--panel);color:var(--text);border:1px solid var(--line);border-radius:6px;padding:7px 9px;font:inherit}
+.empty{color:var(--muted);padding:40px 0;text-align:center}
+.hdrbtn{background:none;border:1px solid var(--line);border-radius:6px;padding:4px 9px;color:var(--muted)}
+@media (max-width: 860px){
+  .layout{grid-template-columns:1fr;height:auto}
+  aside{max-height:38vh;border-right:0;border-bottom:1px solid var(--line)}
+  header{flex-wrap:wrap}
+  .q .qa{padding-left:16px}
+}
+</style>
+</head>
+<body>
+<header>
+  <h1><span>Java</span> Prep Live</h1>
+  <nav id="tabs">
+    <button data-tab="labs" class="on">Labs</button>
+    <button data-tab="study">Study</button>
+    <button data-tab="qa">Q&amp;A drill</button>
+  </nav>
+  <div class="spacer"></div>
+  <span class="meta" id="meta"></span>
+  <button class="hdrbtn" id="theme" title="Toggle theme">Theme</button>
+</header>
+<div class="layout">
+  <aside id="side"></aside>
+  <main id="main"></main>
+</div>
+
+<script>
+"use strict";
+// ---------------------------------------------------------------- tiny helpers
+const $ = (s, el = document) => el.querySelector(s);
+const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const store = {
+  get(k, d) { try { const v = localStorage.getItem(k); return v === null ? d : JSON.parse(v); } catch (e) { return d; } },
+  set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) { /* storage may be unavailable */ } }
+};
+async function api(path) {
+  const r = await fetch(path);
+  const ct = r.headers.get('content-type') || '';
+  const body = ct.includes('json') ? await r.json() : await r.text();
+  if (!r.ok) throw new Error(body && body.error ? body.error : r.statusText);
+  return body;
+}
+
+// ---------------------------------------------------------------- markdown (subset, offline)
+function inline(s, ctx) {
+  const codes = [];
+  s = s.replace(/`([^`]+)`/g, (_, c) => { codes.push(c); return '\u0000' + (codes.length - 1) + '\u0000'; });
+  s = esc(s);
+  s = s.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
+       .replace(/(^|[^*])\*([^*\s][^*]*)\*/g, '$1<em>$2</em>')
+       .replace(/\[([^\]]+)\]\(([^)\s]+)\)/g, (_, text, href) => {
+         href = href.replace(/&amp;/g, '&');
+         if (/^https?:\/\//.test(href)) return '<a href="' + esc(href) + '" target="_blank" rel="noopener">' + text + '</a>';
+         const m = href.split('#')[0];
+         if (/\.md$/.test(m)) return '<a href="#" data-doc="' + esc(resolve(ctx, m)) + '">' + text + '</a>';
+         if (/\.java$/.test(m)) return '<a href="#" data-ex="' + esc(m.replace(/^(\.\.\/)+/, '').replace(/^examples\//, '')) + '">' + text + '</a>';
+         return text;
+       });
+  return s.replace(/\u0000(\d+)\u0000/g, (_, i) => '<code>' + esc(codes[+i]) + '</code>');
+}
+function resolve(ctx, rel) {
+  const base = (ctx || '').split('/').slice(0, -1);
+  for (const part of rel.split('/')) { if (part === '..') base.pop(); else if (part !== '.' && part !== '') base.push(part); }
+  return base.join('/');
+}
+function md(text, ctx) {
+  const lines = text.replace(/\r\n/g, '\n').split('\n');
+  const out = []; let i = 0;
+  const isTableSep = l => /^\s*\|?\s*:?-{2,}:?\s*(\|\s*:?-{2,}:?\s*)*\|?\s*$/.test(l);
+  const cells = l => l.trim().replace(/^\|/, '').replace(/\|$/, '').split(/(?<!\\)\|/).map(c => c.trim().replace(/\\\|/g, '|'));
+  while (i < lines.length) {
+    let l = lines[i];
+    let m;
+    if ((m = /^\s*```\s*([\w+-]*)/.exec(l))) {
+      const buf = []; i++;
+      while (i < lines.length && !/^\s*```/.test(lines[i])) buf.push(lines[i++]);
+      i++;
+      out.push('<pre><code>' + esc(buf.join('\n')) + '</code></pre>');
+    } else if ((m = /^(#{1,4})\s+(.*)$/.exec(l))) {
+      const n = m[1].length; out.push('<h' + n + '>' + inline(m[2], ctx) + '</h' + n + '>'); i++;
+    } else if (/^\s*(-{3,}|\*{3,})\s*$/.test(l)) { out.push('<hr>'); i++; }
+    else if (/^\s*>/.test(l)) {
+      const buf = [];
+      while (i < lines.length && /^\s*>/.test(lines[i])) buf.push(lines[i++].replace(/^\s*>\s?/, ''));
+      out.push('<blockquote>' + md(buf.join('\n'), ctx) + '</blockquote>');
+    } else if (l.includes('|') && i + 1 < lines.length && isTableSep(lines[i + 1])) {
+      const head = cells(l); i += 2;
+      let h = '<table><thead><tr>' + head.map(c => '<th>' + inline(c, ctx) + '</th>').join('') + '</tr></thead><tbody>';
+      while (i < lines.length && lines[i].includes('|') && lines[i].trim() !== '') {
+        h += '<tr>' + cells(lines[i++]).map(c => '<td>' + inline(c, ctx) + '</td>').join('') + '</tr>';
+      }
+      out.push(h + '</tbody></table>');
+    } else if (/^\s*([-*+]|\d+[.)])\s+/.test(l)) {
+      const stack = []; let html = '';
+      while (i < lines.length && (/^\s*([-*+]|\d+[.)])\s+/.test(lines[i]) || (/^\s+\S/.test(lines[i]) && stack.length))) {
+        const lm = /^(\s*)([-*+]|\d+[.)])\s+(.*)$/.exec(lines[i]);
+        if (!lm) { html += ' ' + inline(lines[i].trim(), ctx); i++; continue; }
+        const depth = Math.floor(lm[1].replace(/\t/g, '    ').length / 2);
+        const tag = /\d/.test(lm[2]) ? 'ol' : 'ul';
+        while (stack.length && stack[stack.length - 1].d > depth) { html += '</li></' + stack.pop().t + '>'; }
+        if (stack.length && stack[stack.length - 1].d === depth) html += '</li>';
+        else { html += '<' + tag + '>'; stack.push({ d: depth, t: tag }); }
+        html += '<li>' + inline(lm[3], ctx); i++;
+      }
+      while (stack.length) html += '</li></' + stack.pop().t + '>';
+      out.push(html);
+    } else if (l.trim() === '') { i++; }
+    else {
+      const buf = [l]; i++;
+      while (i < lines.length && lines[i].trim() !== '' && !/^(#{1,4}\s|\s*```|\s*>|\s*([-*+]|\d+[.)])\s+)/.test(lines[i]) && !(lines[i].includes('|') && i + 1 < lines.length && isTableSep(lines[i + 1]))) buf.push(lines[i++]);
+      out.push('<p>' + inline(buf.join(' '), ctx) + '</p>');
+    }
+  }
+  return out.join('\n');
+}
+
+// ---------------------------------------------------------------- state
+let catalog = null, qa = null;
+let tab = store.get('tab', 'labs');
+let currentEx = store.get('ex', null);
+let currentDoc = store.get('doc', null);
+let openChapters = new Set(store.get('openChapters', []));
+const mastered = new Set(store.get('mastered', []));
+let activeRun = null;
+
+// ---------------------------------------------------------------- shell
+const side = $('#side'), main = $('#main');
+function setTab(t) {
+  tab = t; store.set('tab', t);
+  document.querySelectorAll('#tabs button').forEach(b => b.classList.toggle('on', b.dataset.tab === t));
+  render();
+}
+document.querySelectorAll('#tabs button').forEach(b => b.onclick = () => setTab(b.dataset.tab));
+$('#theme').onclick = () => {
+  const cur = document.documentElement.dataset.theme;
+  const dark = cur ? cur === 'dark' : matchMedia('(prefers-color-scheme: dark)').matches;
+  document.documentElement.dataset.theme = dark ? 'light' : 'dark';
+  store.set('theme', document.documentElement.dataset.theme);
+};
+{ const t = store.get('theme', null); if (t) document.documentElement.dataset.theme = t; }
+
+function openDoc(name) { currentDoc = name; store.set('doc', name); setTab('study'); }
+function openExample(path) {
+  currentEx = path; store.set('ex', path);
+  const ch = path.split('/')[0]; openChapters.add(ch); store.set('openChapters', [...openChapters]);
+  setTab('labs');
+}
+document.addEventListener('click', e => {
+  const a = e.target.closest('a[data-doc],a[data-ex]');
+  if (!a) return;
+  e.preventDefault();
+  if (a.dataset.doc) openDoc(a.dataset.doc); else openExample(a.dataset.ex);
+});
+
+function render() {
+  if (!catalog) return;
+  if (tab === 'labs') renderLabs();
+  else if (tab === 'study') renderStudy();
+  else renderQA();
+}
+
+// ---------------------------------------------------------------- LABS
+function findExample(path) {
+  for (const c of catalog.chapters) for (const e of c.examples) if (e.path === path) return { c, e };
+  return null;
+}
+function renderLabs() {
+  const q = (side.dataset.q || '').toLowerCase();
+  let h = '<input class="search" id="labsearch" placeholder="Filter examples..." value="' + esc(side.dataset.q || '') + '">';
+  for (const c of catalog.chapters) {
+    const exs = c.examples.filter(e => !q || (e.title + ' ' + e.file + ' ' + c.label).toLowerCase().includes(q));
+    if (!exs.length) continue;
+    const open = q || openChapters.has(c.id);
+    h += '<div class="chap"><button class="head" data-ch="' + c.id + '"><span class="num">' + String(c.number).padStart(2, '0') + '</span><span>' + esc(c.label) + '</span><span class="count">' + exs.length + '</span></button>';
+    if (open) {
+      h += '<ul>' + exs.map(e => '<li><button data-ex="' + esc(e.path) + '" class="' + (e.path === currentEx ? 'on' : '') + '">' + esc(e.title) + '</button></li>').join('') + '</ul>';
+    }
+    h += '</div>';
+  }
+  side.innerHTML = h;
+  const s = $('#labsearch');
+  s.oninput = () => { side.dataset.q = s.value; const pos = s.selectionStart; renderLabs(); const n = $('#labsearch'); n.focus(); n.setSelectionRange(pos, pos); };
+  side.querySelectorAll('.head').forEach(b => b.onclick = () => {
+    const id = b.dataset.ch; if (openChapters.has(id)) openChapters.delete(id); else openChapters.add(id);
+    store.set('openChapters', [...openChapters]); renderLabs();
+  });
+  side.querySelectorAll('li button').forEach(b => b.onclick = () => { currentEx = b.dataset.ex; store.set('ex', currentEx); renderLabs(); });
+  renderExample();
+}
+
+function renderExample() {
+  const found = currentEx && findExample(currentEx);
+  if (!found) {
+    const total = catalog.exampleCount;
+    main.innerHTML = '<div class="card"><h2>Run the examples</h2><p class="sub">' + total + ' self-contained Java programs in ' + catalog.chapters.length +
+      ' chapters. Pick one on the left and press <b>Run</b>. Each one is a plain <code>java File.java</code> run on JDK ' + esc(catalog.java) +
+      ' with no dependencies; Spring, Kafka and database behaviour is simulated so the failure modes are visible.</p>' +
+      '<p>Suggested start: <a href="#" data-ex="12_kafka/02_consumer_groups_rebalancing_and_lag.java">Kafka consumer groups, rebalancing and lag</a> &middot; ' +
+      '<a href="#" data-ex="06_spring_core/02_aop_proxy_and_self_invocation.java">Spring AOP self-invocation</a> &middot; ' +
+      '<a href="#" data-ex="08_rest_api/01_rest_api_status_codes_etag_idempotency.java">REST status codes, ETag, idempotency</a></p></div>';
+    return;
+  }
+  const { c, e } = found;
+  main.innerHTML =
+    '<div class="card"><div class="meta">' + String(c.number).padStart(2, '0') + ' &middot; ' + esc(c.label) + ' &middot; ' + esc(e.file) + ' &middot; ' + e.lines + ' lines</div>' +
+    '<h2>' + esc(e.title) + '</h2>' +
+    (e.summary ? '<p class="sub">Interview angle: ' + esc(e.summary.replace(/^[\s*]+/, '')) + '</p>' : '<p class="sub"></p>') +
+    '<div class="row"><button class="btn primary" id="run">&#9654; Run</button><button class="btn" id="stop" disabled>Stop</button>' +
+    '<button class="btn" id="src">Show source</button>' +
+    (c.doc ? '<button class="btn" id="dd">Read the deep dive</button>' : '') +
+    '<span class="status" id="status"></span></div>' +
+    (e.sections.length ? '<div class="chips" id="chips">' + e.sections.map((s, i) => '<button class="chip" data-sec="' + i + '">' + esc(s) + '</button>').join('') + '</div>' : '') +
+    '<pre class="term" id="term"><span class="dim">Press Run to execute. Output streams here.</span></pre>' +
+    '<pre class="src" id="srcpane" hidden></pre></div>';
+  $('#run').onclick = () => runExample(e);
+  $('#stop').onclick = stopRun;
+  $('#src').onclick = async () => {
+    const p = $('#srcpane');
+    if (!p.hidden) { p.hidden = true; $('#src').textContent = 'Show source'; return; }
+    if (!p.textContent) p.textContent = await api('/api/source?path=' + encodeURIComponent(e.path));
+    p.hidden = false; $('#src').textContent = 'Hide source';
+  };
+  if (c.doc) $('#dd').onclick = () => openDoc(c.doc);
+  document.querySelectorAll('#chips .chip').forEach(ch => ch.onclick = () => {
+    const key = '=== ' + e.sections[+ch.dataset.sec] + ' ===';
+    const el = [...document.querySelectorAll('#term .h')].find(x => x.textContent.trim() === key);
+    if (el) el.scrollIntoView({ block: 'start', behavior: 'smooth' });
+    else $('#status').textContent = 'Run the example first, then jump to a section.';
+  });
+}
+
+function colorLine(line) {
+  const s = esc(line);
+  if (/^=== .* ===$/.test(line)) return '<span class="h">' + s + '</span>';
+  if (/^(Exception in thread|\s+at |Caused by:|error:|\[runner error\])/.test(line)) return '<span class="err">' + s + '</span>';
+  return s;
+}
+
+async function runExample(e) {
+  if (activeRun) return;
+  const term = $('#term'), status = $('#status');
+  term.innerHTML = ''; status.className = 'status run'; status.textContent = 'starting...';
+  $('#run').disabled = true; $('#stop').disabled = false;
+  let started;
+  try { started = await api('/api/run?path=' + encodeURIComponent(e.path)); }
+  catch (err) { status.className = 'status bad'; status.textContent = err.message; $('#run').disabled = false; $('#stop').disabled = true; return; }
+  activeRun = started.id;
+  let from = 0;
+  const loop = async () => {
+    let p;
+    try { p = await api('/api/poll?id=' + activeRun + '&from=' + from); }
+    catch (err) { status.className = 'status bad'; status.textContent = err.message; activeRun = null; return; }
+    if (p.lines.length) {
+      const stick = term.scrollTop + term.clientHeight >= term.scrollHeight - 30;
+      term.insertAdjacentHTML('beforeend', p.lines.map(colorLine).join('\n') + '\n');
+      if (stick) term.scrollTop = term.scrollHeight;
+    }
+    from = p.next;
+    status.textContent = (p.done ? '' : 'running ') + (p.elapsedMs / 1000).toFixed(1) + 's';
+    if (p.done) {
+      const ok = p.exit === 0;
+      status.className = 'status ' + (ok ? 'ok' : 'bad');
+      status.textContent = (p.timedOut ? 'timed out after ' : ok ? 'finished ok in ' : 'exit code ' + p.exit + ' after ') + (p.elapsedMs / 1000).toFixed(1) + 's' + (p.truncated ? ' (output truncated)' : '');
+      activeRun = null;
+      const r = $('#run'), s = $('#stop'); if (r) r.disabled = false; if (s) s.disabled = true;
+    } else setTimeout(loop, 250);
+  };
+  loop();
+}
+async function stopRun() { if (activeRun) { try { await api('/api/stop?id=' + activeRun); } catch (e) { /* run already finished */ } } }
+
+// ---------------------------------------------------------------- STUDY
+function docList() {
+  const chapterDocs = catalog.docs.filter(d => /deep_dive\/\d\d_/.test(d.name));
+  const other = catalog.docs.filter(d => !/deep_dive\/\d\d_/.test(d.name));
+  return { chapterDocs, other, extra: catalog.extra };
+}
+async function renderStudy() {
+  const { chapterDocs, other, extra } = docList();
+  const item = (d, label) => '<li><button data-doc="' + esc(d.name) + '" class="' + (d.name === currentDoc ? 'on' : '') + '">' + esc(label || d.title) + '</button></li>';
+  side.innerHTML = '<div class="chap"><button class="head"><span>Overview</span></button><ul>' + other.map(d => item(d)).join('') + extra.map(d => item(d, d.title)).join('') + '</ul></div>' +
+    '<div class="chap"><button class="head"><span>Deep dives</span><span class="count">' + chapterDocs.length + '</span></button><ul>' +
+    chapterDocs.map(d => item(d)).join('') + '</ul></div>';
+  side.querySelectorAll('li button').forEach(b => b.onclick = () => { currentDoc = b.dataset.doc; store.set('doc', currentDoc); renderStudy(); });
+  if (!currentDoc) currentDoc = (other.find(d => /README/.test(d.name)) || chapterDocs[0] || extra[0] || {}).name;
+  if (!currentDoc) { main.innerHTML = '<div class="empty">No documents found.</div>'; return; }
+  try {
+    const text = await api('/api/doc?name=' + encodeURIComponent(currentDoc));
+    main.innerHTML = '<div class="md">' + md(text, currentDoc) + '</div>';
+    main.scrollTop = 0;
+  } catch (e) { main.innerHTML = '<div class="empty">' + esc(e.message) + '</div>'; }
+}
+
+// ---------------------------------------------------------------- Q&A
+let qaState = store.get('qaState', { topic: 'all', level: 'all', q: '', hide: false });
+let mock = null;
+const qid = (t, q) => t.id + '#' + q.n;
+
+function renderQA() {
+  if (!qa) { main.innerHTML = '<div class="empty">Loading questions...</div>'; api('/api/qa').then(d => { qa = d.topics; renderQA(); }); return; }
+  const total = qa.reduce((s, t) => s + t.questions.length, 0);
+  const done = qa.reduce((s, t) => s + t.questions.filter(q => mastered.has(qid(t, q))).length, 0);
+  let h = '<input class="search" id="qsearch" placeholder="Search questions and answers..." value="' + esc(qaState.q) + '">';
+  h += '<div class="chap"><button class="head" data-t="all"><span>All topics</span><span class="count">' + done + '/' + total + '</span></button></div>';
+  for (const t of qa) {
+    const d = t.questions.filter(q => mastered.has(qid(t, q))).length;
+    h += '<div class="chap"><button class="head" data-t="' + esc(t.id) + '" style="font-weight:' + (qaState.topic === t.id ? 700 : 500) + '"><span>' + esc(t.title) + '</span><span class="count">' + d + '/' + t.questions.length + '</span></button></div>';
+  }
+  side.innerHTML = h;
+  $('#qsearch').oninput = e => { qaState.q = e.target.value; saveQA(); drawQuestions(); };
+  side.querySelectorAll('.head').forEach(b => b.onclick = () => { qaState.topic = b.dataset.t; mock = null; saveQA(); renderQA(); });
+  main.innerHTML = '<div class="qa-top">' +
+    '<select id="lvl"><option value="all">All levels</option><option>basic</option><option>intermediate</option><option>advanced</option><option>design</option></select>' +
+    '<button class="btn" id="expand">Expand all</button><button class="btn" id="collapse">Collapse all</button>' +
+    '<label><input type="checkbox" id="hide"> Hide answers (self-test)</label>' +
+    '<button class="btn primary" id="mock">Mock: random 10</button>' +
+    '<span class="meta" id="count"></span></div>' +
+    '<div class="bar"><div style="width:' + (total ? Math.round(100 * done / total) : 0) + '%"></div></div><div id="list"></div>';
+  $('#lvl').value = qaState.level; $('#hide').checked = qaState.hide;
+  $('#lvl').onchange = e => { qaState.level = e.target.value; saveQA(); drawQuestions(); };
+  $('#hide').onchange = e => { qaState.hide = e.target.checked; saveQA(); drawQuestions(); };
+  $('#expand').onclick = () => document.querySelectorAll('.q').forEach(q => q.classList.add('open'));
+  $('#collapse').onclick = () => document.querySelectorAll('.q').forEach(q => q.classList.remove('open'));
+  $('#mock').onclick = () => {
+    const all = [];
+    qa.forEach(t => t.questions.forEach(q => { if (!mastered.has(qid(t, q))) all.push({ t, q }); }));
+    for (let i = all.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [all[i], all[j]] = [all[j], all[i]]; }
+    mock = all.slice(0, 10); qaState.hide = true; $('#hide').checked = true; drawQuestions();
+  };
+  drawQuestions();
+}
+function saveQA() { store.set('qaState', qaState); }
+
+function drawQuestions() {
+  let items = [];
+  if (mock) items = mock;
+  else {
+    const needle = qaState.q.trim().toLowerCase();
+    qa.forEach(t => {
+      if (qaState.topic !== 'all' && qaState.topic !== t.id) return;
+      t.questions.forEach(q => {
+        if (qaState.level !== 'all' && q.level !== qaState.level) return;
+        if (needle && !(q.q + ' ' + q.a).toLowerCase().includes(needle)) return;
+        items.push({ t, q });
+      });
+    });
+  }
+  $('#count').textContent = (mock ? 'mock set: ' : '') + items.length + ' question' + (items.length === 1 ? '' : 's');
+  const list = $('#list');
+  if (!items.length) { list.innerHTML = '<div class="empty">No questions match.</div>'; return; }
+  const shown = items.slice(0, 150);
+  list.innerHTML = shown.map((it, idx) => {
+    const id = qid(it.t, it.q);
+    const lvl = it.q.level === 'guide' ? '' : '<span class="lvl ' + it.q.level + '">' + it.q.level + '</span>';
+    return '<div class="q' + (qaState.hide ? ' hideans' : '') + '" data-id="' + esc(id) + '" data-i="' + idx + '"><div class="qh"><span class="qn">' +
+      (mock ? idx + 1 : it.q.n) + '</span><span class="qt">' + esc(it.q.q) + '</span>' + lvl +
+      '<label onclick="event.stopPropagation()"><input type="checkbox" ' + (mastered.has(id) ? 'checked' : '') + '> I can answer this</label></div>' +
+      '<div class="qa md" data-lazy="1"></div></div>';
+  }).join('') + (items.length > shown.length ? '<div class="empty">Showing first ' + shown.length + ' of ' + items.length + ' - narrow with search or a topic.</div>' : '');
+  list.querySelectorAll('.q').forEach(el => {
+    const it = shown[+el.dataset.i];
+    el.querySelector('.qh').onclick = () => {
+      el.classList.toggle('open');
+      if (qaState.hide && el.classList.contains('open')) el.classList.remove('hideans'); // reveal on demand
+      const body = el.querySelector('.qa');
+      if (body.dataset.lazy) { body.innerHTML = md(it.q.a, ''); delete body.dataset.lazy; }
+    };
+    el.querySelector('input[type=checkbox]').onchange = e => {
+      if (e.target.checked) mastered.add(el.dataset.id); else mastered.delete(el.dataset.id);
+      store.set('mastered', [...mastered]);
+    };
+  });
+}
+
+// ---------------------------------------------------------------- boot
+(async function () {
+  try {
+    catalog = await api('/api/catalog');
+    $('#meta').textContent = 'JDK ' + catalog.java + ' · ' + catalog.exampleCount + ' examples';
+    render();
+  } catch (e) {
+    main.innerHTML = '<div class="empty">Could not load the catalog: ' + esc(e.message) + '</div>';
+  }
+})();
+</script>
+</body>
+</html>

@@ -17,6 +17,9 @@ a single deployable application. It holds **two real projects plus reference mat
   `docs/ARCHITECTURE.md`. **It machine-reads the prep lab's conventions** — see
   "The cross-project contract" below before changing folder names, file names or
   `deep_dive/README.md`.
+- **`java-interview-prep/`** + **`javaprep-live/`** — the Java counterpart (Java 8/11, Spring Boot,
+  microservices, REST, Kafka, NoSQL, Splunk): runnable single-file examples, `deep_dive/` docs, a Q&A
+  bank, and a zero-dependency Java runner app. See "Java projects" at the end of this file.
 - **`material_ref/`** — the source interview-prep PDFs the notes are distilled from. Read-only
   reference; see `material_ref/README.md` for which three of the six actually contain content.
 - **`Java/`**, **`python-interview-prep/legacy_examples/`**, **`example/`** — unstructured scratch
@@ -339,3 +342,35 @@ CLI or tests without FastAPI. Settings are read through `config.X` **at call tim
   stdin closed, in its own process group; two reader threads feed an `asyncio.Queue` of event dicts
 - `services/ai.py` — `stream_answer()` behind two providers: the Claude API or an offline mock,
   selected by `AI_MODE`
+
+## Java projects — `java-interview-prep/` and `javaprep-live/`
+
+Independent of the Python projects above. **Only a JDK is needed** (21 is installed; `java`, not `py`).
+There is no Maven/Gradle in this environment, so nothing here uses a build tool.
+
+```bash
+cd java-interview-prep
+java examples/12_kafka/02_consumer_groups_rebalancing_and_lag.java   # single-file source launch
+./verify_examples.sh                  # all 37 examples, stdout redirected, expects exit 0 (~1.5 min)
+./verify_examples.sh 12_kafka         # one chapter
+
+cd ../javaprep-live
+start.cmd                             # or ./start.sh -> http://127.0.0.1:8090 ; --check runs every example headless
+```
+
+- **Content layout**: `examples/NN_chapter/NN_file.java` (runnable) ↔ `deep_dive/NN_chapter.md` (long-form
+  Q&A) — **same `NN_chapter` stem**, which is how the app links them. `topics/*.md` is the older crib-sheet
+  Q&A (458 Q, parsed by `build_site.py` and by the app). `Java_SpringBoot_Kafka_Interview_QA_Guide.md` is a
+  96-question guide the app also parses (`# N. Section` / `## Qn. Question` headings).
+- **Examples are single-file programs**: no imports from sibling files (JDK 21 source launcher can't), classes
+  are deliberately **not** `public`, output is **ASCII only** (stdout is redirected on Windows), and Spring /
+  Kafka / database behaviour is **simulated** so failure modes are observable. Each starts with a header
+  comment (` * NN - Title`, then `Interview angle: ...`) and prints `section("N. Title")` banners — the app
+  builds its title, summary and outline chips from exactly those.
+- **`javaprep-live/JavaPrepLive.java`** is one file on `com.sun.net.httpserver` (binds 127.0.0.1 only, runs
+  only `examples/**/*.java`, serves only whitelisted markdown) plus `static/index.html` (vanilla JS, its
+  own small Markdown renderer, no CDN). Nothing to edit when adding an example: the catalog is scanned.
+- Examples that are intentionally non-deterministic or "demonstrate a bug" (`02_streams_collectors` section 9
+  parallel `ArrayList::add`, `15_testing` last assertion) must still **exit 0**; keep them that way.
+- `01_java8_core/04_completable_future` and `03_java11_and_modern/03_virtual_threads_java21` take several seconds
+  (deliberate sleeps / a 200-thread-pool comparison). `10_spring_security/01` spends ~0.5 s per PBKDF2 hash on purpose.
