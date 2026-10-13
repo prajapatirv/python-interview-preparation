@@ -351,7 +351,7 @@ There is no Maven/Gradle in this environment, so nothing here uses a build tool.
 ```bash
 cd java-interview-prep
 java examples/12_kafka/02_consumer_groups_rebalancing_and_lag.java   # single-file source launch
-./verify_examples.sh                  # all 46 examples, stdout redirected, expects exit 0 (~2 min)
+./verify_examples.sh                  # all 50 examples, stdout redirected, expects exit 0 (~2 min)
 ./verify_examples.sh 12_kafka         # one chapter
 
 cd ../javaprep-live

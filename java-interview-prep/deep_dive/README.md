@@ -18,7 +18,7 @@ The division of labour:
 | **`deep_dive/NN_*.md` (this folder)** | the full treatment: mechanisms, traps, trade-offs, what to say |
 | [`../examples/NN_*/*.java`](../examples) | runnable proof; each prints the behaviour the doc describes |
 
-Folder names match one-to-one: `examples/12_kafka/` is explained by `deep_dive/12_kafka.md`. Chapters **19** and **20** are the exceptions: cross-cutting chapters with no `examples/NN_*` folder of their own (20 reuses `examples/17_design_patterns/`). Chapter **21** has its own `examples/21_coding_interview/`; chapter **22** has `examples/22_sql_queries/` (one Python + SQLite script, since the JDK ships no database).
+Folder names match one-to-one: `examples/12_kafka/` is explained by `deep_dive/12_kafka.md`. Chapters **19** and **20** are the exceptions: cross-cutting chapters with no `examples/NN_*` folder of their own (20 reuses `examples/17_design_patterns/`). Chapter **21** has its own `examples/21_coding_interview/`; chapter **22** has `examples/22_sql_queries/` (one Python + SQLite script, since the JDK ships no database); chapter **23** has `examples/23_production_scenarios/`.
 The live app uses that convention to link them, so keep numbering append-only.
 
 ## Requirement coverage map
@@ -36,6 +36,7 @@ The requirement profile for this role (Java/J2EE with Java 8 and 11, Spring Boot
 | **Splunk** and observability | [14](14_observability_splunk.md) | `14_observability_splunk/*` |
 | **Coding round** (programs, streams, data structures, LRU/singleton, DI, JWT, idempotency) | [21](21_coding_interview.md) | `21_coding_interview/*` |
 | **SQL queries** (top-N per group, windows, gaps and islands, plans, deadlocks) | [22](22_sql_query_interview.md) | `22_sql_queries/01_*.py` |
+| **Production scenarios** (20 "what happened and why" questions, 3-8 yrs backend) | [23](23_production_scenarios.md) | `23_production_scenarios/*` |
 | Testing, design quality, production support | [15](15_testing.md), [17](17_design_patterns.md), [18](18_production_troubleshooting.md) | `15_*`, `17_*`, `18_*` |
 | **Gap topics from the 44-question `.docx`** (process vs thread, ConcurrentHashMap, retry vs breaker, retry topics, consumer death, 100->600 TPS, zero downtime, tracing, CAP) | [19](19_docx_gap_topics.md), index at its end | see the runnable list at the top of chapter 19 |
 
@@ -65,6 +66,7 @@ The requirement profile for this role (Java/J2EE with Java 8 and 11, Spring Boot
 | 20 | [Design patterns catalogue: every GoF pattern as a basic Q&A (intent, problem, structure, JDK/Spring, pros/cons)](20_design_patterns_catalogue.md) | reuses [17_design_patterns/](../examples/17_design_patterns) (02-04) |
 | 21 | [Coding round: Java 8 programs, data structures, DI types, JWT, idempotent POST, output traps](21_coding_interview.md) | [21_coding_interview/](../examples/21_coding_interview) |
 | 22 | [SQL query interview: top-N per group, window functions, gaps and islands, optimisation, NULL traps, deadlocks](22_sql_query_interview.md) | [22_sql_queries/](../examples/22_sql_queries) (Python + SQLite, `py 01_sql_interview_queries_sqlite.py`) |
+| 23 | [Production scenarios: 20 symptom-to-mechanism questions (thread pools, deadlocks, transactions, DB connections, Kafka partitions, Redis, JWT, probes, JPA)](23_production_scenarios.md) | [23_production_scenarios/](../examples/23_production_scenarios) |
 
 ## Question index: the 44-question `.docx` and the supplement
 

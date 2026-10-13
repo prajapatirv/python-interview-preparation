@@ -2,6 +2,7 @@
 
 > **Runnable:** [`01_incident_triage_runbook.java`](../examples/18_production_troubleshooting/01_incident_triage_runbook.java)
 > **Crib sheet:** [`topics/16-production-troubleshooting-rca.md`](../topics/16-production-troubleshooting-rca.md) · **Guide:** Q87, Q90–Q96
+> **Symptom drills:** [23 Production scenarios](23_production_scenarios.md) (20 one-symptom questions with runnable proofs)
 
 ## What interviewers are actually probing
 
