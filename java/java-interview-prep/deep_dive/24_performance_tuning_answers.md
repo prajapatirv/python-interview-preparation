@@ -671,11 +671,16 @@ is the limit.
 
 ### Q5. Tuning Kafka configuration for handling large scale of traffic
 
-**Short answer.** I size partitions from throughput and consumer parallelism with replication 3 and
-`min.insync.replicas=2`. On the producer I batch with `linger.ms`, `batch.size` and compression, with
-idempotence and `acks=all`. On the consumer I size `max.poll.records` to processing time, use
-cooperative rebalancing, commit after processing and batch downstream writes. Then I load-test with
-realistic data and validate throughput, p99 and lag.
+**Don't say:** "For high traffic I increase partitions, batch size and consumers." That is a list of
+knobs with no bottleneck analysis.
+
+**Short answer.** Kafka tuning is workload-dependent. I first identify the bottleneck using producer
+throughput, broker CPU/disk/network, partition distribution, consumer throughput and consumer lag. Then
+I tune partitions and consumer parallelism for scalability, producer batching and compression for
+throughput, consumer fetch and poll settings for efficient consumption, and replication/acks for
+durability. I validate partition-key distribution to avoid hot partitions, and I monitor the downstream
+database because Kafka may not be the real bottleneck. Flow: partition -> producer -> broker ->
+consumer -> downstream -> measure -> tune -> load test.
 
 **Technical detail.**
 
@@ -809,12 +814,17 @@ partitions, broker idle percent.
 - **Message too large?** Raise `max.message.bytes`, `max.partition.fetch.bytes` and
   `replica.fetch.max.bytes` consistently, but prefer claim-check (store the blob elsewhere).
 
-**The 60-second answer:** I design partitions from throughput and consumer parallelism, with
-replication 3 and `min.insync.replicas=2`. On the producer I batch with `linger.ms`, `batch.size` and
-compression, with idempotence and `acks=all`. On the consumer I size `max.poll.records` to the
-processing time, use cooperative rebalancing and static membership, commit after processing, batch
-downstream writes and make handling idempotent. On the brokers I watch thread idle percent, disk,
-network and balance. Then I load-test with realistic data and validate throughput, p99 and lag.
+**The 60-second answer:** For large-scale Kafka traffic I start with capacity and bottleneck analysis,
+not blind config changes. On the producer I tune `batch.size`, `linger.ms`, compression, acks, retries
+and buffer capacity for the required throughput, latency and durability. On the topic I make sure there
+are enough partitions for consumer parallelism and that the key spreads traffic evenly, because a hot
+partition becomes the bottleneck. On the consumer I tune consumer count, `max.poll.records`, fetch
+settings and `max.poll.interval.ms` from processing time and memory. On the brokers I watch CPU, disk
+I/O, network, request latency, ISR and under-replicated partitions. I monitor consumer lag together with
+downstream database or API latency, since consumers often fall behind because of the sink. Then I load
+test and compare throughput, p95/p99, lag, CPU, memory, disk and network before and after. Kafka
+performance is capacity planning across partitions, producers, brokers, consumers and downstream
+systems, not just configuration.
 
 ---
 
