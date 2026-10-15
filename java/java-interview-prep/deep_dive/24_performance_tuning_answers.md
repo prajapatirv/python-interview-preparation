@@ -669,7 +669,7 @@ is the limit.
 
 ---
 
-### Q5. How do you tune Kafka configuration to handle a large scale of traffic?
+### Q5. Tuning Kafka configuration for handling large scale of traffic
 
 **Short answer.** I size partitions from throughput and consumer parallelism with replication 3 and
 `min.insync.replicas=2`. On the producer I batch with `linger.ms`, `batch.size` and compression, with
