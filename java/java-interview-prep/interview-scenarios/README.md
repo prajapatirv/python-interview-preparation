@@ -20,6 +20,7 @@ Each file's front matter `skill:` attaches it to a topic of the Interview Coach
 | [11_foundations_kafka.md](11_foundations_kafka.md) | From the basics (Kafka) | 7 |
 | [12_foundations_spring_boot.md](12_foundations_spring_boot.md) | From the basics (Spring Boot) | 3 |
 | [13_foundations_java_core.md](13_foundations_java_core.md) | From the basics (core Java: immutability, equals/hashCode, HashMap, volatile, exceptions, cohesion/coupling, singleton) | 7 |
+| [14_foundations_rest_integration.md](14_foundations_rest_integration.md) | From the basics: aggregating several third-party APIs into one response | 1 |
 
 Files 03 and 06–08 target interview feedback received on 2026-10-13: *tuning backend APIs for response time and
 throughput, using CPU and memory efficiently, tools to measure performance, tuning Kafka for large-scale traffic.*
