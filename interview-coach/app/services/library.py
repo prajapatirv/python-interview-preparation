@@ -191,6 +191,30 @@ class Library:
             stack.sources.append({"path": stack.index, "kind": "index",
                                   "questions": sum(1 for t in stack.topics for q in t.questions
                                                    if q["source"] == stack.index)})
+        cls._merge_foundations(stack)
+
+    @staticmethod
+    def _norm_title(title: str) -> str:
+        return re.sub(r"[^a-z0-9]+", " ", title.lower()).strip()
+
+    @classmethod
+    def _merge_foundations(cls, stack: Stack) -> None:
+        """A short crib/guide/deep-dive card shows the concepts-first answer when one exists for the same question
+        (matched on the normalised title), so the full explanation needs no AI. The original short answer is kept
+        as the last section, and ``body`` is untouched so AI prompts and the checker still see it."""
+        found = {}
+        for t in stack.topics:
+            for q in t.questions:
+                if q["kind"] == "scenario" and any(s["key"] == "concepts" for s in q["sections"]):
+                    found.setdefault(cls._norm_title(q["title"]), q)
+        for t in stack.topics:
+            for q in t.questions:
+                src = found.get(cls._norm_title(q["title"]))
+                if q["kind"] == "scenario" or src is None or any(s["key"] == "concepts" for s in q["sections"]):
+                    continue
+                own = q["sections"] or [{"key": "original", "label": "Original short answer", "md": q["body"]}]
+                q["sections"] = [dict(s) for s in src["sections"]] + own
+                q["foundation_id"] = src["id"]
 
     @staticmethod
     def _add(stack: Stack, t: Topic, qs: list[dict], rel: str, kind: str, count_source: bool = True) -> None:

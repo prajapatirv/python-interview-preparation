@@ -177,7 +177,7 @@ Too many checked exceptions leak implementation details through every layer. Cat
 **60-second answer**
 Checked exceptions are enforced by the compiler for recoverable situations; unchecked ones signal bugs or unrecoverable failures. I prefer unchecked domain exceptions handled in one place, never swallow them, and remember that Spring transactions roll back only on unchecked exceptions by default.
 
-### Q6 [fresher] What is the difference between cohesion and coupling, and why do we want high cohesion and low coupling?
+### Q6 [fresher] Cohesion vs coupling
 tags: cohesion, coupling, design, solid, dependency-injection, interfaces, basics
 
 **Start here: the concepts**
@@ -210,7 +210,7 @@ Over-splitting creates many tiny classes and indirection that is hard to follow.
 **60-second answer**
 Cohesion is how focused a class is on one job; coupling is how much it depends on other classes. I want high cohesion and low coupling so changes stay local. I give each class a single responsibility and depend on interfaces injected through DI, so a payment provider can be switched without touching the order logic.
 
-### Q7 [mid] How do you make a class a singleton, and what are the pitfalls?
+### Q7 [mid] How to convert a normal class into a singleton
 tags: singleton, design-pattern, thread-safety, enum, spring-scope, basics
 
 **Start here: the concepts**

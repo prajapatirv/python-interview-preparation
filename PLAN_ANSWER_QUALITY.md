@@ -101,3 +101,17 @@ reuse the `basics` and `depth` features already built (they are stack-neutral).
 2. **Order:** I propose J1 -> J2 -> J3 -> J4 -> J5, then J6/J7.
 3. **Leadership/behavioural:** these need your real projects; send 4-5 of your own stories and I will
    shape them into STAR answers.
+
+## 9. Status update (2026-10-15, end of session)
+
+| Action | State |
+|---|---|
+| J1-J7 drafting of all shallow Java questions (13 topics + leadership) | **Done** - `interview-scenarios/20-32_*_foundations.md`, `40_leadership_foundations.md`; 0 failures |
+| J8 offline fallback | **Done** - a card merges its concepts-first answer by title, so no AI is needed (`Library._merge_foundations`) |
+| J9 drafting script | **Done** - `interview-coach/scripts/draft_foundations.py` |
+| J10 coverage metric | **Done** - `coverage()["depth"]`: 451 questions with a concepts layer, 0 shallow without one |
+| J11 human review of drafts | **Open** - drafts are model output; read each topic file for wrong claims and fill `[placeholders]` in leadership answers with your own facts |
+| Python | **On hold** at your request |
+
+Principle agreed: the detailed answer is the product and works offline; AI ("Go deeper (optional AI)") is an
+optional extra the learner pays for.

@@ -374,6 +374,8 @@ function sectionsHtml(q, quick) {
   const secs = quick ? q.sections.filter(s => s.key === 'spoken') : q.sections;
   return secs.map(s => '<div class="sec ' + esc(s.key) + '"><div class="lbl">' + esc(s.label) + '</div><div class="md">' + md(s.md) + '</div></div>').join('');
 }
+// a card that already carries the concepts-first answer needs no AI to be understood
+const hasFull = q => (q.sections || []).some(s => s.key === 'concepts');
 function qCard(q, opts = {}) {
   const el = document.createElement('div');
   el.className = 'q' + (S.mastered.has(q.id) ? ' mastered' : '');
@@ -389,8 +391,9 @@ function qCard(q, opts = {}) {
         '<div class="actions"><button class="btn primary" data-a="grade">Get feedback</button><button class="btn" data-a="check">Check my answer</button><button class="btn" data-a="improve">Rewrite my answer</button><button class="btn" data-a="reveal">Reveal model answer</button></div><div class="ans"></div>'
       : '<div class="ans">' + sectionsHtml(q, quick) + '</div>' +
         '<div class="actions"><button class="btn good" data-a="master">' + (S.mastered.has(q.id) ? 'Unmark' : 'I can answer this') + '</button>' +
-        '<button class="btn" data-a="basics">Explain from basics</button>' +
-        '<button class="btn" data-a="deeper">Go deeper (AI)</button><button class="btn" data-a="practice">Practice this</button>' +
+        (hasFull(q) ? '' : '<button class="btn" data-a="basics">Explain from basics</button>') +
+        '<button class="btn" data-a="deeper" title="Optional: uses your Anthropic API key. The full answer above works without it.">' +
+        'Go deeper (optional AI)</button><button class="btn" data-a="practice">Practice this</button>' +
         (quick && q.sections && q.sections.length ? '<button class="btn" data-a="full">Full answer</button>' : '') + '</div>';
     const aiBox = document.createElement('div'); aiBox.className = 'ai'; aiBox.style.display = 'none';
     body.appendChild(aiBox);
