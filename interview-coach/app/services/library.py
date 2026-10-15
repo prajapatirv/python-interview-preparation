@@ -191,7 +191,31 @@ class Library:
             stack.sources.append({"path": stack.index, "kind": "index",
                                   "questions": sum(1 for t in stack.topics for q in t.questions
                                                    if q["source"] == stack.index)})
+        cls._rehome_misfiled(stack)
         cls._merge_foundations(stack)
+
+    @classmethod
+    def _rehome_misfiled(cls, stack: Stack) -> None:
+        """The coding deep dive also holds Spring/REST questions (DI, JWT, auto-configuration...). Re-classify
+        its deep-dive questions by keyword so they show under the topic they belong to, not 'Coding round'."""
+        coding = next((t for t in stack.topics if t.id == "coding"), None)
+        if coding is None:
+            return
+        keep = []
+        for q in coding.questions:
+            if q["kind"] != "deepdive" or not q["title"].startswith("(V. IMP.)"):
+                keep.append(q)       # real coding problems stay; only the '(V. IMP.)' Spring/REST cards move
+                continue
+            dest = classify([t for t in stack.topics if t.id not in ("general", "leadership", "coding")],
+                            q["title"], q["section"])
+            if re.search(r"\b(Spring|Bean\w*|ApplicationContext|Singleton scope)\b", q["title"]):
+                dest = next((t for t in stack.topics if t.id == "spring-boot"), dest)
+            if dest is not None and dest.id not in ("coding", "general"):
+                q["topic"] = dest.id
+                dest.questions.append(q)
+            else:
+                keep.append(q)
+        coding.questions = keep
 
     @staticmethod
     def _norm_title(title: str) -> str:
