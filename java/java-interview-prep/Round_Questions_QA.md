@@ -1317,7 +1317,9 @@ class Department {
 
 **Key points:**
 - Examples: `Serializable`, `Cloneable`, `RandomAccess`.
-- The JVM/library checks `instanceof` to decide behaviour.
+- The library or framework that defines the marker checks `instanceof` and decides behaviour:
+  `Serializable` -> the serialization mechanism, `Cloneable` -> `Object.clone()`.
+- Without the marker you get an exception: `NotSerializableException`, `CloneNotSupportedException`.
 - Today, **annotations** are used for the same purpose in new code.
 
 **Real-life example (sending an object over a network / saving to a file):** Only classes that are tagged
@@ -1328,6 +1330,26 @@ class Customer implements Serializable {      // marker: "I can be serialized"
     String name;
 }
 ```
+
+**Marker interface vs annotation (common follow-up):**
+
+| Marker interface | Annotation |
+|---|---|
+| A real type: `instanceof`, usable as a parameter type, checked at compile time | Metadata: read through reflection, no new type |
+| Says "this class belongs to a category/capability" (`Serializable`) | Says "configure/treat this specially" (`@Entity`, `@Deprecated`) |
+| Inherited by every subclass automatically | Only inherited if declared `@Inherited`, and only on classes |
+
+Use a marker interface when you want to **accept only tagged types** (`void save(Auditable a)`); use an
+annotation for configuration that needs attributes.
+
+**Don't say:** "marker interfaces are handled by the JVM." **Say:** "they are recognised by the Java
+platform, library or framework that defines their meaning; the interface itself does nothing."
+
+**60-second answer:** A marker interface has no methods or fields; implementing it just tags the class
+with a capability, like `Serializable` ("can be serialized") or `Cloneable` ("supports `Object.clone()`").
+It is not behaviour, it is part of the type system, so you can use `instanceof` and also use it as a
+parameter type. An annotation also adds metadata, but it is not a type, so it cannot be used that way.
+The library that defines the marker acts on it, not the JVM generically.
 
 ## E24. Hibernate vs JPA
 

@@ -22,6 +22,11 @@ Each file's front matter `skill:` attaches it to a topic of the Interview Coach
 | [13_foundations_java_core.md](13_foundations_java_core.md) | From the basics (core Java: immutability, equals/hashCode, HashMap, volatile, exceptions, cohesion/coupling, singleton) | 7 |
 | [14_foundations_rest_integration.md](14_foundations_rest_integration.md) | From the basics: aggregating several third-party APIs into one response | 1 |
 | [50_coding_round_problems.md](50_coding_round_problems.md) | Coding round: 31 classic problems, every Java solution compiled and run | 31 |
+| [60_round_java_core.md](60_round_java_core.md) | Real round: stream output question, department top earner, HashMap internals | 3 |
+| [61_round_spring_boot.md](61_round_spring_boot.md) | Real round: circuit breaker with Resilience4j, conditional beans | 2 |
+| [62_round_kafka.md](62_round_kafka.md) | Real round: Kafka architecture, 2 of 10 consumers crash, scaling 1M to 10M records | 3 |
+| [63_round_performance.md](63_round_performance.md) | Real round: TPS from 1,000 to 100,000 | 1 |
+| [64_round_cloud_devops.md](64_round_cloud_devops.md) | Real round: KEDA and event-driven autoscaling | 1 |
 
 Files 03 and 06–08 target interview feedback received on 2026-10-13: *tuning backend APIs for response time and
 throughput, using CPU and memory efficiently, tools to measure performance, tuning Kafka for large-scale traffic.*
