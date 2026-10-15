@@ -30,6 +30,7 @@ TAGS_RE = re.compile(r"^tags:\s*(.*)$", re.I)
 
 # Canonical keys for the scenario sections, matched on a prefix of the label.
 SECTION_KEYS = [
+    ("start here", "concepts"), ("the concepts", "concepts"),
     ("the live scenario", "scenario"), ("what the interviewer", "probe"), ("how i answer", "answer"),
     ("trade-offs", "tradeoffs"), ("how i'd monitor", "monitoring"), ("how i would monitor", "monitoring"),
     ("numbers i quote", "numbers"), ("follow-ups", "followups"), ("60-second", "spoken"),

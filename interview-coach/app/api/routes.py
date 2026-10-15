@@ -12,7 +12,7 @@ from ..services import ai, auth, bank, checker, evaluation, insights, retrieve, 
 
 router = APIRouter(prefix="/api")
 
-MODES = {"ask", "explain", "interview", "improve", "generate", "jd"}
+MODES = {"ask", "explain", "basics", "interview", "improve", "generate", "jd"}
 
 
 class AiRequest(BaseModel):
@@ -23,6 +23,7 @@ class AiRequest(BaseModel):
     level: str = ""
     text: str = Field("", max_length=20000)      # free question, generate hint, or job description
     answer: str = Field("", max_length=12000)    # the candidate's answer
+    depth: int = Field(1, ge=1, le=6)            # "go deeper" level; the previous reply travels in `text`
 
 
 class SaveRequest(BaseModel):
@@ -107,8 +108,8 @@ async def ask_ai(req: AiRequest, request: Request):
         ctx = ai.build_context(lib(request), body)
     except ValueError as e:
         raise HTTPException(400, str(e))
-    if req.mode in ("explain",) and ctx["question"] is None:
-        raise HTTPException(400, "explain needs a question_id")
+    if req.mode in ("explain", "basics") and ctx["question"] is None:
+        raise HTTPException(400, f"{req.mode} needs a question_id")
     refs = [{"id": r["id"], "title": r["title"], "kind": r["kind"], "topic": r["topic"]} for r in ctx["refs"]]
     headers = {"Cache-Control": "no-cache", "X-Accel-Buffering": "no", "X-AI-Provider": ai.mode()}
     if refs:   # the UI shows which bank questions grounded the answer

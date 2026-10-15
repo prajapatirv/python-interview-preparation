@@ -109,6 +109,20 @@ def user_prompt(req: dict, ctx: dict) -> str:
                 f"<reference_material>\n{ref_text or '(none found)'}\n</reference_material>\n\n"
                 "Answer the question in the scenario-first structure. Use the reference material for consistency "
                 "with what the candidate has studied, but correct it if anything there is wrong or outdated.")
+    if m == "explain" and req.get("depth", 1) > 1:
+        depth = req["depth"]
+        ladder = {2: "the internals: how it actually works underneath, step by step, and the failure modes that follow",
+                  3: "scale and architecture: what changes at 10x and 100x, alternatives and why you would pick each",
+                  4: "the hardest interviewer follow-ups and curveballs, each with a strong answer",
+                  5: "production incidents: three real-looking failures caused by this, how each was diagnosed and fixed",
+                  6: "synthesis: the mistakes experts still make, a mental model, and a 90-second master answer"}
+        return (f"Candidate level: {q['level']}\n<question>{q['title']}</question>\n"
+                f"<stored_answer>\n{q['body'][:4000]}\n</stored_answer>\n"
+                f"<already_covered>\n{req.get('text', '')[:6000]}\n</already_covered>\n\n"
+                f"This is deep-dive level {depth}. Do NOT repeat anything already covered. Go one level further, "
+                f"focused on {ladder.get(depth, ladder[6])}. Use simple language, define any new term the first "
+                "time it appears, and ground every point in a concrete scenario. End with one line saying what "
+                "the next level would cover.")
     if m == "explain":
         return (f"Candidate level: {q['level']}\n<question>{q['title']}</question>\n"
                 f"<stored_answer>\n{q['body'][:8000]}\n</stored_answer>\n\n"
@@ -116,6 +130,18 @@ def user_prompt(req: dict, ctx: dict) -> str:
                 "(1) a second, different live scenario where this matters, (2) the subtle edge cases and the mistakes "
                 "candidates make, (3) the three hardest follow-ups a tough interviewer would ask, each with a strong "
                 "answer, (4) a sharper 60-second answer.")
+    if m == "basics":
+        return (f"Candidate level: {q['level']}\n<question>{q['title']}</question>\n"
+                f"<stored_answer>\n{q['body'][:8000]}\n</stored_answer>\n\n"
+                "The candidate finds the stored answer too dense: it uses terms they have not been taught. "
+                "Teach it from the ground up, in this order, with headings:\n"
+                "### 1. The concepts in plain words\n(define every term the stored answer relies on, one or two "
+                "sentences each, no jargon without a definition)\n"
+                "### 2. A real scenario\n(a concrete production story with numbers: what happened, what the team saw)\n"
+                "### 3. The stored answer, explained against that scenario\n(walk through each point and say what "
+                "it means in the story)\n"
+                "### 4. How you would prove it\n(the metrics, tools and commands, in order)\n"
+                "### 5. The 20-second spoken answer")
     if m == "interview":
         reference = f"<reference_answer>\n{q['body'][:6000]}\n</reference_answer>\n" if q else ""
         question = q["title"] if q else req.get("text", "")
@@ -202,11 +228,36 @@ def mock_answer(req: dict, ctx: dict) -> str:
         others = "\n".join(f"- {r['title']} *({r['kind']}, {r['level']})*" for r in refs[1:])
         return (f"**Closest answer in your bank:** {best['title']}\n\n{best['body']}\n\n"
                 + (f"**Also related:**\n{others}" if others else "") + MOCK_NOTE)
+    if m == "explain" and req.get("depth", 1) > 1:
+        fu = bank.followups(q)
+        i = req["depth"] - 2
+        pick = fu[i] if i < len(fu) else None
+        steps = {2: "how it works internally, step by step", 3: "what changes at 10x and 100x scale",
+                 4: "the hardest follow-up questions", 5: "a production incident caused by this",
+                 6: "a one-page mental model"}
+        body = (f"Next practise this follow-up out loud: **{pick}**" if pick else
+                f"Level {req['depth']} covers **{steps.get(req['depth'], steps[6])}**.")
+        return (f"**Deeper, level {req['depth']}:** {q['title']}\n\n{body}\n\n"
+                "The offline mock cannot write new material; with an API key this level generates it." + MOCK_NOTE)
     if m == "explain":
         fu = bank.followups(q)
         extra = "\n".join(f"- {f}" for f in fu) or "- What breaks first at 10x the load?\n- How would you monitor it?"
         return (f"**Going deeper on:** {q['title']}\n\nRe-read the stored answer and practise these follow-ups out loud:\n\n"
                 f"{extra}\n\nThen try **Practice** mode on this question to get a scorecard." + MOCK_NOTE)
+    if m == "basics":
+        explainer = next((r for r in refs if bank.section(r, "concepts")), None)
+        if explainer:
+            parts = [f"### 1. The concepts in plain words\n{bank.section(explainer, 'concepts')}"]
+            for n, key, head in ((2, "scenario", "A real scenario"), (3, "answer", "The answer, step by step"),
+                                 (4, "monitoring", "How you would prove it"), (5, "spoken", "The 20-second spoken answer")):
+                if text := bank.section(explainer, key):
+                    parts.append(f"### {n}. {head}\n{text}")
+            return (f"**Explained from the basics** (from: {explainer['title']})\n\n" + "\n\n".join(parts)
+                    + f"\n\n### The stored answer you started from\n{q['body']}" + MOCK_NOTE)
+        terms = ", ".join(_key_terms(q)[:12]) or "the key terms in the answer"
+        return (f"**No from-basics explainer is written for this question yet.**\n\nTerms to learn first: {terms}.\n\n"
+                f"Read the stored answer one term at a time, and for each ask: what is it, and what does it look "
+                f"like in production?\n\n{q['body']}" + MOCK_NOTE)
     if m in ("interview", "improve"):
         r = score_answer(q, req.get("answer", ""))
         spoken = bank.section(q, "spoken") if q else ""
@@ -303,6 +354,9 @@ def build_context(lib, req: dict) -> dict:
     if req["mode"] == "ask":
         pool = lib.questions(stack.id, topic.id if topic else None)
         ctx["refs"] = [r for _, r in retrieve.search(pool, req.get("text", ""), k=3, level=req.get("level", ""))]
+    elif req["mode"] == "basics" and q is not None:
+        pool = [x for x in lib.questions(stack.id, None) if bank.section(x, "concepts")]
+        ctx["refs"] = [r for s, r in retrieve.search(pool, q["title"], k=1) if s > 0]
     elif req["mode"] == "generate" and topic:
         ctx["existing_titles"] = [x["title"] for x in topic.questions if x["kind"] == "scenario"] or \
                                  [x["title"] for x in topic.questions]

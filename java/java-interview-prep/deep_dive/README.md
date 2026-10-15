@@ -67,6 +67,8 @@ The requirement profile for this role (Java/J2EE with Java 8 and 11, Spring Boot
 | 21 | [Coding round: Java 8 programs, data structures, DI types, JWT, idempotent POST, output traps](21_coding_interview.md) | [21_coding_interview/](../examples/21_coding_interview) |
 | 22 | [SQL query interview: top-N per group, window functions, gaps and islands, optimisation, NULL traps, deadlocks](22_sql_query_interview.md) | [22_sql_queries/](../examples/22_sql_queries) (Python + SQLite, `py 01_sql_interview_queries_sqlite.py`) |
 | 23 | [Production scenarios: 20 symptom-to-mechanism questions (thread pools, deadlocks, transactions, DB connections, Kafka partitions, Redis, JWT, probes, JPA)](23_production_scenarios.md) | [23_production_scenarios/](../examples/23_production_scenarios) |
+| 24 | [Performance tuning answers: API response time and throughput, CPU and memory efficiency, measurement tools](24_performance_tuning_answers.md) | reuses [05_jvm_gc_performance/](../examples/05_jvm_gc_performance) (no folder of its own) |
+| 25 | [Production, monitoring and performance Q&A in short / technical / deep-dive tiers: high CPU, memory leak, exhausted pools, Kafka lag, probes, Actuator, cardinality, tracing, P1/RCA, alerting, STAR, post-deploy checks](25_production_monitoring_qa.md) | reuses [18_production_troubleshooting/](../examples/18_production_troubleshooting), [23_production_scenarios/](../examples/23_production_scenarios) (no folder of its own) |
 
 ## Question index: the 44-question `.docx` and the supplement
 

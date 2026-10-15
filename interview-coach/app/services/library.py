@@ -271,7 +271,16 @@ class Library:
             by_kind: dict[str, int] = {}
             for q in self.questions(s.id):
                 by_kind[q["kind"]] = by_kind.get(q["kind"], 0) + 1
-            report.append({"stack": s.id, "total": sum(by_kind.values()), "by_kind": by_kind,
+            # answer depth: questions whose answer starts from the concepts, and the shallow ones still without it
+            titles = {q["title"].strip().lower() for q in self.questions(s.id)
+                      if any(x["key"] == "concepts" for x in q.get("sections", []))}
+            shallow = [q for q in self.questions(s.id) if q["kind"] in ("crib", "guide", "index")
+                       and len(q["body"].split()) < 60 and q["title"].strip().lower() not in titles]
+            depth = {"with_concepts": len(titles), "shallow_without_concepts": len(shallow),
+                     "shallow_by_topic": {}}
+            for q in shallow:
+                depth["shallow_by_topic"][q["topic"]] = depth["shallow_by_topic"].get(q["topic"], 0) + 1
+            report.append({"stack": s.id, "total": sum(by_kind.values()), "by_kind": by_kind, "depth": depth,
                            "sources": sorted(s.sources, key=lambda x: x["path"]),
                            "ignored": s.ignore, "unreferenced": unreferenced})
         return {"stacks": report}

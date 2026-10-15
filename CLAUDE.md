@@ -430,6 +430,9 @@ cd interview-coach
   (`skills/java/15_performance.md`, banks 06–08) and Kafka bank 03; give these priority when extending content.
 - **Answer style the user wants**: scenario-first, spoken-interview narrative, minimal code (a few config
   lines at most). The `_persona.md` files encode it for the AI; keep new bank entries in the same voice.
+  For production / monitoring / performance questions use the **three-tier format**: *Short answer*
+  (3-5 sentences) -> *Technical detail* (tables, commands, settings) -> *Deep dive* (mechanism, worked
+  example, pitfalls, follow-ups). Reference implementation: `java/java-interview-prep/deep_dive/25_production_monitoring_qa.md`.
 - **Self-improving layer** (design: `interview-coach/docs/SELF_IMPROVING_DESIGN.md`): `POST /api/check` fact-checks
   an answer and stores an *attempt*; saved answers can be submitted as alternatives, gated, reviewed, and promoted
   into the bank file as `**Another strong answer (<angle>)**` (`bank.alternatives()`). Evidence lives in SQLite

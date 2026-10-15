@@ -389,6 +389,7 @@ function qCard(q, opts = {}) {
         '<div class="actions"><button class="btn primary" data-a="grade">Get feedback</button><button class="btn" data-a="check">Check my answer</button><button class="btn" data-a="improve">Rewrite my answer</button><button class="btn" data-a="reveal">Reveal model answer</button></div><div class="ans"></div>'
       : '<div class="ans">' + sectionsHtml(q, quick) + '</div>' +
         '<div class="actions"><button class="btn good" data-a="master">' + (S.mastered.has(q.id) ? 'Unmark' : 'I can answer this') + '</button>' +
+        '<button class="btn" data-a="basics">Explain from basics</button>' +
         '<button class="btn" data-a="deeper">Go deeper (AI)</button><button class="btn" data-a="practice">Practice this</button>' +
         (quick && q.sections && q.sections.length ? '<button class="btn" data-a="full">Full answer</button>' : '') + '</div>';
     const aiBox = document.createElement('div'); aiBox.className = 'ai'; aiBox.style.display = 'none';
@@ -399,7 +400,15 @@ function qCard(q, opts = {}) {
       if (a === 'master') {
         S.mastered.has(q.id) ? S.mastered.delete(q.id) : S.mastered.add(q.id); saveMastered();
         el.classList.toggle('mastered', S.mastered.has(q.id)); ev.target.textContent = S.mastered.has(q.id) ? 'Unmark' : 'I can answer this';
-      } else if (a === 'deeper') streamAI({ mode: 'explain', question_id: q.id }, show());
+      } else if (a === 'basics') streamAI({ mode: 'basics', question_id: q.id }, show());
+      else if (a === 'deeper') {
+        const btn = ev.target, depth = (+btn.dataset.depth || 1);
+        if (depth > 6) return;
+        streamAI({ mode: 'explain', question_id: q.id, depth, text: btn.dataset.prev || '' }, show(), text => {
+          btn.dataset.depth = depth + 1; btn.dataset.prev = (btn.dataset.prev + '\n' + text).slice(-6000);
+          btn.textContent = depth >= 6 ? 'Deepest level reached' : 'Go even deeper (level ' + (depth + 1) + ')';
+        });
+      }
       else if (a === 'practice') { body.remove(); body = null; openWith({ practice: true }); }
       else if (a === 'full') { $('.ans', body).innerHTML = sectionsHtml(q, false); ev.target.remove(); }
       else if (a === 'reveal') { $('.ans', body).innerHTML = sectionsHtml(q, false); }
