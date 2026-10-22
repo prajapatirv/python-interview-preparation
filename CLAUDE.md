@@ -428,6 +428,11 @@ cd interview-coach
 - **Known weak areas from real interview feedback (2026-10-13)** — API response time/throughput, CPU/memory
   efficiency, performance-measurement tools, Kafka tuning at scale. Covered by the `performance` topic
   (`skills/java/15_performance.md`, banks 06–08) and Kafka bank 03; give these priority when extending content.
+- **Profile and company packs (2026-10-22)**: `java-interview-prep/profile-java-genai/README.md` (Java/J2EE + Gen AI
+  requirement: banks `interview-scenarios/70`–`78`, 7 sections × 15 + 25 GenAI incl. RAG and MCP, vendor-neutral, no
+  provider-specific API) and `java-interview-prep/company-chase-travel/README.md` (banks `80`–`81`). The GenAI banks
+  attach to the `genai` topic (`skills/java/16_genai.md`). The Chase Travel pack is **illustrative**: its internal
+  architecture is not public, so keep public facts and assumptions clearly separated when extending it.
 - **Answer style the user wants**: scenario-first, spoken-interview narrative, minimal code (a few config
   lines at most). The `_persona.md` files encode it for the AI; keep new bank entries in the same voice.
   For production / monitoring / performance questions use the **three-tier format**: *Short answer*

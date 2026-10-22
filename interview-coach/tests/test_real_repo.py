@@ -27,7 +27,7 @@ def test_existing_banks_load_completely(lib):
     assert by_kind["java"]["crib"] == 473            # every Q in java-interview-prep/topics/*.md
     assert by_kind["java"]["guide"] >= 240           # the QA guide, round questions, docx supplement
     assert by_kind["java"]["deepdive"] >= 300
-    assert by_kind["java"]["scenario"] >= 78           # 7 scenario banks
+    assert by_kind["java"]["scenario"] >= 735          # all banks incl. profile pack 70-78 + company pack 80-81
     assert by_kind["python"]["deepdive"] >= 380
     assert by_kind["python"]["index"] >= 300
 
@@ -35,7 +35,7 @@ def test_existing_banks_load_completely(lib):
 def test_topics_match_the_job_requirement(lib):
     java = {t.id for t in lib.stack("java").topics}
     assert {"kafka", "rest-api", "microservices", "spring-boot", "java-core", "nosql", "splunk-observability",
-            "performance"} <= java
+            "performance", "genai"} <= java
 
 
 def test_scenario_answers_follow_the_format(lib):
