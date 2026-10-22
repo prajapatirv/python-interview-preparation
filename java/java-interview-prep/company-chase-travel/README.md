@@ -32,6 +32,16 @@ ask them what the scope actually is. Never present assumptions as inside knowled
 | [80_company_chase_travel_migration.md](../interview-scenarios/80_company_chase_travel_migration.md) | Rewrite strategy, strangler fig, shadow traffic, ACL/adapters, branch by abstraction, data migration with CDC, Java 8 to 25 upgrade, OpenRewrite at scale, Spring Boot 2 to 3 to 4, characterisation tests, design patterns, stateless conversion, batch migration, cutover/rollback, performance parity, GenAI-assisted migration | 15 |
 | [81_company_chase_travel_domain.md](../interview-scenarios/81_company_chase_travel_domain.md) | Rewards-travel platform design: architecture, supplier search aggregation, points + cash split payment, unknown supplier outcomes, quotes and price changes, cancellation state machine, PCI/PII, promotional peaks, business observability, GenAI trip assistant | 10 |
 
+## Where these questions are used
+
+| Bank file | Questions | Interview Coach topic card (Java stack) | Coach `skill:` id |
+|---|---|---|---|
+| `80_company_chase_travel_migration.md` | 15 | System design & design patterns | `architecture` |
+| `81_company_chase_travel_domain.md` | 10 | System design & design patterns | `architecture` |
+
+In the coach: **Topics** -> *System design & design patterns* lists them as scenario answers; **Ask anything** and
+**Mock interview** use them for grounding and scoring; **Coverage** shows both files wired in.
+
 ## Migration playbook on one page
 
 ```text

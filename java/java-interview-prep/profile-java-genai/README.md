@@ -30,9 +30,39 @@ AWS Bedrock, Vertex AI or local open-weight models (Ollama, vLLM). They don't de
 | 9 | GenAI architecture II: tool calling, **MCP servers**, agents, A2A, guardrails, LLMOps | [78_profile_genai_agents_mcp.md](../interview-scenarios/78_profile_genai_agents_mcp.md) | 12 |
 | C | Company pack: Chase Travel Java rewrite and migration | [../company-chase-travel/README.md](../company-chase-travel/README.md) | 25 |
 
-All files are also loaded by the **Interview Coach** (`interview-coach/`, Java stack). Sections 1–7 appear under their
-existing topics; sections 8–9 form the new **GenAI architecture** topic, and the company pack sits under
-**Architecture**. Use the coach's mock mode to practise answering aloud.
+## Where these questions are used
+
+Every bank file is read automatically by the **Interview Coach** (`interview-coach/`, start with `start.cmd`, then open
+http://127.0.0.1:8100, **Java** stack). No code change was needed: each file's front-matter `skill:` decides its topic card.
+
+| # | Section | Bank file | Questions | Coach topic card (Topics screen) | Coach `skill:` id |
+|---|---|---|---|---|---|
+| 1 | Core Java | `70_profile_core_java.md` | 15 | Java 8, Java 11 & modern Java | `java-core` |
+| 2 | Spring Boot | `71_profile_spring_boot.md` | 15 | Spring & Spring Boot | `spring-boot` |
+| 3 | Spring MVC | `72_profile_spring_mvc.md` | 15 | Spring & Spring Boot | `spring-boot` |
+| 4 | Cloud microservices | `73_profile_cloud_microservices.md` | 15 | Microservices architecture | `microservices` |
+| 5 | Event-driven architecture | `74_profile_event_driven.md` | 15 | Apache Kafka | `kafka` |
+| 6 | Containerization | `75_profile_containerization.md` | 15 | Cloud, Docker & Kubernetes | `cloud-devops` |
+| 7 | REST API | `76_profile_rest_api.md` | 15 | REST APIs & third-party integration | `rest-api` |
+| 8 | GenAI I: LLM, RAG, vector stores | `77_profile_genai_rag_llm.md` | 13 | **GenAI architecture for Java (RAG, MCP, agents)** (new card) | `genai` |
+| 9 | GenAI II: tools, MCP, agents | `78_profile_genai_agents_mcp.md` | 12 | **GenAI architecture for Java (RAG, MCP, agents)** (new card) | `genai` |
+| C1 | Chase Travel: rewrite and migration | `80_company_chase_travel_migration.md` | 15 | System design & design patterns | `architecture` |
+| C2 | Chase Travel: travel platform design | `81_company_chase_travel_domain.md` | 10 | System design & design patterns | `architecture` |
+| | **Total** | | **155** | | |
+
+How each coach screen uses them:
+
+| Coach screen | What you get from this pack |
+|---|---|
+| **Topics** | Open the topic card from the table above; these questions are listed as *scenario* answers, shown first |
+| **Ask anything** | Type a question such as "how do I secure an MCP server?"; the answer is grounded on these banks |
+| **Mock interview** | Pick a topic (e.g. GenAI architecture) and answer under interview conditions; scored against these answers |
+| **Job description** | Paste the requirement text (Core Java, Spring Boot, MVC, cloud microservices, event-driven, containers, REST, Gen AI) to get a study plan pointing at these topics |
+| **Progress / Review** | Mark questions as practised and revisit weak ones |
+| **Coverage** | Lists every bank file above as wired in; the canary test fails if one ever drops out |
+
+Files live in [`../interview-scenarios/`](../interview-scenarios/); the coach topic definition for the GenAI card is
+`interview-coach/skills/java/16_genai.md`.
 
 ## How the GenAI part fits the Java part
 
