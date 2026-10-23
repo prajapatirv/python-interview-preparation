@@ -431,7 +431,10 @@ cd interview-coach
 - **Profile and company packs (2026-10-22)**: `java-interview-prep/profile-java-genai/README.md` (Java/J2EE + Gen AI
   requirement: banks `interview-scenarios/70`–`78`, 7 sections × 15 + 25 GenAI incl. RAG and MCP, vendor-neutral, no
   provider-specific API) and `java-interview-prep/company-chase-travel/README.md` (banks `80`–`82`, plus `brush-up/` = 4 × 30 crib-style Q&A for
-  the Chase brush-up list, wired as `docs:` into rest-api, spring-boot, kafka and cloud-devops). The GenAI banks
+  the Chase brush-up list, wired as `docs:` into rest-api, spring-boot, kafka and cloud-devops). **JPMorgan Chase Java
+  mid/senior pack (2026-10-23)**: banks `83`–`87` (54 Q: core Java, concurrency/JVM, Spring/data/REST, Kafka/microservices/
+  design, Java 11→27 version map), each answer with a 120-second point-wise *How I answer it* and a *60-second answer*; topics
+  chosen from public JPMC candidate reports, listed with sources in the Chase hub README. The GenAI banks
   attach to the `genai` topic (`skills/java/16_genai.md`). The Chase Travel pack is **illustrative**: its internal
   architecture is not public, so keep public facts and assumptions clearly separated when extending it.
 - **Answer style the user wants**: scenario-first, spoken-interview narrative, minimal code (a few config

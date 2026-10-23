@@ -27,7 +27,7 @@ def test_existing_banks_load_completely(lib):
     assert by_kind["java"]["crib"] == 473            # every Q in java-interview-prep/topics/*.md
     assert by_kind["java"]["guide"] >= 240           # the QA guide, round questions, docx supplement
     assert by_kind["java"]["deepdive"] >= 441          # incl. company-chase-travel/brush-up (120)
-    assert by_kind["java"]["scenario"] >= 743          # all banks incl. profile pack 70-78 + company pack 80-82
+    assert by_kind["java"]["scenario"] >= 797          # all banks incl. profile pack 70-78 + company packs 80-87
     assert by_kind["python"]["deepdive"] >= 380
     assert by_kind["python"]["index"] >= 300
 

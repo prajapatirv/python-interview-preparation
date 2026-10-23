@@ -32,6 +32,67 @@ requirement, a 60-second answer per point, and corrections for current facts: RF
 Aurora Serverless v2 scale to 0 ACU; Hikari sizing formula (database cores, whole database); `LazyConnectionDataSourceProxy`
 for reader routing; realistic Aurora failover timing; KIP-848 opt-in (`group.protocol=consumer`); `ErrorHandlingDeserializer`.
 
+## JPMorgan Chase interview: what to target (Java, mid to senior)
+
+Researched on 2026-10-23 from public candidate reports and job postings (sources at the bottom). These are **anecdotes,
+not an official process**: formats vary by team, location and level, so confirm the stages with your recruiter.
+
+**The process candidates usually describe (experienced hires)**
+
+| Stage | What happens | How to prepare |
+|---|---|---|
+| Online assessment | HackerRank, about 60-90 min, usually 2 easy-to-medium coding problems | Arrays, strings, hash maps, sorting: [50_coding_round_problems.md](../interview-scenarios/50_coding_round_problems.md) |
+| Recruiter screen | 15-30 min: background, stack, motivation | A 2-minute project story with numbers |
+| Technical round(s) | Core Java, collections, multithreading, Spring/Spring Boot, Hibernate, SQL; sometimes **rapid-fire with a VP** | Banks 83, 84, 85 (60-second answers first) |
+| Final loop ("Superday" / "Power Day") | 2-3 back-to-back sessions: coding, **a pull-request code review**, system design for senior levels, behavioural | Bank 84 Q11 (code review), bank 86 (design), STAR stories |
+| Hiring manager / team match | Past projects, architecture decisions, leadership; experienced hires may go through team matching afterwards | Bank 40 (leadership) + your own incidents |
+
+**Questions and topics candidates actually report** (each mapped to an answer in this repo)
+
+| Reported topic | Where it is answered |
+|---|---|
+| `final`, `HashMap`, `synchronized`, `ConcurrentHashMap` | 83 Q1, Q4 · 84 Q1, Q3 |
+| How does ConcurrentHashMap work, why better than a synchronized block; Lock vs synchronized | 84 Q1, Q3 |
+| CompletableFuture and asynchronous operations | 84 Q5 |
+| Multithreading, concurrency, memory management | 84 Q2, Q4, Q6, Q7, Q8, Q9 |
+| "Concurrency control in Java, extended to distributed systems" | 84 Q10 |
+| Code review: fix bugs, thread safety and performance follow-ups | 84 Q11 |
+| ACID transactions | 85 Q6 (plus Q4 on `@Transactional`) |
+| REST APIs and dependency injection | 85 Q1, Q3, Q7-Q10 |
+| Kafka messaging | 86 Q1-Q4 · bank 62 · brush-up file 3 |
+| Microservices, observability, "how would you handle this in production?", scaling | 86 Q5, Q8, Q9, Q10 · banks 09, 27 |
+| System design: rate limiter; document upload and validation with a tracking link | 86 Q6, Q7 |
+| Advantages of Java 21 features; compare Java with Scala and other languages | 87 Q3, Q11 |
+| SQL, Linux | banks 29 (SQL), 18_production_troubleshooting deep dive |
+| Behavioural: past projects, architecture decisions, leadership, conflict | bank 40 |
+
+**The JPMorgan Chase Java mid/senior pack: 54 questions, each with a 120-second and a 60-second answer**
+
+| File | Focus | Questions |
+|---|---|---|
+| [83_company_jpmc_java_core_mid_senior.md](../interview-scenarios/83_company_jpmc_java_core_mid_senior.md) | HashMap internals, equals/hashCode, String, final/finally/finalize, exceptions, streams, generics, collections, Comparator, patterns + SOLID | 10 |
+| [84_company_jpmc_concurrency_jvm.md](../interview-scenarios/84_company_jpmc_concurrency_jvm.md) | synchronized vs Lock vs atomics, volatile, ConcurrentHashMap, pool sizing, CompletableFuture, deadlock, virtual threads, JVM memory, GC, distributed concurrency, **code review round** | 11 |
+| [85_company_jpmc_spring_boot_data_rest.md](../interview-scenarios/85_company_jpmc_spring_boot_data_rest.md) | **Filter students by name and org (REST structure)**, auto-configuration, DI and scopes, @Transactional traps, N+1, ACID and locking, errors, security, idempotency, resilience, config, testing | 12 |
+| [86_company_jpmc_microservices_kafka_design.md](../interview-scenarios/86_company_jpmc_microservices_kafka_design.md) | Kafka ordering, no loss / no duplicates, lag, poison messages, saga + outbox, **rate limiter**, **document upload design**, observability, 10x peak, monolith split | 10 |
+| [87_company_jpmc_java_11_to_27.md](../interview-scenarios/87_company_jpmc_java_11_to_27.md) | **Java 11 to 27 version map** (table at the top), 8->11, 17, 21, 22-25, 26-27, LTS policy, data-oriented programming, structured concurrency and scoped values, upgrades, GC/startup evolution, Java vs Kotlin/Scala/Go | 11 |
+
+Levels: 18 mid, 32 senior, 4 architect ("expert"). Every answer uses the same parts: *Start here: the concepts* (plain
+language) -> *The live scenario* -> *What the interviewer is really checking* -> **How I answer it (120-second, point by
+point)** -> *Trade-offs* -> *Follow-ups* -> **60-second answer**.
+
+**How to use the two answer lengths**
+- In a rapid-fire round, give the **60-second answer** and stop. Let the interviewer pick the follow-up.
+- In a mid or senior deep-dive round, give the 60-second answer first, then expand into the **120-second points** when they say
+  "go deeper" or "how exactly?".
+- Replace every illustrative example (FX cache, payments, trade blotter) with a real one from your own project when you can.
+
+**Three-day plan for the JPMC pack**
+1. **Day 1:** banks 83 and 84. Say each 60-second answer aloud; read the 120-second points for HashMap, ConcurrentHashMap,
+   CompletableFuture, virtual threads, and the code-review question.
+2. **Day 2:** bank 85 (start with Q1, the student-filter API) and bank 86 Q1-Q5 (Kafka and sagas).
+3. **Day 3:** bank 86 Q6-Q10 (design: draw the rate limiter and the upload pipeline on paper) and bank 87 (learn the version
+   table at the top, then Q3 and Q5). Finish with two coding problems from bank 50 under a 30-minute timer.
+
 ## Read first: what is public and what is assumed
 
 **Publicly reported facts** (sources at the bottom):
@@ -73,7 +134,12 @@ ask them what the scope actually is. Never present assumptions as inside knowled
 | `brush-up/02-database-connection-spring-boot.md` | 30 | Spring & Spring Boot | `spring-boot` |
 | `brush-up/03-kafka-producer-consumer.md` | 30 | Apache Kafka | `kafka` |
 | `brush-up/04-aws-s3-ecs-aurora-postgres.md` | 30 | Cloud, Docker & Kubernetes | `cloud-devops` |
-| **Total company pack** | **153** | | |
+| `83_company_jpmc_java_core_mid_senior.md` | 10 | Java 8, Java 11 & modern Java | `java-core` |
+| `84_company_jpmc_concurrency_jvm.md` | 11 | Java 8, Java 11 & modern Java | `java-core` |
+| `85_company_jpmc_spring_boot_data_rest.md` | 12 | Spring & Spring Boot | `spring-boot` |
+| `86_company_jpmc_microservices_kafka_design.md` | 10 | Microservices | `microservices` |
+| `87_company_jpmc_java_11_to_27.md` | 11 | Java 8, Java 11 & modern Java | `java-core` |
+| **Total company pack** | **207** | | |
 
 In the coach: **Topics** -> *System design & design patterns* lists the scenario banks (shown first); the four brush-up files appear as
 *deep dive* questions inside their own topic cards. **Ask anything** and **Mock interview** use all of them for grounding
@@ -130,3 +196,18 @@ and scoring; **Coverage** shows every file wired in.
 - [Modernizing legacy Java code at scale (Moderne blog, JPMorgan Chase OpenRewrite usage)](https://moderne.ai/blog/modernizing-legacy-java-code-at-scale)
 - [OpenRewrite: Migrate to Java 25 recipe](https://docs.openrewrite.org/recipes/java/migrate/upgradetojava25)
 - [Spring Boot 4.0.0 available now (spring.io)](https://spring.io/blog/2025/11/20/spring-boot-4-0-0-available-now/)
+
+JPMorgan Chase interview research and Java version facts (checked 2026-10-23):
+
+- [JPMorganChase Senior Java Developer interview questions (Glassdoor)](https://www.glassdoor.com/Interview/JPMorganChase-Senior-Java-Developer-Interview-Questions-EI_IE5224839.0,13_KO14,35.htm)
+- [JPMorganChase Software Engineer Java Developer interview questions (Glassdoor)](https://www.glassdoor.com/Interview/JPMorganChase-Software-Engineer-Java-Developer-Interview-Questions-EI_IE5224839.0,13_KO14,46.htm)
+- [JPMorgan Chase SDE-3 Java full-stack interview experience, Bangalore (LeetCode Discuss)](https://leetcode.com/discuss/post/7359766/jpmorgan-chase-sde-3-java-full-stack-dev-rxak/)
+- [AVP Java Developer interview, Mumbai, January 2025 (Taro)](https://www.jointaro.com/interviews/companies/jpmorgan-chase/work-experiences/avp-java-developer-mumbai-january-30-2025-4-3fca2270/)
+- [JP Morgan interview experience: Java, multithreading, microservices (Medium)](https://medium.com/@pardeepgill82/jp-morgan-interview-experience-java-multithreading-microservices-3df9473dfb94)
+- [JPMorgan Chase software engineer interview guide 2026 (Interview Query)](https://www.interviewquery.com/interview-guides/jp-morgan-chase-software-engineer)
+- [JPMorgan's interview process 2026 (TechPrep)](https://www.techprep.app/blog/jpmorgan-interview-process)
+- [Lead Software Engineer: Java, Spring Boot, Kafka, microservices (JPMorganChase posting)](https://www.themuse.com/jobs/jpmorganchase/lead-software-engineer-java-spring-boot-kafka-microservices)
+- [JDK 27 project page: features and GA date (OpenJDK)](https://openjdk.org/projects/jdk/27/)
+- [The arrival of Java 26 (Oracle Java blog)](https://blogs.oracle.com/java/the-arrival-of-java-26)
+- [The arrival of Java 27 (Oracle Java blog)](https://blogs.oracle.com/java/the-arrival-of-java-27)
+- [JDK 27 and JDK 28: what we know so far (InfoQ)](https://www.infoq.com/news/2026/08/java-27-so-far/)

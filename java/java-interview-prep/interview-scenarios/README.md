@@ -39,10 +39,17 @@ Each file's front matter `skill:` attaches it to a topic of the Interview Coach
 | [80_company_chase_travel_migration.md](80_company_chase_travel_migration.md) | Company pack (Chase Travel): Java rewrite, upgrade and migration | 15 |
 | [81_company_chase_travel_domain.md](81_company_chase_travel_domain.md) | Company pack (Chase Travel): rewards travel platform design | 10 |
 | [82_company_chase_travel_brushup_e2e.md](82_company_chase_travel_brushup_e2e.md) | Company pack (Chase Travel): Sujay's brush-up list end to end (REST, Aurora, Kafka, S3/ECS) | 8 |
+| [83_company_jpmc_java_core_mid_senior.md](83_company_jpmc_java_core_mid_senior.md) | JPMorgan Chase pack 1/5: core Java and collections (HashMap, equals/hashCode, String, final, exceptions, streams, generics, patterns) | 10 |
+| [84_company_jpmc_concurrency_jvm.md](84_company_jpmc_concurrency_jvm.md) | JPMorgan Chase pack 2/5: locks, volatile, ConcurrentHashMap, pools, CompletableFuture, deadlock, virtual threads, JVM memory, GC, distributed concurrency, code review | 11 |
+| [85_company_jpmc_spring_boot_data_rest.md](85_company_jpmc_spring_boot_data_rest.md) | JPMorgan Chase pack 3/5: student filter API, auto-config, DI, @Transactional, N+1, ACID/locking, errors, security, idempotency, resilience, config, testing | 12 |
+| [86_company_jpmc_microservices_kafka_design.md](86_company_jpmc_microservices_kafka_design.md) | JPMorgan Chase pack 4/5: Kafka ordering, no loss/no duplicates, lag, DLT, saga, rate limiter, document upload, observability, 10x scaling, monolith split | 10 |
+| [87_company_jpmc_java_11_to_27.md](87_company_jpmc_java_11_to_27.md) | JPMorgan Chase pack 5/5: Java 11 to 27 version map and differences, Java 21/25/26/27 features, LTS policy, upgrades, GC evolution, Java vs Kotlin/Scala/Go | 11 |
 
 Files 03 and 06–08 target interview feedback received on 2026-10-13: *tuning backend APIs for response time and
 throughput, using CPU and memory efficiently, tools to measure performance, tuning Kafka for large-scale traffic.*
 
 Files 70–78 are the **Java/J2EE + Gen AI profile pack** (hub: [`../profile-java-genai/README.md`](../profile-java-genai/README.md));
-files 80–82 are the **Chase Travel company pack** (hub: [`../company-chase-travel/README.md`](../company-chase-travel/README.md)).
+files 80–82 are the **Chase Travel company pack** and files 83–87 the **JPMorgan Chase Java mid/senior pack**
+(hub for both: [`../company-chase-travel/README.md`](../company-chase-travel/README.md)). Files 83–87 give every answer
+twice: a 120-second point-by-point version (*How I answer it*) and a *60-second answer*.
 Each answer opens with *The live scenario (functional requirement)*.
