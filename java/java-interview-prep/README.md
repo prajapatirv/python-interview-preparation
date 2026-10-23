@@ -31,7 +31,7 @@ java examples/12_kafka/02_consumer_groups_rebalancing_and_lag.java      # any ex
 | `Docx_Gap_Supplement_QA.md` | coverage map of the 44-question `.docx` + 23 extra Q&A (Q97-Q119) with small examples; long form in `deep_dive/19_docx_gap_topics.md` | 23 Q |
 | `Round_Questions_QA.md` | 102 real interview-round questions (Cybage list, fresher, experienced, Kafka round, other) in simple language; each has a simple answer, key points and one industry example | 102 Q |
 | `profile-java-genai/README.md` | **Java/J2EE + Gen AI profile pack**: 7 sections × 15 functional-requirement questions + 25 GenAI architecture (RAG, MCP, agents), banks `interview-scenarios/70`–`78` | 130 Q |
-| `company-chase-travel/README.md` | **Chase Travel company pack**: Java rewrite/upgrade/migration + rewards-travel platform design, banks `interview-scenarios/80`–`81` | 25 Q |
+| `company-chase-travel/README.md` | **Chase Travel company pack**: Sujay's brush-up list (REST, DB connection, Kafka, S3/ECS/Aurora; `brush-up/`, 120 Q) + Java rewrite/migration + travel platform design, banks `interview-scenarios/80`–`82` | 153 Q |
 | `QUESTION_INDEX.md` | auto-generated index of `topics/` | |
 | `build_site.py`, `index.html` | the original standalone static study site (works offline, no server) | |
 

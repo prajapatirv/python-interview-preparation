@@ -38,10 +38,11 @@ Each file's front matter `skill:` attaches it to a topic of the Interview Coach
 | [78_profile_genai_agents_mcp.md](78_profile_genai_agents_mcp.md) | Java + GenAI profile 9/9: tool calling, MCP servers, agents, guardrails, LLMOps | 12 |
 | [80_company_chase_travel_migration.md](80_company_chase_travel_migration.md) | Company pack (Chase Travel): Java rewrite, upgrade and migration | 15 |
 | [81_company_chase_travel_domain.md](81_company_chase_travel_domain.md) | Company pack (Chase Travel): rewards travel platform design | 10 |
+| [82_company_chase_travel_brushup_e2e.md](82_company_chase_travel_brushup_e2e.md) | Company pack (Chase Travel): Sujay's brush-up list end to end (REST, Aurora, Kafka, S3/ECS) | 8 |
 
 Files 03 and 06–08 target interview feedback received on 2026-10-13: *tuning backend APIs for response time and
 throughput, using CPU and memory efficiently, tools to measure performance, tuning Kafka for large-scale traffic.*
 
 Files 70–78 are the **Java/J2EE + Gen AI profile pack** (hub: [`../profile-java-genai/README.md`](../profile-java-genai/README.md));
-files 80–81 are the **Chase Travel company pack** (hub: [`../company-chase-travel/README.md`](../company-chase-travel/README.md)).
+files 80–82 are the **Chase Travel company pack** (hub: [`../company-chase-travel/README.md`](../company-chase-travel/README.md)).
 Each answer opens with *The live scenario (functional requirement)*.

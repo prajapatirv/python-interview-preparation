@@ -26,8 +26,8 @@ def test_existing_banks_load_completely(lib):
     by_kind = {s["stack"]: s["by_kind"] for s in lib.coverage()["stacks"]}
     assert by_kind["java"]["crib"] == 473            # every Q in java-interview-prep/topics/*.md
     assert by_kind["java"]["guide"] >= 240           # the QA guide, round questions, docx supplement
-    assert by_kind["java"]["deepdive"] >= 300
-    assert by_kind["java"]["scenario"] >= 735          # all banks incl. profile pack 70-78 + company pack 80-81
+    assert by_kind["java"]["deepdive"] >= 441          # incl. company-chase-travel/brush-up (120)
+    assert by_kind["java"]["scenario"] >= 743          # all banks incl. profile pack 70-78 + company pack 80-82
     assert by_kind["python"]["deepdive"] >= 380
     assert by_kind["python"]["index"] >= 300
 

@@ -4,7 +4,7 @@ title: REST APIs & third-party integration
 order: 2
 summary: API design, error contracts, idempotency, and calling flaky third-party APIs safely.
 crib: java/java-interview-prep/topics/07-rest-api-design.md
-docs: java/java-interview-prep/deep_dive/08_rest_api.md
+docs: java/java-interview-prep/deep_dive/08_rest_api.md, java/java-interview-prep/company-chase-travel/brush-up/01-spring-boot-rest-api.md
 examples: java/java-interview-prep/examples/08_rest_api
 keywords: rest, api, http, endpoint, status code, put, patch, post, get, idempotent, idempotency, versioning, pagination, third-party, third party, resttemplate, webclient, restclient, feign, timeout, circuit breaker, bulkhead, fallback, retry, rate limit, 429, problem details, openapi, swagger, webhook, cors, cross-origin
 ---

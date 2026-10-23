@@ -4,7 +4,7 @@ title: Apache Kafka
 order: 1
 summary: Topics, partitions, consumer groups, offsets, rebalancing, lag, performance, scaling.
 crib: java/java-interview-prep/topics/09-kafka-messaging.md
-docs: java/java-interview-prep/deep_dive/12_kafka.md
+docs: java/java-interview-prep/deep_dive/12_kafka.md, java/java-interview-prep/company-chase-travel/brush-up/03-kafka-producer-consumer.md
 examples: java/java-interview-prep/examples/12_kafka
 keywords: kafka, kafka performance, kafka tuning, tune kafka, topic, partition, consumer, producer, offset, rebalance, lag, broker, dlt, dead letter, retry topic, idempotent producer, exactly-once, schema registry, kraft, zookeeper, isr, acks, rabbitmq, streams, connect
 ---

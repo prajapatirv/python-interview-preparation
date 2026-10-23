@@ -4,6 +4,34 @@ Preparation for an engagement described as the **Chase Travel "Java rewrite"**: 
 services in Java, plus upgrading and migrating Java products. It complements the
 [Java + GenAI profile pack](../profile-java-genai/README.md).
 
+## Start here: Sujay's brush-up list (Chase project)
+
+> *"Hello Ravikumar, Sujay here from Chase project. Can you just brush up on below points?
+> 1. Spring boot rest API 2. Database connection from spring boot 3. Kafka consumer and producer 4. AWS S3, ECS, Aurora Postgres"*
+
+These four points are the priority. Each has a 30-question file (10 basic, 10 mid, 10 advanced) with crisp answers,
+a project hook per part, a revision card and a 60-second answer, all framed around one illustrative booking service.
+Then one end-to-end bank shows how the four fit together, which is what a lead usually asks next.
+
+| # | Sujay's point | File | Questions | What it covers |
+|---|---|---|---|---|
+| 1 | Spring Boot REST API | [brush-up/01-spring-boot-rest-api.md](brush-up/01-spring-boot-rest-api.md) | 30 | Annotations, status codes, DTOs, validation, Problem Details, idempotency keys, security, RestClient + resilience, testing, versioning, zero-downtime, Boot 3 to 4 |
+| 2 | Database connection from Spring Boot | [brush-up/02-database-connection-spring-boot.md](brush-up/02-database-connection-spring-boot.md) | 30 | DataSource + HikariCP, JPA vs JdbcTemplate, transactions, N+1, locking, Aurora reader/writer routing, Flyway, batching, failover, pool exhaustion, outbox, IAM auth, RDS Proxy |
+| 3 | Kafka consumer and producer | [brush-up/03-kafka-producer-consumer.md](brush-up/03-kafka-producer-consumer.md) | 30 | KafkaTemplate, `@KafkaListener`, groups, keys and ordering, offsets, no-loss producer settings, DLT and retry topics, rebalances, idempotent consumers, schemas, lag, exactly-once, MSK security |
+| 4 | AWS S3, ECS, Aurora Postgres | [brush-up/04-aws-s3-ecs-aurora-postgres.md](brush-up/04-aws-s3-ecs-aurora-postgres.md) | 30 | S3 security, pre-signed URLs, multipart, ECS task vs execution role, health checks, autoscaling, Aurora endpoints, backups, failover, HA/DR, cost, troubleshooting |
+| E2E | All four together | [82_company_chase_travel_brushup_e2e.md](../interview-scenarios/82_company_chase_travel_brushup_e2e.md) | 8 | Architecture walkthrough, one request through every layer, IAM/secrets, Kafka -> S3 + Aurora idempotently, scaling budget, Aurora failover end to end, local/CI testing, a cross-system incident |
+
+**One-day revision plan:** morning: files 1 and 2 (say each Part 1 answer aloud, read Parts 2–3); afternoon: files 3 and 4;
+evening: the 8 end-to-end questions, then the four 60-second answers at the bottom of each file. Replace every
+illustrative travel example with a real one from your own project.
+
+**What was updated from the original drafts** (`java/InterviewTopic/`, left unchanged): a Chase-project header and functional
+requirement, a 60-second answer per point, and corrections for current facts: RFC 9457 Problem Details;
+`@MockBean` removed in Boot 4; HTTP service clients and the OpenTelemetry starter in Boot 4; ECS built-in blue/green
+(July 2025, canary/linear); S3 objects up to 50 TB (Dec 2025); Aurora PostgreSQL storage up to 256 TiB (July 2025);
+Aurora Serverless v2 scale to 0 ACU; Hikari sizing formula (database cores, whole database); `LazyConnectionDataSourceProxy`
+for reader routing; realistic Aurora failover timing; KIP-848 opt-in (`group.protocol=consumer`); `ErrorHandlingDeserializer`.
+
 ## Read first: what is public and what is assumed
 
 **Publicly reported facts** (sources at the bottom):
@@ -31,6 +59,8 @@ ask them what the scope actually is. Never present assumptions as inside knowled
 |---|---|---|
 | [80_company_chase_travel_migration.md](../interview-scenarios/80_company_chase_travel_migration.md) | Rewrite strategy, strangler fig, shadow traffic, ACL/adapters, branch by abstraction, data migration with CDC, Java 8 to 25 upgrade, OpenRewrite at scale, Spring Boot 2 to 3 to 4, characterisation tests, design patterns, stateless conversion, batch migration, cutover/rollback, performance parity, GenAI-assisted migration | 15 |
 | [81_company_chase_travel_domain.md](../interview-scenarios/81_company_chase_travel_domain.md) | Rewards-travel platform design: architecture, supplier search aggregation, points + cash split payment, unknown supplier outcomes, quotes and price changes, cancellation state machine, PCI/PII, promotional peaks, business observability, GenAI trip assistant | 10 |
+| [82_company_chase_travel_brushup_e2e.md](../interview-scenarios/82_company_chase_travel_brushup_e2e.md) | Sujay's four points end to end: REST + Aurora + Kafka + S3 on ECS | 8 |
+| [brush-up/](brush-up/) (4 files) | Sujay's four points, 30 questions each, basic to advanced | 120 |
 
 ## Where these questions are used
 
@@ -38,9 +68,16 @@ ask them what the scope actually is. Never present assumptions as inside knowled
 |---|---|---|---|
 | `80_company_chase_travel_migration.md` | 15 | System design & design patterns | `architecture` |
 | `81_company_chase_travel_domain.md` | 10 | System design & design patterns | `architecture` |
+| `82_company_chase_travel_brushup_e2e.md` | 8 | System design & design patterns | `architecture` |
+| `brush-up/01-spring-boot-rest-api.md` | 30 | REST APIs & third-party integration | `rest-api` |
+| `brush-up/02-database-connection-spring-boot.md` | 30 | Spring & Spring Boot | `spring-boot` |
+| `brush-up/03-kafka-producer-consumer.md` | 30 | Apache Kafka | `kafka` |
+| `brush-up/04-aws-s3-ecs-aurora-postgres.md` | 30 | Cloud, Docker & Kubernetes | `cloud-devops` |
+| **Total company pack** | **153** | | |
 
-In the coach: **Topics** -> *System design & design patterns* lists them as scenario answers; **Ask anything** and
-**Mock interview** use them for grounding and scoring; **Coverage** shows both files wired in.
+In the coach: **Topics** -> *System design & design patterns* lists the scenario banks (shown first); the four brush-up files appear as
+*deep dive* questions inside their own topic cards. **Ask anything** and **Mock interview** use all of them for grounding
+and scoring; **Coverage** shows every file wired in.
 
 ## Migration playbook on one page
 
