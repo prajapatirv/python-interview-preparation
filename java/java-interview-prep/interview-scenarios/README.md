@@ -44,6 +44,11 @@ Each file's front matter `skill:` attaches it to a topic of the Interview Coach
 | [85_company_jpmc_spring_boot_data_rest.md](85_company_jpmc_spring_boot_data_rest.md) | JPMorgan Chase pack 3/5: student filter API, auto-config, DI, @Transactional, N+1, ACID/locking, errors, security, idempotency, resilience, config, testing | 12 |
 | [86_company_jpmc_microservices_kafka_design.md](86_company_jpmc_microservices_kafka_design.md) | JPMorgan Chase pack 4/5: Kafka ordering, no loss/no duplicates, lag, DLT, saga, rate limiter, document upload, observability, 10x scaling, monolith split | 10 |
 | [87_company_jpmc_java_11_to_27.md](87_company_jpmc_java_11_to_27.md) | JPMorgan Chase pack 5/5: Java 11 to 27 version map and differences, Java 21/25/26/27 features, LTS policy, upgrades, GC evolution, Java vs Kotlin/Scala/Go | 11 |
+| [90_target_nagarro_system_design.md](90_target_nagarro_system_design.md) | Target company, Nagarro 1/3: URL shortener, chat, checkout, CAP, load balancing/failover, notifications, clickstream pipeline, security | 8 |
+| [91_target_nagarro_backend_spring.md](91_target_nagarro_backend_spring.md) | Target company, Nagarro 2/3: REST vs gRPC, indexing, transactions, payment idempotency, consistency, auto-config, caching, gateway, Kafka, Java 8 streams | 10 |
+| [92_target_nagarro_behavioural.md](92_target_nagarro_behavioural.md) | Target company, Nagarro 3/3: STAR stories: client delivery, conflict, why Nagarro, deadlines, learning, production issue | 6 |
+| [93_target_persistent_java_spring.md](93_target_persistent_java_spring.md) | Target company, Persistent Systems: wrappers, functional interfaces, map/flatMap, singleton, odd/even threads, error handling, two databases, scheduler, circuit breaker, microservices, OAuth | 11 |
+| [94_target_epam_java_engineering.md](94_target_epam_java_engineering.md) | Target company, EPAM Systems: iterators, hashing, live coding (substring, ranges, tree path), SOLID, TDD, CompletableFuture, Kafka groups/DLQ, Spring Security, architecture walkthrough | 11 |
 
 Files 03 and 06–08 target interview feedback received on 2026-10-13: *tuning backend APIs for response time and
 throughput, using CPU and memory efficiently, tools to measure performance, tuning Kafka for large-scale traffic.*
@@ -53,3 +58,7 @@ files 80–82 are the **Chase Travel company pack** and files 83–87 the **JPMo
 (hub for both: [`../company-chase-travel/README.md`](../company-chase-travel/README.md)). Files 83–87 give every answer
 twice: a 120-second point-by-point version (*How I answer it*) and a *60-second answer*.
 Each answer opens with *The live scenario (functional requirement)*.
+
+Files 90–94 are the **target-company section** for Nagarro, Persistent Systems and EPAM Systems
+(hub: [`../target-companies/README.md`](../target-companies/README.md)): rounds, reported questions mapped to answers,
+prep plans and sources. Every question is tagged with the company name.

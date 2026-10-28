@@ -434,7 +434,9 @@ cd interview-coach
   the Chase brush-up list, wired as `docs:` into rest-api, spring-boot, kafka and cloud-devops). **JPMorgan Chase Java
   mid/senior pack (2026-10-23)**: banks `83`–`87` (54 Q: core Java, concurrency/JVM, Spring/data/REST, Kafka/microservices/
   design, Java 11→27 version map), each answer with a 120-second point-wise *How I answer it* and a *60-second answer*; topics
-  chosen from public JPMC candidate reports, listed with sources in the Chase hub README. The GenAI banks
+  chosen from public JPMC candidate reports, listed with sources in the Chase hub README. **Target-company section (2026-10-28)**:
+  `java-interview-prep/target-companies/README.md` (Nagarro banks `90`–`92`, Persistent Systems `93`, EPAM Systems `94`;
+  46 Q, each company tag-named; reported questions mapped to new or existing banks, sources listed). The GenAI banks
   attach to the `genai` topic (`skills/java/16_genai.md`). The Chase Travel pack is **illustrative**: its internal
   architecture is not public, so keep public facts and assumptions clearly separated when extending it.
 - **Answer style the user wants**: scenario-first, spoken-interview narrative, minimal code (a few config
