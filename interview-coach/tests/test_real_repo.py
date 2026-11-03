@@ -30,7 +30,7 @@ def test_existing_banks_load_completely(lib):
     assert by_kind["java"]["crib"] == 473            # every Q in java-interview-prep/topics/*.md
     assert by_kind["java"]["guide"] >= 240           # the QA guide, round questions, docx supplement
     assert by_kind["java"]["deepdive"] >= 441          # incl. company-chase-travel/brush-up (120)
-    assert by_kind["java"]["scenario"] >= 973          # all banks incl. profile pack 70-78, company packs 80-87, target companies 90-94, reported pack
+    assert by_kind["java"]["scenario"] >= 988          # all banks incl. profile pack 70-78, company packs 80-87, target companies 90-94, reported pack
     assert by_kind["python"]["deepdive"] >= 380
     assert by_kind["python"]["index"] >= 300
 
@@ -66,9 +66,9 @@ def test_reported_pack_references_exist(lib):
             bank = Path(q["source"]).name.split("_")[0]
             numbered.setdefault(bank, set()).add(q["num"])
     files = [pack / "reported-interviews" / "README.md"]
-    for prefix in ("66", "67", "68", "69", "88", "89", "95", "96", "97", "98", "99"):
+    for prefix in ("33", "66", "67", "68", "69", "88", "89", "95", "96", "97", "98", "99"):
         files += list((pack / "interview-scenarios").glob(prefix + "_*.md"))
-    assert len(files) == 12
+    assert len(files) == 13
     for f in files:
         for bank, num in re.findall(r"[Bb]ank (\d+) Q(\d+)", f.read_text(encoding="utf-8")):
             assert int(num) in numbered.get(bank, ()), f"{f.name} refers to missing bank {bank} Q{num}"

@@ -21,6 +21,7 @@ Each file's front matter `skill:` attaches it to a topic of the Interview Coach
 | [12_foundations_spring_boot.md](12_foundations_spring_boot.md) | From the basics (Spring Boot) | 3 |
 | [13_foundations_java_core.md](13_foundations_java_core.md) | From the basics (core Java: immutability, equals/hashCode, HashMap, volatile, exceptions, cohesion/coupling, singleton) | 7 |
 | [14_foundations_rest_integration.md](14_foundations_rest_integration.md) | From the basics: aggregating several third-party APIs into one response | 1 |
+| [33_aws_basics.md](33_aws_basics.md) | Reported pack: AWS basics, from regions and IAM to deployment and cost | 15 |
 | [50_coding_round_problems.md](50_coding_round_problems.md) | Coding round: 31 classic problems, every Java solution compiled and run | 31 |
 | [60_round_java_core.md](60_round_java_core.md) | Real round: stream output question, department top earner, HashMap internals | 3 |
 | [61_round_spring_boot.md](61_round_spring_boot.md) | Real round: circuit breaker with Resilience4j, conditional beans | 2 |
@@ -74,6 +75,6 @@ Files 90–94 are the **target-company section** for Nagarro, Persistent Systems
 (hub: [`../target-companies/README.md`](../target-companies/README.md)): rounds, reported questions mapped to answers,
 prep plans and sources. Every question is tagged with the company name.
 
-Files 66–69, 88–89 and 95–99 are the **reported interview questions and GenAI study pack**
+Files 33, 66–69, 88–89 and 95–99 are the **reported interview questions and GenAI study pack**
 (hub: [`../reported-interviews/README.md`](../reported-interviews/README.md)): real reported questions mapped to answers,
 popular GenAI material, a table of corrections to that material, and known gaps.

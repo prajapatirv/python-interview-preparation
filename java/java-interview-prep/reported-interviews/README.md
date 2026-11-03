@@ -37,7 +37,8 @@ year. Treat them as likely topics, not a syllabus. Social-media infographics are
 | [67](../interview-scenarios/67_genai_rag_vector_databases.md) | RAG and vector databases in depth | 14 | GenAI |
 | [66](../interview-scenarios/66_genai_spring_ai_recipes.md) | Spring AI in practice | 12 | GenAI |
 | [68](../interview-scenarios/68_genai_agents_mcp_deep_dive.md) | Agents, MCP features, A2A, skills, graphs | 15 | GenAI |
-| **Total** | | **130** | |
+| [33](../interview-scenarios/33_aws_basics.md) | AWS basics: IAM, EC2, VPC, S3, Lambda, compute choices, load balancers, databases, messaging, monitoring, deployment, cost | 15 | Cloud, Docker and Kubernetes |
+| **Total** | | **145** | |
 
 Questions that the repo already answered well are linked rather than repeated. Tags let you search by source in the
 coach: `reported-streams`, `reported-rounds`, `reported-genai`, or by company: `deloitte`, `mastercard`, `capgemini`, `virtusa`.
@@ -46,7 +47,7 @@ coach: `reported-streams`, `reported-rounds`, `reported-genai`, or by company: `
 
 | Your goal | Time | Do this |
 |---|---|---|
-| Java interview this week | 5 days | Day 1-2: banks 95 and 96, coding each drill without looking. Day 3: bank 98. Day 4: bank 97. Day 5: bank 89 and a mock interview. |
+| Java interview this week | 5 days | Day 1-2: banks 95 and 96, coding each drill without looking. Day 3: bank 98. Day 4: bank 97. Day 5: bank 89, bank 33 Q1-Q7 and a mock interview. |
 | New to GenAI | 1 week | Bank 69 (Q1-Q5, Q9), then bank 67 (Q1-Q6). Build the mini project in bank 67 Q14. Then bank 66 Q1-Q2. |
 | Java developer moving to GenAI | 3 weeks | Week 1: bank 69, bank 66. Week 2: banks 67 and 77, and build RAG in Spring AI. Week 3: banks 68 and 78, and build an MCP server and one agent. |
 | Senior or architect round | 1 week | Banks 89, 99 Q1, 97 Q5-Q6, 88 Q1, 88 Q4, 68 Q3, 68 Q8, 78 Q10. Practise saying trade-offs aloud. |
@@ -143,7 +144,7 @@ with the coach's *Mock interview*, and answer in full sentences. Rehearse a 2-mi
 | | Composite key, @Embedded, @Embeddable | Bank 98 Q7 |
 | | Write a Controller to register an employee | Bank 98 Q4 |
 | | Stream: employees per month, month extraction, monthly order | Bank 98 Q3 |
-| | Basic AWS questions | Bank 82 Q3 and `company-chase-travel/brush-up/04-aws-s3-ecs-aurora-postgres.md` (see gaps below) |
+| | Basic AWS questions | Bank 33 (all 15), starting with Q1, Q2, Q5, Q6 and Q7 |
 | Technical 2 | Least coins to reach a target | Bank 98 Q1 |
 | | Vertical vs horizontal scaling | Bank 30 Q21 |
 | | Explain OAuth and JWT; who creates the JWT? | Bank 98 Q10 |
@@ -313,7 +314,6 @@ Ads for paid guides and PDF kits in the screenshots were left out. Nothing here 
 
 ## Known gaps
 
-- **Basic AWS** (Virtusa asks it twice). The repo has AWS brush-up material, but no plain "basic AWS" bank (IAM, EC2, VPC, Lambda, SQS/SNS, RDS, CloudWatch). This is the top candidate for the next bank.
 - **Mastercard questions 1-12**, and **Agentic AI notes pages 10-19** weren't visible in what was shared. Handbook page 19 is also missing.
 - **Spring AI recipe code**, because the articles returned 403. Read them directly for working examples.
 - DSA topics such as heaps, LCA and graph algorithms beyond bank 50 are still outside this pack.
@@ -342,4 +342,5 @@ Checked against:
 - [MCP 2026-07-28 changelog](https://modelcontextprotocol.net/specification/2026-07-28/changelog.md), [WorkOS on the stateless spec](https://workos.com/blog/mcp-stateless-spec-2026-07-28), [The Register on compatibility](https://www.theregister.com/a/5276722)
 - [A2A at one year (Linux Foundation)](https://www.linuxfoundation.org/press/a2a-protocol-surpasses-150-organizations-lands-in-major-cloud-platforms-and-sees-enterprise-production-use-in-first-year?hs_amp=true)
 - [Claude Managed Agents](https://claude.com/platform/claude-managed-agents), [Managed Agents memory](https://platform.claude.com/docs/en/managed-agents/memory), [Agent SDK overview](https://code.claude.com/docs/en/agent-sdk/overview), [Claude memory including Cowork](https://claude.com/blog/claudes-memory-works-everywhere-and-you-decide-whats-in-it)
+- AWS: [Lambda quotas](https://docs.aws.amazon.com/lambda/latest/dg/gettingstarted-limits.html), [S3 consistency](https://aws.amazon.com/s3/consistency/), [SQS queue types](https://docs.aws.amazon.com/AWSSimpleQueueService/latest/SQSDeveloperGuide/sqs-queue-types.html), [SQS quotas](https://docs.aws.amazon.com/AWSSimpleQueueService/latest/SQSDeveloperGuide/quotas-messages.html), [ALB vs NLB](https://aws.amazon.com/compare/the-difference-between-the-difference-between-application-network-and-gateway-load-balancing/)
 - Embabel: [InfoQ](https://infoq.com/news/2025/06/introducing-embabel-ai-agent), [The New Stack](https://thenewstack.io/spring-creator-java-type-system-agentic-ai-rod-johnson/)

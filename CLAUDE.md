@@ -441,7 +441,7 @@ cd interview-coach
   architecture is not public, so keep public facts and assumptions clearly separated when extending it.
 - **Reported interview and GenAI study pack (2026-11-03)**: hub `java-interview-prep/reported-interviews/README.md` maps reported rounds
   (Deloitte, Mastercard, Capgemini, Virtusa, 35 streams questions) and GenAI material (40 fundamentals, vector database handbook, agentic notes,
-  73 Spring AI recipes, 25 repos) to answers, with a **corrections table** for wrong claims in the sources. Banks `66`-`69`, `88`-`89`, `95`-`99` (130 Q). Add new material
+  73 Spring AI recipes, 25 repos) to answers, with a **corrections table** for wrong claims in the sources. Banks `33` (AWS basics), `66`-`69`, `88`-`89`, `95`-`99` (145 Q). Add new material
   by following its "Adding more material" steps; `tests/test_real_repo.py` fails on any "Bank N Qm" reference that doesn't exist. Numbers quoted in those answers come from
   `examples/21_coding_interview/07`-`09`, so if a program changes, update the answer. Inside a question, a line that is only `**bold**` becomes a machine-read section:
   use plain text for sub-headings.
