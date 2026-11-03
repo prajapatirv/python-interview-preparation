@@ -3,7 +3,7 @@ id: genai
 title: GenAI architecture for Java (RAG, MCP, agents)
 order: 16
 summary: LLM fundamentals, RAG, vector stores, Spring AI / LangChain4j, tool calling, MCP servers, agents, guardrails, evaluation and LLMOps.
-keywords: genai, gen ai, generative ai, llm, large language model, rag, retrieval-augmented, retrieval augmented, embedding, embeddings, vector database, vector store, vector db, mcp, model context protocol, prompt engineering, prompt injection, spring ai, langchain4j, ai agent, agentic, hallucination, fine-tuning, fine tuning, chunking, guardrail, guardrails, chatbot, ollama, semantic search, re-ranking, reranking
+keywords: genai, gen ai, generative ai, llm, large language model, rag, retrieval-augmented, retrieval augmented, embedding, embeddings, vector database, vector store, vector db, mcp, model context protocol, prompt engineering, prompt injection, spring ai, langchain4j, ai agent, agentic, hallucination, fine-tuning, fine tuning, chunking, guardrail, guardrails, chatbot, ollama, semantic search, re-ranking, reranking, hybrid search, hyde, hnsw, context engineering, a2a, react agent, agent loop, chatclient, embabel, tokenization, temperature, top-p, hallucinate
 ---
 Skill focus for GenAI architecture answers (Java/J2EE + Gen AI profile):
 - Stay vendor-neutral: name the abstraction (Spring AI `ChatClient`, `EmbeddingModel`, `VectorStore`; LangChain4j `AiServices`) and say the model can be OpenAI-compatible, Azure OpenAI, AWS Bedrock, Vertex or a local open-weight model on Ollama/vLLM.
@@ -12,4 +12,5 @@ Skill focus for GenAI architecture answers (Java/J2EE + Gen AI profile):
 - RAG answers must cover both pipelines: ingestion (read, chunk, embed, store with metadata) and query (rewrite, retrieve, re-rank, augment, generate, cite). Name how retrieval quality is measured.
 - MCP answers: host / client / server roles, tools vs resources vs prompts, stdio vs Streamable HTTP, the 2026-07-28 spec making the protocol stateless, and security (OAuth 2.1, least privilege, tool poisoning, human approval for destructive tools).
 - Always mention guardrails (prompt injection, PII redaction, output validation) and evaluation (golden sets, faithfulness, LLM-as-judge with care).
-- Versions as of late 2026: Spring AI 2.0.x on Spring Boot 4, LangChain4j 1.x, MCP spec 2026-07-28. Say "check the version your team runs" when an API name is version-sensitive.
+- Treat MCP sampling, elicitation and logging as changed: the 2026-07-28 spec replaces server-initiated requests with multi-round-trip requests and deprecates sampling, roots and logging, while Spring AI 2.0 still has annotations for them.
+- Versions as of late 2026: Spring AI 2.0.x on Spring Boot 4 (2.1 is a milestone on Boot 4.2), LangChain4j 1.x, MCP spec 2026-07-28. Say "check the version your team runs" when an API name is version-sensitive.
