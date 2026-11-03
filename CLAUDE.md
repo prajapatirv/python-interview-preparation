@@ -372,7 +372,7 @@ There is no Maven/Gradle in this environment, so nothing here uses a build tool.
 ```bash
 cd java/java-interview-prep
 java examples/12_kafka/02_consumer_groups_rebalancing_and_lag.java   # single-file source launch
-./verify_examples.sh                  # all 50 examples, stdout redirected, expects exit 0 (~2 min)
+./verify_examples.sh                  # all 53 examples, stdout redirected, expects exit 0 (~2 min)
 ./verify_examples.sh 12_kafka         # one chapter
 
 cd ../javaprep-live
@@ -404,7 +404,7 @@ without a key). Full detail in `interview-coach/README.md`; research notes in `i
 ```bash
 cd interview-coach
 ./start.sh                                  # Windows: start.cmd -> http://127.0.0.1:8100 ; stop: ./stop.sh
-.venv/Scripts/python.exe -m pytest          # 61 tests, incl. tests/test_real_repo.py against the real content
+.venv/Scripts/python.exe -m pytest          # 62 tests, incl. tests/test_real_repo.py against the real content
 ```
 
 - **Content is file-driven.** `skills/<stack>/_persona.md` (stack, content root, mixed `guides`, Python
@@ -439,6 +439,12 @@ cd interview-coach
   46 Q, each company tag-named; reported questions mapped to new or existing banks, sources listed). The GenAI banks
   attach to the `genai` topic (`skills/java/16_genai.md`). The Chase Travel pack is **illustrative**: its internal
   architecture is not public, so keep public facts and assumptions clearly separated when extending it.
+- **Reported interview and GenAI study pack (2026-11-03)**: hub `java-interview-prep/reported-interviews/README.md` maps reported rounds
+  (Deloitte, Mastercard, Capgemini, Virtusa, 35 streams questions) and GenAI material (40 fundamentals, vector database handbook, agentic notes,
+  73 Spring AI recipes, 25 repos) to answers, with a **corrections table** for wrong claims in the sources. Banks `33` (AWS basics), `66`-`69`, `88`-`89`, `95`-`99` (145 Q). Add new material
+  by following its "Adding more material" steps; `tests/test_real_repo.py` fails on any "Bank N Qm" reference that doesn't exist. Numbers quoted in those answers come from
+  `examples/21_coding_interview/07`-`09`, so if a program changes, update the answer. Inside a question, a line that is only `**bold**` becomes a machine-read section:
+  use plain text for sub-headings.
 - **Answer style the user wants**: scenario-first, spoken-interview narrative, minimal code (a few config
   lines at most). The `_persona.md` files encode it for the AI; keep new bank entries in the same voice.
   For production / monitoring / performance questions use the **three-tier format**: *Short answer*

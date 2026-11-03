@@ -30,6 +30,7 @@ java examples/12_kafka/02_consumer_groups_rebalancing_and_lag.java      # any ex
 | `Java_SpringBoot_Kafka_Interview_QA_Guide.md` | 96 requirement-aligned questions with concise, conservative answers | 96 Q |
 | `Docx_Gap_Supplement_QA.md` | coverage map of the 44-question `.docx` + 23 extra Q&A (Q97-Q119) with small examples; long form in `deep_dive/19_docx_gap_topics.md` | 23 Q |
 | `Round_Questions_QA.md` | 102 real interview-round questions (Cybage list, fresher, experienced, Kafka round, other) in simple language; each has a simple answer, key points and one industry example | 102 Q |
+| `reported-interviews/README.md` | **Start here if you are preparing now.** Questions reported from real rounds (Deloitte, Mastercard, Capgemini, Virtusa, 35 streams questions) and GenAI study material (40 fundamentals, vector databases, agents, 73 Spring AI recipes, 25 repos), each mapped to a deep answer, plus corrections to wrong claims in the sources |
 | `profile-java-genai/README.md` | **Java/J2EE + Gen AI profile pack**: 7 sections × 15 functional-requirement questions + 25 GenAI architecture (RAG, MCP, agents), banks `interview-scenarios/70`–`78` | 130 Q |
 | `company-chase-travel/README.md` | **Chase Travel company pack**: Sujay's brush-up list (REST, DB connection, Kafka, S3/ECS/Aurora; `brush-up/`, 120 Q) + Java rewrite/migration + travel platform design, banks `interview-scenarios/80`–`82` | 153 Q |
 | `QUESTION_INDEX.md` | auto-generated index of `topics/` | |

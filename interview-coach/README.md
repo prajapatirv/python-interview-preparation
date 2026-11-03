@@ -108,7 +108,7 @@ Settings (env or `.env`): `ANTHROPIC_API_KEY`, `AI_MODE` (`auto`|`claude`|`mock`
 ## Tests
 
 ```bash
-.venv/Scripts/python.exe -m pytest      # 61 tests; Linux/macOS: .venv/bin/python -m pytest
+.venv/Scripts/python.exe -m pytest      # 62 tests; Linux/macOS: .venv/bin/python -m pytest
 ```
 
 `tests/test_real_repo.py` runs against the real content and is the **"nothing forgotten" canary**:
