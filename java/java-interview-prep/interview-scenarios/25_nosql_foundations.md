@@ -871,7 +871,7 @@ Whether you can reach a latency target with a memory-first key-value design, and
 5. **Reduce conflicts at the source:** route a user to a "home" region (sticky routing), so one region normally writes a given user. Conflicts then become rare.
 6. **Cache only truly hot profiles:** Couchbase already serves from its own memory, so an extra cache is optional and adds invalidation work.
 7. **Publish changes to an event stream** such as Kafka, so downstream consumers (analytics, search) do not query the store. Make consumers idempotent.
-8. **Capacity:** size the memory quota for the working set, ideally the whole 100 GB if affordable. Replicas protect against node loss within a cluster (Couchbase allows up to 3, and 1 or 2 is common), so the "3 replicas" in the original answer is a ceiling and not a requirement. Regions are covered by XDCR, not by replicas.
+8. **Capacity:** size the memory quota for the working set, ideally the whole 100 GB if affordable. Replicas protect against node loss within a cluster (Couchbase allows up to 3, and 1 or 2 is common), so 3 replicas is a ceiling, not a requirement. Regions are covered by XDCR, not by replicas.
 
 **Trade-offs and what can go wrong**
 - Async XDCR means a user who switches region right after a write may see stale data for a moment. Pin sessions to a region to hide this.

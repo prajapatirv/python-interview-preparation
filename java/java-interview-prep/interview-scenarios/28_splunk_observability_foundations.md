@@ -45,7 +45,7 @@ index=prod traceId=abc123 | sort _time | table _time service level message
 - Alerting on every error causes alert fatigue, and people start ignoring alerts.
 
 **How I'd monitor it**
-- Check that each request produces a traceId in the logs of every service. A Splunk search like `index=prod | stats count by service | where isnull(traceId)` style checks (events missing the ID) show gaps.
+- Check that each request produces a traceId in the logs of every service. A Splunk search such as `index=prod NOT traceId=* | stats count by service` shows which services log events without the ID.
 - Watch error rate and latency percentiles (such as p95) on a dashboard.
 - Alert on SLO burn, such as a high error rate for several minutes.
 - Track daily log volume per service and the retention period to control cost.
@@ -866,7 +866,7 @@ route:
   group_by: [alertname, service]
   receiver: slack-default
   routes:
-    - match: {severity: critical}
+    - matchers: ['severity="critical"']
       receiver: pagerduty-payments
 ```
 

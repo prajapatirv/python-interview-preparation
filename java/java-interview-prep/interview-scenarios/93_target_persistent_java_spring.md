@@ -418,7 +418,7 @@ The state machine, sensible thresholds, the order of resilience decorators, and 
 - A fallback that calls another slow service just moves the problem.
 
 **Follow-ups to expect**
-- *Circuit breaker vs retry?* -> Retry handles brief transient failures; the breaker handles sustained failure. They work together, breaker outside retry.
+- *Circuit breaker vs retry?* -> Retry handles brief transient failures; the breaker handles sustained failure. They work together. Resilience4j's default order has retry wrapping the breaker, so each attempt counts towards the failure rate.
 - *Where else can it live?* -> In a service mesh (Istio outlier detection) for language-agnostic protection.
 
 **60-second answer**

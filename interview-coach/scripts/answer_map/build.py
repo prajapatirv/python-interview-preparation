@@ -135,7 +135,8 @@ TIDY = [('This corrects the idea of using it interchangeably with Kafka.', ''),
         ('EPAM candidates report "the', 'Candidates report "the'),
         ('A JPMC candidate reported exactly this follow-up', 'Candidates report exactly this follow-up'),
         (' A JPMC candidate reported a design question of exactly this shape.', ''),
-        (' (Infosys, EPAM and similar)', '')]
+        (' (Infosys, EPAM and similar)', ''),
+        ('JPMC candidates report direct ACID questions.', 'Candidates report direct ACID questions.')]
 CROSS_REF = re.compile(r' \((?:see (?:the \w+ bank, )?)?Q\d+\)')
 COMPANY_TAG = re.compile(r'chase|jpmc|jpmorgan|epam|nagarro|persistent', re.I)
 for summary in tracks.summaries('java'):

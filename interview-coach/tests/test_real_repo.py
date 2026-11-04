@@ -127,3 +127,14 @@ def test_answer_map_reviewed_ids_exist(lib):
     assert ids
     known = {q["id"] for t in lib.stack("java").topics for q in lib.questions("java", t.id)}
     assert [i for i in ids if i not in known] == []
+
+
+def test_spoken_answers_are_complete(lib):
+    """A 60-second answer that stops mid-sentence is what a truncated draft looks like."""
+    cut_off = []
+    for stack in ("java", "python"):
+        for q in lib.questions(stack):
+            for sec in q.get("sections") or []:
+                if sec["key"] == "spoken" and not re.search(r"[.!?][\"\u201d`*)]*\s*$", sec["md"]):
+                    cut_off.append(q["title"])
+    assert cut_off == []

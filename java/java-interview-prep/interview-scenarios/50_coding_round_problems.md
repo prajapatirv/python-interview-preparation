@@ -2087,7 +2087,7 @@ Common mistakes:
 - *Can you do it with streams?* -> Yes: `Arrays.stream(a).boxed().collect(Collectors.groupingBy(x -> x, Collectors.counting()))` and keep entries with a count above 1. It is still O(n) but allocates more, so I would use a loop on a hot path.
 
 **60-second answer**
-First I would clarify: should each duplicate be returned once, can the input be null or empty, and may I modify the array? The brute-force idea is two nested loops, which costs O(n^2) time and O(1) space. A better approach is to scan once with a `HashSet`: if `add` returns false, I have seen the value before, so I put it into a `LinkedHashSet` for the result. This is
+First I would clarify: should each duplicate be returned once, can the input be null or empty, and may I modify the array? The brute-force idea is two nested loops, which costs O(n^2) time and O(1) space. A better approach is to scan once with a `HashSet`: if `add` returns false, I have seen the value before, so I put it into a `LinkedHashSet` for the result. This is O(n) time and O(n) space, and it keeps first-seen order. I would test null, empty, no duplicates, all duplicates and a large array.
 
 ### Q18 [mid] Java 8 streams: group employees by department and find the highest paid in each
 tags: java8, streams, collectors, groupingby, maxby, hashmap, coding, basics
@@ -2224,7 +2224,7 @@ Common mistakes:
 - *Can you make it parallel?* -> Use `parallelStream()` with `groupingByConcurrent`. `maxBy` is associative, so it is safe, but it only pays off for large lists. Note that on ties "first wins" is then not guaranteed.
 
 **60-second answer**
-"First I would confirm the input is a list of employees with a department and salary, and ask about ties and nulls. The brute force is to loop over each department and scan the whole list, which is O(n times d). The better idea is a single pass: `Collectors.groupingBy` on department, with `maxBy` on salary as the downstream collector. That keeps one running best per department in a hash map. Because `maxBy` returns an `Optional`, I wrap it in `collectingAndThen` with `Optional::get`, which is safe since no group is ever empty. I would filter out null employees and null departments first and use `Comparator.comparingLong` to avoid overflow. Time is O(n) and extra space is O(d), where d is
+"First I would confirm the input is a list of employees with a department and salary, and ask about ties and nulls. The brute force is to loop over each department and scan the whole list, which is O(n times d). The better idea is a single pass: `Collectors.groupingBy` on department, with `maxBy` on salary as the downstream collector. That keeps one running best per department in a hash map. Because `maxBy` returns an `Optional`, I wrap it in `collectingAndThen` with `Optional::get`, which is safe since no group is ever empty. I would filter out null employees and null departments first and use `Comparator.comparingLong` to avoid overflow. Time is O(n) and extra space is O(d), where d is the number of departments."
 
 ### Q19 [mid] Java 8 streams: find the second highest salary
 tags: java8, streams, optional, distinct, sorting, single-pass, coding, basics
@@ -2501,7 +2501,7 @@ Common mistakes:
 - *How do you handle null values?* -> Filter them out first, or substitute a default with `Optional.ofNullable(v).orElse(...)`. The alternative is a manual loop with `HashMap.put`, which allows null values.
 
 **60-second answer**
-`Collectors.toMap` with two arguments throws `IllegalStateException` on a duplicate key, because overwriting silently would hide data loss. To handle it, I first ask what the business rule is: keep first, keep last, sum, or keep everything. For the first three I use the four-argument overload, `toMap(key, value, mergeFunction, LinkedHashMap::new)`. The merge function, such as `
+`Collectors.toMap` with two arguments throws `IllegalStateException` on a duplicate key, because overwriting silently would hide data loss. To handle it, I first ask what the business rule is: keep first, keep last, sum, or keep everything. For the first three I use the four-argument overload, `toMap(key, value, mergeFunction, LinkedHashMap::new)`. The merge function, such as `(a, b) -> a`, decides which value survives, and `LinkedHashMap::new` keeps encounter order. To keep everything, I use `groupingBy` instead. I also watch for null values, because `toMap` throws a `NullPointerException` on them.
 
 ### Q21 [mid] Java 8 streams: word frequency count and top 3 words
 tags: java8, streams, groupingby, hashmap, sorting, word-frequency, coding, basics
@@ -2630,7 +2630,7 @@ class Solution {
 - *Would you use `parallelStream()` here?* -> Not by default. For small input the overhead is higher than the gain. For huge input use `groupingByConcurrent` and benchmark it, because the result must not depend on the order.
 
 **60-second answer**
-"First I'd confirm the rules: is it case-insensitive, what separates words, how to break ties, and what to return if there are fewer than 3 words. The naive way is to rescan the text for every word, which is O(n squared). Instead I count in one pass with a hash map, using `groupingBy(identity(), counting())`, which is O(n) because each lookup and update is about constant time. Then I sort only the distinct entries by count descending and by word ascending for ties, and take the first 3 with `limit`. That gives O(n + d log d) time, where d is the number of distinct words, and O(d) space. I would lowercase with `Locale.ROOT`, split on
+"First I'd confirm the rules: is it case-insensitive, what separates words, how to break ties, and what to return if there are fewer than 3 words. The naive way is to rescan the text for every word, which is O(n squared). Instead I count in one pass with a hash map, using `groupingBy(identity(), counting())`, which is O(n) because each lookup and update is about constant time. Then I sort only the distinct entries by count descending and by word ascending for ties, and take the first 3 with `limit`. That gives O(n + d log d) time, where d is the number of distinct words, and O(d) space. I would lowercase with `Locale.ROOT`, split on `\W+` or whatever rule we agreed, and drop empty tokens. I would test empty text, ties and fewer than 3 distinct words."
 
 ### Q22 [mid] Reverse a linked list iteratively and recursively
 tags: linked-list, reverse, pointers, recursion, iteration, in-place, coding, basics
@@ -2914,7 +2914,7 @@ class Solution {
 - *Where else does this idea appear?* -> "Find the duplicate number" in an array treats `nums[i]` as a next pointer, and it also detects loops in iterative sequences.
 
 **60-second answer**
-"First I'd confirm the input is a singly linked list head, that I return the start node or null, and that I compare nodes by reference. The brute force is a HashSet of visited nodes: the first repeat is the cycle start. That is O(n) time but O(n) space. To get O(1) space I use Floyd's tortoise and hare: slow moves 1 and fast moves 2. If fast reaches null there is no cycle. Otherwise they meet inside the cycle, because the gap closes by 1 each step. Then I put one pointer at head and keep one at the meeting point, and move both one step at a time. They meet at the cycle start, because the distance from head to the start equals the distance from the meeting point to the start, pl
+"First I'd confirm the input is a singly linked list head, that I return the start node or null, and that I compare nodes by reference. The brute force is a HashSet of visited nodes: the first repeat is the cycle start. That is O(n) time but O(n) space. To get O(1) space I use Floyd's tortoise and hare: slow moves 1 and fast moves 2. If fast reaches null there is no cycle. Otherwise they meet inside the cycle, because the gap closes by 1 each step. Then I put one pointer at head and keep one at the meeting point, and move both one step at a time. They meet at the cycle start, because the distance from head to the start equals the distance from the meeting point to the start, plus some whole number of laps around the cycle. That is O(n) time and O(1) space. I would test an empty list, a single node with and without a self-loop, no cycle, and a cycle back to the head."
 
 ### Q24 [mid] Find the middle element of a linked list in one pass
 tags: linked-list, two-pointers, fast-slow-pointers, singly-linked-list, java, coding, basics
@@ -3178,7 +3178,7 @@ class Solution {
 - *How would you validate a huge tree that is stored on disk or streamed?* -> Stream the in-order sequence and keep only the previous value, so memory is O(1) beyond the traversal state.
 
 **60-second answer**
-"First I would confirm the definition: left subtree strictly smaller, right subtree strictly larger, duplicates invalid, and an empty tree valid.
+"First I would confirm the definition: left subtree strictly smaller, right subtree strictly larger, duplicates invalid, and an empty tree valid. Checking each node only against its children misses violations deeper down, so I pass an allowed range down the tree. Each node must be strictly between `lo` and `hi`. Going left sets `hi` to the node's value, and going right sets `lo`. I use `long` bounds so nodes holding `Integer.MIN_VALUE` or `MAX_VALUE` still work. Every node is visited once, so time is O(n) and space is O(h). On very deep trees I use an iterative in-order walk and check that values strictly increase, which avoids a stack overflow. I would test an empty tree, a single node, duplicates, a deep violation and the integer extremes."
 
 ### Q26 [senior] Level-order (breadth-first) traversal of a binary tree
 tags: binary-tree, bfs, queue, level-order, traversal, java-collections, coding, basics
@@ -3317,7 +3317,7 @@ class Solution {
 - *What about an n-ary tree?* -> Loop over `node.children` instead of left and right. Nothing else changes.
 
 **60-second answer**
-"First I'd confirm that a null root returns an empty list and that the output is a list of lists, one per level. The brute force finds the height and runs a separate traversal for each depth, which is O(n^2) on a skewed tree. Instead I use a queue, because BFS naturally visits nodes level by level. At the start of each round I record the queue size, which is exactly the number of nodes in that level. I pop that many nodes, record their values, and push their non-null children for the next round. Each node is enqueued and dequeued once, so time is O(n). Space is O(w) for the queue, where w is the widest level, plus the output. I'd use `ArrayDeque` because it is faster than `LinkedList` and does not accept nulls, so I only add non-null children. Being iterative, it also avoids stack overflow
+"First I'd confirm that a null root returns an empty list and that the output is a list of lists, one per level. The brute force finds the height and runs a separate traversal for each depth, which is O(n^2) on a skewed tree. Instead I use a queue, because BFS naturally visits nodes level by level. At the start of each round I record the queue size, which is exactly the number of nodes in that level. I pop that many nodes, record their values, and push their non-null children for the next round. Each node is enqueued and dequeued once, so time is O(n). Space is O(w) for the queue, where w is the widest level, plus the output. I'd use `ArrayDeque` because it is faster than `LinkedList` and does not accept nulls, so I only add non-null children. Being iterative, it also avoids stack overflow on a very deep tree. I'd test a null root, a single node, a skewed tree and missing children."
 
 ### Q27 [senior] Implement an LRU cache
 tags: lru-cache, hashmap, doubly-linked-list, linkedhashmap, o1, coding, basics

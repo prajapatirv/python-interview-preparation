@@ -17,7 +17,7 @@ tags: rest-api, filtering, pagination, jpa-specification, layered-architecture, 
 
 **Start here: the concepts**
 - **Layered structure:** Controller (HTTP only) -> Service (business logic and transactions) -> Repository (database). Dependencies point one way.
-- **Query parameters** are for filtering, sorting and paging (`?name=ravi&org=acme`). **Path variables** identify one resource (`/students/42`).
+- **Query parameters** are for filtering, sorting and paging (`?name=asha&org=acme`). **Path variables** identify one resource (`/students/42`).
 - A **JPA Specification** is a small piece of a `WHERE` clause that you can combine at runtime, which is ideal for *optional* filters.
 
 **The live scenario (functional requirement)**
@@ -27,7 +27,7 @@ tags: rest-api, filtering, pagination, jpa-specification, layered-architecture, 
 Clean REST conventions, a proper layered structure, a filtering approach that scales to more filters, and the production details (paging limits, indexes, N+1).
 
 **How I answer it** (120-second answer, point by point)
-1. **Endpoint:** `GET /api/v1/students?name=ravi&org=ACME&page=0&size=20&sort=name,asc`. Plural noun, no verbs, versioned. Empty results are **200 with an empty list**, not 404.
+1. **Endpoint:** `GET /api/v1/students?name=asha&org=ACME&page=0&size=20&sort=name,asc`. Plural noun, no verbs, versioned. Empty results are **200 with an empty list**, not 404.
 2. **Package by feature:** a `student` package with `StudentController`, `StudentService`, `StudentRepository`, `StudentSpecs`, the `Student` entity, a `StudentFilter` request record and a `StudentResponse` record. Shared items (`GlobalExceptionHandler`, `PageResponse`) live in `common`.
 3. **Controller is thin:** binds the query params into `StudentFilter(String name, String org)` with `@Valid`, takes a `Pageable` with `@PageableDefault(size = 20, sort = "name")`, and calls the service. No business logic, no repository access.
 4. **Service builds the query from Specifications:** `nameContains(name)` (lower-case `LIKE`) and `orgEquals(org)`. Each returns `null` when its filter is empty, and Spring skips null parts. `where(nameContains).and(orgEquals)` handles every combination with **one method**. Mark it `@Transactional(readOnly = true)`.
@@ -35,7 +35,7 @@ Clean REST conventions, a proper layered structure, a filtering approach that sc
 6. **Return DTOs, never entities:** map with MapStruct or a small mapper. Wrap the page in my own `PageResponse` (content, page, size, totalElements), because Spring's `Page` JSON is not a stable contract.
 7. **Production details:**
    - Cap the page size (`spring.data.web.pageable.max-page-size=100`) and whitelist sortable fields.
-   - Index `org_id`. `LIKE '%ravi%'` cannot use a normal index: use prefix search, a PostgreSQL trigram index, or a search engine for large tables.
+   - Index `org_id`. `LIKE '%asha%'` cannot use a normal index: use prefix search, a PostgreSQL trigram index, or a search engine for large tables.
    - Use `@EntityGraph` for the organisation, to avoid N+1 queries.
 8. **Alternatives I compare:** derived methods (fine for one fixed filter), `@Query` with `(:name IS NULL OR ...)` (quick but planner-unfriendly), Querydsl (type-safe, extra build step), Elasticsearch/OpenSearch for fuzzy full-text search.
 

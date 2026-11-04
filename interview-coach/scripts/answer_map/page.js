@@ -120,8 +120,8 @@
       '<div class="tp-stats"><span>' + p.total + ' questions</span><span>about ' + p.hours + ' hours at 5 minutes each</span>' +
       p.stage_order.filter(function (s) { return p.stages[s]; }).map(function (s) { return '<span>' + p.stages[s] + ' ' + p.stage_label[s].toLowerCase() + '</span>'; }).join('') + '</div>' +
       '<div class="bar"><i style="width:' + (100 * dn / all.length) + '%"></i></div><p class="note">' + dn + ' of ' + all.length + ' ticked. Your ticks are saved in this browser only.</p>' +
-      '<p class="note">' + withAns + ' of these ' + all.length + ' questions have a full answer on this page. The rest are listed so you can practise them or look them up.</p>' +
-      '<label class="tp-opt"><input type="checkbox" id="tp-only"' + (onlyAnswers ? ' checked' : '') + '> Only show questions with an answer here</label></div>';
+      (withAns < all.length ? '<p class="note">' + withAns + ' of these ' + all.length + ' questions have a full answer on this page. The rest are listed so you can practise them or look them up.</p>' +
+      '<label class="tp-opt"><input type="checkbox" id="tp-only"' + (onlyAnswers ? ' checked' : '') + '> Only show questions with an answer here</label>' : '<p class="note">Every question here opens its full answer.</p>') + '</div>';
     GROUPS.forEach(function (g) {
       var ts = p.topics.filter(function (t) { return t.weight === g[0]; });
       if (!ts.length) return;
@@ -140,7 +140,8 @@
       });
     });
     body.innerHTML = html;
-    document.getElementById('tp-only').onchange = function (e) { onlyAnswers = e.target.checked; renderPlan(); };
+    var only = document.getElementById('tp-only');
+    if (only) only.onchange = function (e) { onlyAnswers = e.target.checked; renderPlan(); };
   }
   pick.addEventListener('click', function (e) {
     var b = e.target.closest('[data-t]');

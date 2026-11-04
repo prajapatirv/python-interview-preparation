@@ -404,7 +404,7 @@ without a key). Full detail in `interview-coach/README.md`; research notes in `i
 ```bash
 cd interview-coach
 ./start.sh                                  # Windows: start.cmd -> http://127.0.0.1:8100 ; stop: ./stop.sh
-.venv/Scripts/python.exe -m pytest          # 73 tests, incl. tests/test_real_repo.py against the real content
+.venv/Scripts/python.exe -m pytest          # 74 tests, incl. tests/test_real_repo.py against the real content
 ```
 
 - **Content is file-driven.** `skills/<stack>/_persona.md` (stack, content root, mixed `guides`, Python
