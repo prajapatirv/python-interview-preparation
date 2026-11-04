@@ -6,7 +6,7 @@ focus: Team lead (4+ yrs) - delivery, mentoring, estimation, stakeholder managem
 Use STAR with numbers. Keep each story to ~2 minutes and prepare 6-8 stories you can bend to many questions: a production incident, a conflict, a mentoring win, a failed decision, a delivery under pressure, a technical migration, an improvement you drove, a disagreement with a client.
 
 ### Q1 [basic] Tell me about yourself (90-second version).
-Structure: current role and scale -> core strengths -> 2 proof points -> why this role. Example frame: "12+ years in Java, last 4+ leading teams at Cybage; I design and deliver Spring Boot/Quarkus services, event-driven pipelines on Kafka and AWS, and I lead code reviews, mentoring and client communication. Recently I built [X] and cut [Y]. I'm looking for a Lead role where I own architecture and delivery for [Z]."
+Structure: current role and scale -> core strengths -> 2 proof points -> why this role. Example frame: "12+ years in Java, last 4+ leading teams at [your company]; I design and deliver Spring Boot/Quarkus services, event-driven pipelines on Kafka and AWS, and I lead code reviews, mentoring and client communication. Recently I built [X] and cut [Y]. I'm looking for a Lead role where I own architecture and delivery for [Z]."
 
 ### Q2 [basic] What does a Lead Java developer do beyond coding?
 Owns technical design and quality, breaks down work, estimates, unblocks the team, reviews code, mentors, interfaces with product/clients, manages risk and tech debt, ensures operability (monitoring, runbooks) and keeps delivery predictable. Still codes, but multiplies the team's output.

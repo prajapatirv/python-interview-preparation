@@ -19,7 +19,7 @@ Static Method
 
 class Abc:
     # Instance variable
-    company="Cybage"
+    company="Acme"
 
     # Instance method
     def show_1(self):
