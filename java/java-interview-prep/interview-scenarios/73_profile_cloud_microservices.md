@@ -268,7 +268,7 @@ Trace completeness (spans with missing parents), collector drop rate, alert nois
 
 **Follow-ups to expect**
 - *Agent or SDK?* -> Agent: zero code, broad coverage; SDK/starter: more control, native-image friendly.
-- *What is exemplars?* -> Links from a metric data point to a sample trace.
+- *What are exemplars?* -> Links from a metric data point to a sample trace.
 - *Logs vs events?* -> Structured events with consistent fields make logs queryable.
 
 **60-second answer**

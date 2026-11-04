@@ -151,7 +151,7 @@ That you can walk through `put` and `get`, name the thresholds, and explain what
 
 **Trade-offs and what can go wrong**
 - Tree buckets need keys to be `Comparable` for efficient ordering; otherwise the tree falls back to identity-hash tie-breaking.
-- Resizing is expensive; pre-size with `new HashMap<>(expected / 0.75 + 1)` when the count is known.
+- Resizing is expensive; pre-size with `new HashMap<>((int) (expected / 0.75) + 1)` when the count is known.
 - Mutable keys whose hash changes after insertion make entries unreachable.
 - Concurrent writes can corrupt the map or lose updates; use `ConcurrentHashMap`.
 

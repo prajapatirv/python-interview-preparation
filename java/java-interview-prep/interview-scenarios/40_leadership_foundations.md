@@ -987,7 +987,7 @@ tags: lead developer, team leadership, mentoring, estimation, tech debt, operabi
 **Start here: the concepts**
 - **Competency tested:** ownership beyond your own tickets. A lead is judged on the team's output, not only personal output.
 - **What the interviewer wants to learn:** do you know the non-coding duties, and have you done any of them, even in a small way?
-- **The duties (from the stored answer):**
+- **The duties:**
   - Technical design and quality.
   - Work breakdown and estimates.
   - Unblocking the team.
@@ -1027,7 +1027,7 @@ Illustrative example (replace with your own story): "As lead of a [team size]-pe
 **Trade-offs and what can go wrong**
 - **Listing duties with no example** sounds memorised.
 - **"We did everything"** hides your own contribution.
-- **Saying a lead stops coding** is a red flag. The stored answer says a lead still codes.
+- **Saying a lead stops coding** is a red flag. A lead still codes.
 - **Only technical answers** miss people and delivery.
 - **Not exaggerating:** as a fresher, do not claim you "led" a team if you led a module. Say exactly what you owned. Interviewers probe the numbers.
 
@@ -3067,7 +3067,7 @@ tags: jvm, startup-time, footprint, spring-boot, cost-efficiency, behavioural, l
 
 **Start here: the concepts**
 - This is a technical question that often comes up in a project or managerial round. The interviewer wants to know whether you tune with evidence or by guessing.
-- The stored techniques, in plain words:
+- The techniques, in plain words:
   - **AppCDS / AOT cache (Project Leyden):** store pre-processed class data so the JVM starts faster.
   - **Spring AOT + native image:** suits short-lived workloads.
   - **`MaxRAMPercentage`, G1/ZGC tuning:** size the heap for the container and pick a collector.

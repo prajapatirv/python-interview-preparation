@@ -191,7 +191,7 @@ Whether you know that ordering is per partition and not per topic, and that you 
    acks=all
    ```
 4. **Keep order on the consumer side too.** Within a group, one consumer reads a partition sequentially. If you hand records to a thread pool, they can finish out of order. Process by key sequentially, or keep one worker per partition.
-5. **Never change the partition count on a topic that depends on key ordering.** The modulo changes, so existing keys map to new partitions (the stored answer's last point). Old and new events for the same key then sit in different logs. Plan the partition count up front, or create a new topic and migrate with a drain step.
+5. **Never change the partition count on a topic that depends on key ordering.** The modulo changes, so existing keys map to new partitions. Old and new events for the same key then sit in different logs. Plan the partition count up front, or create a new topic and migrate with a drain step.
 
 **Trade-offs and what can go wrong**
 - Strict ordering for a key limits that key's throughput to one partition and one consumer.

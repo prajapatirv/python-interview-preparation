@@ -1008,7 +1008,7 @@ tags: spring-boot, golden-path, architecture, observability, resilience, testing
 **Start here: the concepts**
 - **Golden path:** a pre-built, supported way to start a service so every team begins with the same safe defaults. It exists so teams don't spend week one re-solving logging, errors and deployment.
 - **Layers:** `api` holds controllers and DTOs (the request/response shapes). `application` holds use-case services and transaction boundaries. `domain` holds entities and business rules. `infrastructure` holds repositories, HTTP clients and messaging. Each layer has one job, so changes stay local.
-- **Dependency direction:** the stored arrow chain ends `domain -> infrastructure`, which is wrong. Domain must not depend on infrastructure. Domain or application defines interfaces, and infrastructure implements them.
+- **Dependency direction:** Domain must not depend on infrastructure. Domain or application defines interfaces, and infrastructure implements them.
 - **ProblemDetail:** Spring's standard JSON error body (RFC 7807, updated by RFC 9457), supported from Spring Framework 6. Every service then fails in the same shape.
 - **Correlation ID:** a unique ID per request, put in a filter and in every log line, so one request can be followed across services.
 - **Structured JSON logs:** one JSON object per log line, so Splunk can search by field instead of regex.
