@@ -68,6 +68,25 @@ button.chip { border: 1px solid var(--line); background: var(--panel); }
 button.chip.on { background: var(--accent-soft); color: var(--accent); border-color: var(--accent); }
 .progress { height: 6px; background: var(--panel-2); border-radius: 99px; overflow: hidden; }
 .progress > i { display: block; height: 100%; background: var(--good); }
+.track-pick { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 10px; margin-bottom: 14px; }
+.track-pick button { text-align: left; background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px; cursor: pointer; color: inherit; font: inherit; }
+.track-pick button:hover { border-color: var(--accent); }
+.track-pick button.on { border-color: var(--accent); background: var(--accent-soft); }
+.track-pick b { display: block; font-size: 17px; }
+.track-pick span { display: block; color: var(--muted); font-size: 13px; }
+.track-sum { margin-bottom: 18px; }
+.track-sum h2 { margin: 0 0 4px; }
+.track-sum p { margin: 6px 0; }
+.track-stats { display: flex; flex-wrap: wrap; gap: 6px; margin: 10px 0; }
+.track-group { margin: 22px 0 8px; }
+.track-group + p { margin: 0 0 10px; color: var(--muted); font-size: 14px; }
+.topic-card .why { flex: 1; }
+.stage-head { margin: 18px 0 6px; font-size: 15px; font-weight: 700; }
+.stage-head span { color: var(--muted); font-weight: 400; font-size: 13px; }
+.chip.reported, .rep { color: var(--good); }
+.rep { font-size: 12px; white-space: nowrap; }
+.track-note { padding: 8px 12px; border-radius: 8px; background: var(--accent-soft); margin-bottom: 10px; font-size: 14px; display: flex; flex-wrap: wrap; gap: 8px; align-items: center; justify-content: space-between; }
+.custom { margin-top: 10px; }
 .hero { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; margin-bottom: 18px; }
 .hero .card { cursor: pointer; }
 .hero .card b { display: block; margin-bottom: 2px; }
@@ -305,7 +324,7 @@ function route() {
   const [, stack, view, topic] = (location.hash || '').split('/');
   if (stack && S.stacks.some(s => s.id === stack)) { S.stack = stack; store.set('stack', stack); }
   S.view = view || 'home'; S.topic = topic || null;
-  document.querySelectorAll('#views button').forEach(b => b.classList.toggle('on', b.dataset.view === (S.view === 'topic' ? 'home' : S.view)));
+  document.querySelectorAll('#views button').forEach(b => b.classList.toggle('on', b.dataset.view === (S.view === 'topic' || S.view === 'plan' ? 'home' : S.view)));
   document.querySelectorAll('#stacks button').forEach(b => b.classList.toggle('on', b.dataset.stack === S.stack));
   window.scrollTo(0, 0);
   render();
@@ -324,6 +343,7 @@ function render() {
   const main = $('#main');
   const v = S.view;
   if (v === 'topic' && S.topic) return renderTopic(main, S.topic);
+  if (v === 'plan') return renderPlan(main);
   if (v === 'ask') return renderAsk(main);
   if (v === 'mock') return renderMock(main);
   if (v === 'jd') return renderJD(main);
@@ -520,15 +540,28 @@ function progressOf(topicId) {
   const done = t.questions.filter(q => S.mastered.has(q.id)).length;
   return { done, total: t.questions.length };
 }
+async function renderTracks(main) {
+  const stackId = S.stack;
+  const list = await api('/api/tracks/' + stackId).catch(() => []);
+  if (S.view !== 'home' || S.stack !== stackId || !$('#track-pick')) return;
+  if (!list.length) return;
+  renderTrackPicker($('#track-pick'), list, trackId());
+  const plan = await loadPlan();
+  if (S.view !== 'home' || S.stack !== stackId || !$('#track-body')) return;
+  $('#all-topics').hidden = !!plan;
+  if (plan) renderPlanHome(main, plan);
+}
 function renderHome(main) {
   const st = curStack();
   main.innerHTML = '<h1>' + esc(st.title) + ' interview preparation</h1><p class="sub">' + esc(st.tagline) + ' &middot; ' + st.total +
-    ' questions from every source in the repo, organised by topic. Scenario answers come first.</p>' +
+    ' questions in the bank. Choose your experience to see only what matters at your level.</p>' +
+    '<div id="track-pick"></div><div id="track-body"></div>' +
     '<div class="hero">' +
       '<div class="card" data-go="ask"><b>Ask anything</b><span>Type a real interview question and get a scenario-based answer grounded on your bank.</span></div>' +
       '<div class="card" data-go="mock"><b>Mock interview</b><span>Answer questions under interview conditions and get a five-dimension scorecard.</span></div>' +
       '<div class="card" data-go="jd"><b>Paste a job description</b><span>Get a study plan and the questions that role is likely to ask.</span></div>' +
-    '</div><h2>Topics</h2><div class="grid" id="topics"></div>';
+    '</div><div id="all-topics"' + (trackId() ? ' hidden' : '') + '><h2>Topics</h2><div class="grid" id="topics"></div></div>';
+  renderTracks(main);
   main.querySelectorAll('[data-go]').forEach(c => c.onclick = () => go(c.dataset.go));
   const grid = $('#topics');
   for (const t of st.topics) {
@@ -549,6 +582,137 @@ function renderHome(main) {
     .then(() => { if (S.view === 'home' && S.stack === stackId) renderHome(main); });
 }
 
+// ---------------------------------------------------------------- experience tracks
+const WEIGHT_GROUPS = [
+  { key: 'core', title: 'Focus first', note: 'These topics decide the interview at your level. Spend most of your time here.' },
+  { key: 'also', title: 'Also prepare', note: 'Expect questions here, but with less depth. Cover the key answers.' },
+  { key: 'aware', title: 'Know the basics', note: 'A short list, so a question here doesn\'t catch you out.' },
+];
+const planCache = {};
+function trackId() { return store.get('track', {})[S.stack] || ''; }
+function setTrack(id) { const all = store.get('track', {}); all[S.stack] = id; store.set('track', all); }
+function customKey() { return 'trackCustom/' + S.stack + '/' + trackId(); }
+function custom() { return store.get(customKey(), { add: [], remove: [] }); }
+async function loadPlan() {
+  const id = trackId();
+  if (!id) return null;
+  const c = custom();
+  const key = [S.stack, id, c.add.join(','), c.remove.join(',')].join('|');
+  if (!planCache[key]) {
+    try { planCache[key] = await api('/api/tracks/' + S.stack + '/' + id + '?add=' + c.add.join(',') + '&remove=' + c.remove.join(',')); }
+    catch (e) { setTrack(''); return null; }
+  }
+  return planCache[key];
+}
+function planIds(plan) { return plan.topics.flatMap(t => t.questions.map(q => q.id)); }
+function doneCount(ids) { return ids.filter(i => S.mastered.has(i)).length; }
+function barHtml(done, total) {
+  return '<div class="progress" title="' + done + ' of ' + total + ' marked confident"><i style="width:' + (100 * done / Math.max(1, total)) + '%"></i></div>';
+}
+function renderTrackPicker(el, tracks, current) {
+  el.innerHTML = '<div class="track-pick">' + tracks.map(t =>
+    '<button data-track="' + t.id + '" class="' + (t.id === current ? 'on' : '') + '" aria-pressed="' + (t.id === current) + '"><b>' + esc(t.label) + '</b><span>' + esc(t.range) + '</span></button>').join('') +
+    '<button data-track="" class="' + (current ? '' : 'on') + '" aria-pressed="' + !current + '"><b>All topics</b><span>No filter: every topic and question</span></button></div>';
+  el.querySelectorAll('[data-track]').forEach(b => b.onclick = () => { setTrack(b.dataset.track); render(); });
+}
+function renderPlanHome(main, plan) {
+  const ids = planIds(plan), done = doneCount(ids);
+  const box = $('#track-body');
+  box.innerHTML = '<div class="card track-sum"><h2>' + esc(plan.title) + '</h2>' +
+    '<p>' + esc(plan.expect) + '</p><p><b>How to prepare:</b> ' + esc(plan.advice) + '</p>' +
+    '<div class="track-stats"><span class="chip">' + plan.total + ' questions, chosen from ' + plan.source_total + '</span>' +
+    '<span class="chip">about ' + plan.hours + ' hours at 5 minutes each</span>' +
+    (plan.levels_reliable ? plan.stage_order.filter(s => plan.stages[s]).map(s => '<span class="chip">' + plan.stages[s] + ' ' + plan.stage_label[s].toLowerCase() + '</span>').join('') : '') + '</div>' +
+    (plan.levels_reliable ? '' : '<p class="sub">Python questions don\'t have level labels yet, so this track narrows by topic only.</p>') +
+    barHtml(done, ids.length) + '<p class="sub" style="margin:6px 0 0;font-size:13px">' + done + ' of ' + ids.length + ' marked "I can answer this".</p>' +
+    '<div class="actions"><button class="btn primary" id="tr-open">' + (done ? 'Continue my plan' : 'Start my plan') + '</button>' +
+    '<button class="btn" id="tr-mock">Mock interview on my focus topics</button><button class="btn" id="tr-edit">Change my topics</button></div><div id="tr-custom"></div></div>' +
+    WEIGHT_GROUPS.filter(g => plan.topics.some(t => t.weight === g.key)).map(g =>
+      '<h2 class="track-group">' + g.title + '</h2><p>' + g.note + '</p><div class="grid">' +
+      plan.topics.filter(t => t.weight === g.key).map(t => {
+        const tids = t.questions.map(q => q.id), d = doneCount(tids);
+        const chips = plan.levels_reliable ? plan.stage_order.map(s => [s, t.questions.filter(q => q.level === s).length]).filter(x => x[1])
+          .map(x => '<span class="chip">' + x[1] + ' ' + plan.stage_label[x[0]].toLowerCase() + '</span>').join('') : '<span class="chip">' + tids.length + ' questions</span>';
+        return '<div class="card topic-card" data-topic="' + t.id + '" tabindex="0" role="link"><h3>' + esc(t.title) + '</h3><p class="why">' + esc(t.why) + '</p><div class="counts">' + chips + '</div>' + barHtml(d, tids.length) + '</div>';
+      }).join('') + '</div>').join('');
+  box.querySelectorAll('[data-topic]').forEach(c => {
+    c.onclick = () => go('topic', c.dataset.topic);
+    c.onkeydown = e => { if (e.key === 'Enter') go('topic', c.dataset.topic); };
+  });
+  $('#tr-open').onclick = () => go('plan');
+  $('#tr-mock').onclick = () => { store.set('mockTopics', plan.topics.filter(t => t.weight === 'core').map(t => t.id)); go('mock'); };
+  $('#tr-edit').onclick = () => renderCustomize(plan);
+}
+function renderCustomize(plan) {
+  const c = custom(), box = $('#tr-custom');
+  if (box.innerHTML) { box.innerHTML = ''; return; }
+  const inPlan = plan.topics.map(t => t.id), others = plan.other_topics;
+  box.innerHTML = '<div class="custom"><p class="sub">Your current job or target role may differ. Click a topic to add or remove it. This is saved in this browser only.</p><div class="check-list">' +
+    inPlan.map(id => '<button class="chip on" data-c="' + id + '">' + esc(plan.topics.find(t => t.id === id).title) + '</button>').join('') +
+    others.map(t => '<button class="chip" data-c="' + t.id + '">' + esc(t.title) + '</button>').join('') +
+    '</div><div class="actions"><button class="btn" id="tr-reset">Reset to the recommended topics</button></div></div>';
+  box.querySelectorAll('[data-c]').forEach(b => b.onclick = () => {
+    const id = b.dataset.c, on = inPlan.includes(id);
+    c.add = c.add.filter(x => x !== id); c.remove = c.remove.filter(x => x !== id);
+    if (on) c.remove.push(id); else c.add.push(id);
+    store.set(customKey(), c); render();
+  });
+  $('#tr-reset').onclick = () => { store.set(customKey(), { add: [], remove: [] }); render(); };
+}
+async function renderPlan(main) {
+  main.innerHTML = '<p class="empty">Loading your plan...</p>';
+  const plan = await loadPlan();
+  if (!plan) { go('home'); return; }
+  await Promise.all(plan.topics.map(t => loadTopic(t.id)));
+  const f = store.get('planFilters', { stage: '', topic: '', q: '', hideDone: false });
+  if (f.topic && !plan.topics.some(t => t.id === f.topic)) f.topic = '';
+  const items = plan.topics.flatMap(t => {
+    const full = topicCache[S.stack + '/' + t.id].questions;
+    return t.questions.map(p => ({ q: full.find(x => x.id === p.id), p, t }));
+  }).filter(x => x.q);
+  main.innerHTML = '<p class="sub"><a href="#/' + S.stack + '/home">Topics</a> / my plan</p>' +
+    '<h1>My plan: ' + esc(plan.label) + '</h1><p class="sub">' + esc(plan.advice) + '</p>' +
+    '<div class="toolbar"><input type="search" id="pq" placeholder="Search my plan (e.g. rebalancing, deadlock, idempotent)" value="' + esc(f.q) + '"></div>' +
+    (plan.levels_reliable ? '<div class="toolbar" id="p-stage"></div>' : '') + '<div class="toolbar" id="p-topic"></div>' +
+    '<div class="toggles"><label><input type="checkbox" id="p-hide"' + (f.hideDone ? ' checked' : '') + '> Hide questions I can answer</label>' +
+    '<label><input type="checkbox" id="p-prac"' + (S.filters.practice ? ' checked' : '') + '> Practice mode (answer first)</label>' +
+    '<label><input type="checkbox" id="p-quick"' + (S.filters.quick ? ' checked' : '') + '> Quick revision (60-second answers)</label></div>' +
+    '<p class="sub" id="p-count"></p><div id="p-list"></div>';
+  const chipBar = (el, opts, cur, key) => {
+    el.innerHTML = opts.map(o => '<button class="chip' + (cur === o[0] ? ' on' : '') + '" data-v="' + o[0] + '">' + esc(o[1]) + '</button>').join('');
+    el.onclick = e => { const b = e.target.closest('[data-v]'); if (!b) return; f[key] = b.dataset.v; store.set('planFilters', f); renderPlan(main); };
+  };
+  if (plan.levels_reliable) chipBar($('#p-stage'), [['', 'All stages']].concat(plan.stage_order.filter(s => plan.stages[s]).map(s => [s, plan.stage_label[s] + ' (' + plan.stages[s] + ')'])), f.stage, 'stage');
+  chipBar($('#p-topic'), [['', 'All topics']].concat(plan.topics.map(t => [t.id, t.title])), f.topic, 'topic');
+  let shown = 40;
+  function list() {
+    const words = f.q.toLowerCase().split(/\s+/).filter(Boolean);
+    const hits = items.filter(({ q, p, t }) => (!f.stage || p.level === f.stage) && (!f.topic || t.id === f.topic) &&
+      (!f.hideDone || !S.mastered.has(q.id)) && words.every(w => (q.title + ' ' + q.tags.join(' ') + ' ' + q.body).toLowerCase().includes(w)));
+    $('#p-count').textContent = hits.length + ' of ' + items.length + ' questions';
+    const box = $('#p-list'); box.innerHTML = '';
+    if (!hits.length) { box.innerHTML = '<p class="empty">Nothing matches. Clear a filter or the search.</p>'; return; }
+    hits.slice(0, shown).forEach(({ q, p, t }) => {
+      const card = qCard(q);
+      const head = card.querySelector('.kind');
+      if (head) head.textContent = t.title;
+      if (p.reported) card.querySelector('.qh').insertAdjacentHTML('beforeend', '<span class="rep" title="Candidates reported this topic from a real interview">reported</span>');
+      box.appendChild(card);
+    });
+    if (hits.length > shown) {
+      const more = document.createElement('div'); more.className = 'more';
+      more.innerHTML = '<button class="btn">Show more (' + (hits.length - shown) + ' left)</button>';
+      more.onclick = () => { shown += 60; list(); };
+      box.appendChild(more);
+    }
+  }
+  $('#pq').oninput = e => { f.q = e.target.value; store.set('planFilters', f); shown = 40; list(); };
+  $('#p-hide').onchange = e => { f.hideDone = e.target.checked; store.set('planFilters', f); shown = 40; list(); };
+  $('#p-prac').onchange = e => { S.filters.practice = e.target.checked; store.set('filters', S.filters); list(); };
+  $('#p-quick').onchange = e => { S.filters.quick = e.target.checked; store.set('filters', S.filters); list(); };
+  list();
+}
+
 async function loadTopic(id) {
   const key = S.stack + '/' + id;
   if (!topicCache[key]) topicCache[key] = await api('/api/topics/' + S.stack + '/' + id);
@@ -559,12 +723,18 @@ async function renderTopic(main, id) {
   let t;
   try { t = await loadTopic(id); } catch (e) { main.innerHTML = '<p class="empty">Unknown topic.</p>'; return; }
   const f = S.filters;
+  const plan = await loadPlan();
+  const pt = plan && plan.topics.find(x => x.id === id);
+  const planLevel = pt ? new Map(pt.questions.map(q => [q.id, q])) : null;
+  const scopeKey = 'topicScope/' + S.stack;
+  let useTrack = !!pt && store.get(scopeKey, 'plan') === 'plan';
   const kindsPresent = Object.keys(KIND_LABEL).filter(k => t.questions.some(q => q.kind === k));
   main.innerHTML =
     '<p class="sub"><a href="#/' + S.stack + '/home">' + esc(curStack().title) + '</a> / topic</p>' +
     '<h1>' + esc(t.title) + '</h1><p class="sub">' + esc(t.summary) + '</p>' +
     '<div class="layout"><div>' +
       '<div class="toolbar"><input type="search" id="tq" placeholder="Search this topic (e.g. rebalancing, timeout, idempotent)" value="' + esc(f.q) + '"></div>' +
+      (pt ? '<div class="track-note" id="scope"></div>' : '') +
       '<div class="toolbar" id="lv"></div><div class="toolbar" id="kd"></div>' +
       '<div class="toggles"><label><input type="checkbox" id="tp"' + (f.practice ? ' checked' : '') + '> Practice mode (answer first)</label>' +
       '<label><input type="checkbox" id="tk"' + (f.quick ? ' checked' : '') + '> Quick revision (60-second answers)</label></div>' +
@@ -578,7 +748,7 @@ async function renderTopic(main, id) {
     '</aside></div>';
   const lv = $('#lv');
   lv.innerHTML = '<button class="chip' + (!f.level ? ' on' : '') + '" data-l="">All levels</button>' +
-    LEVELS.map(l => '<button class="chip' + (f.level === l ? ' on' : '') + '" data-l="' + l + '">' + l + ' <span style="opacity:.7">' + LEVEL_HINT[l] + '</span></button>').join('');
+    LEVELS.map(l => '<button class="chip' + (f.level === l ? ' on' : '') + '" data-l="' + l + '">' + (pt && plan.levels_reliable ? plan.stage_label[l] : l) + ' <span style="opacity:.7">' + LEVEL_HINT[l] + '</span></button>').join('');
   lv.onclick = e => { const b = e.target.closest('[data-l]'); if (!b) return; f.level = b.dataset.l; persist(); renderTopic(main, id); };
   const kd = $('#kd');
   kd.innerHTML = kindsPresent.map(k => '<button class="chip' + (f.kinds.includes(k) ? ' on' : '') + '" data-k="' + k + '">' + KIND_LABEL[k] + ' (' + t.questions.filter(q => q.kind === k).length + ')</button>').join('');
@@ -592,17 +762,41 @@ async function renderTopic(main, id) {
   $('#t-mock').onclick = () => { store.set('mockTopics', [id]); go('mock'); };
   $('#t-gen').onclick = () => renderGenerate($('#gen'), t);
   const prog = () => {
-    const done = t.questions.filter(q => S.mastered.has(q.id)).length;
-    $('#prog').innerHTML = '<div class="progress"><i style="width:' + (100 * done / Math.max(1, t.questions.length)) + '%"></i></div>' +
-      '<p class="sub" style="margin:6px 0 0;font-size:13px">' + done + ' of ' + t.questions.length + ' marked "I can answer this".</p>';
+    const scope = useTrack ? t.questions.filter(q => planLevel.has(q.id)) : t.questions;
+    const done = scope.filter(q => S.mastered.has(q.id)).length;
+    $('#prog').innerHTML = '<div class="progress"><i style="width:' + (100 * done / Math.max(1, scope.length)) + '%"></i></div>' +
+      '<p class="sub" style="margin:6px 0 0;font-size:13px">' + done + ' of ' + scope.length + ' marked "I can answer this".</p>';
   };
   function list() {
     const words = f.q.toLowerCase().split(/\s+/).filter(Boolean);
-    const qs = t.questions.filter(q => (!f.level || q.level === f.level) && (!f.kinds.length || f.kinds.includes(q.kind)) &&
+    let qs = t.questions.filter(q => (!f.level || q.level === f.level) && (!f.kinds.length || f.kinds.includes(q.kind)) &&
       words.every(w => (q.title + ' ' + q.tags.join(' ') + ' ' + q.body).toLowerCase().includes(w)));
+    if (pt) {
+      const note = $('#scope');
+      note.innerHTML = useTrack
+        ? '<span>Showing the <b>' + pt.questions.length + '</b> questions for the <b>' + esc(plan.label) + '</b> track, out of ' + t.questions.length + ' in this topic.</span><button class="btn" id="scope-b">Show all ' + t.questions.length + '</button>'
+        : '<span>Showing every question in this topic.</span><button class="btn" id="scope-b">Back to my ' + esc(plan.label) + ' questions</button>';
+      $('#scope-b').onclick = () => { useTrack = !useTrack; store.set(scopeKey, useTrack ? 'plan' : 'all'); S.shown = 40; list(); prog(); };
+    }
+    if (useTrack) {
+      const order = pt.questions.map(q => q.id);
+      qs = qs.filter(q => planLevel.has(q.id)).sort((a, b) => order.indexOf(a.id) - order.indexOf(b.id));
+    }
     const ql = $('#ql'); ql.innerHTML = '';
     if (!qs.length) { ql.innerHTML = '<p class="empty">No questions match these filters.</p>'; return; }
-    qs.slice(0, S.shown).forEach(q => ql.appendChild(qCard(q)));
+    let lastStage = null;
+    qs.slice(0, S.shown).forEach(q => {
+      const inPlan = planLevel && planLevel.get(q.id);
+      if (useTrack && plan.levels_reliable && q.level !== lastStage) {
+        lastStage = q.level;
+        const head = document.createElement('div'); head.className = 'stage-head';
+        head.innerHTML = plan.stage_label[q.level] + ' <span>' + LEVEL_HINT[q.level] + ' level questions</span>';
+        ql.appendChild(head);
+      }
+      const card = qCard(q);
+      if (inPlan && inPlan.reported) card.querySelector('.qh').insertAdjacentHTML('beforeend', '<span class="rep" title="Candidates reported this topic from a real interview">reported</span>');
+      ql.appendChild(card);
+    });
     if (qs.length > S.shown) {
       const more = document.createElement('div'); more.className = 'more';
       more.innerHTML = '<button class="btn">Show more (' + (qs.length - S.shown) + ' left)</button>';

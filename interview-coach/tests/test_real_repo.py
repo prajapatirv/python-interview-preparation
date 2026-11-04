@@ -9,6 +9,7 @@ from pathlib import Path
 import pytest
 
 from app import config
+from app.services import tracks
 from app.services.library import Library
 
 pytestmark = pytest.mark.skipif(not (config.WORKSPACE_ROOT / "java" / "java-interview-prep").is_dir(),
@@ -72,6 +73,25 @@ def test_reported_pack_references_exist(lib):
     for f in files:
         for bank, num in re.findall(r"[Bb]ank (\d+) Q(\d+)", f.read_text(encoding="utf-8")):
             assert int(num) in numbered.get(bank, ()), f"{f.name} refers to missing bank {bank} Q{num}"
+
+
+def test_tracks_point_at_real_topics_and_stay_focused(lib):
+    """A track must narrow the bank a lot, and the senior track must lean towards design more than the early one."""
+    plans = {}
+    for stack in ("java", "python"):
+        ids = {t.id for t in lib.stack(stack).topics}
+        for summary in tracks.summaries(stack):
+            plan = tracks.plan(lib, stack, summary["id"])
+            assert {f["topic"] for f in tracks.load(stack)["tracks"][0]["focus"]} <= ids
+            assert all(t["questions"] for t in plan["topics"]), f"{stack}/{summary['id']} has an empty topic"
+            assert 60 <= plan["total"] <= 320, f"{stack}/{summary['id']} has {plan['total']} questions"
+            chosen = [q["id"] for t in plan["topics"] for q in t["questions"]]
+            assert len(chosen) == len(set(chosen))
+            plans[stack, summary["id"]] = plan
+    early, senior = plans["java", "early"], plans["java", "senior"]
+    assert senior["stages"]["architect"] > senior["stages"].get("fresher", 0)
+    assert "architect" not in early["stages"]
+    assert early["stages"]["fresher"] > early["stages"].get("senior", 0)
 
 
 def test_general_bucket_stays_small(lib):

@@ -8,7 +8,7 @@ from fastapi.responses import PlainTextResponse, StreamingResponse
 from pydantic import BaseModel, Field
 
 from .. import config
-from ..services import ai, auth, bank, checker, evaluation, insights, retrieve, submissions
+from ..services import ai, auth, bank, checker, evaluation, insights, retrieve, submissions, tracks
 
 router = APIRouter(prefix="/api")
 
@@ -55,6 +55,20 @@ def topic(stack: str, topic: str, request: Request):
     if t is None:
         raise HTTPException(404, "unknown topic")
     return lib(request).topic_detail(t)
+
+
+@router.get("/tracks/{stack}")
+def track_list(stack: str):
+    return tracks.summaries(stack)
+
+
+@router.get("/tracks/{stack}/{track}")
+def track_plan(stack: str, track: str, request: Request, add: str = "", remove: str = ""):
+    """The study plan for one experience level, with the viewer's own topic changes applied."""
+    plan = tracks.plan(lib(request), stack, track, set(filter(None, add.split(","))), set(filter(None, remove.split(","))))
+    if plan is None:
+        raise HTTPException(404, "unknown track")
+    return plan
 
 
 @router.get("/search/{stack}")

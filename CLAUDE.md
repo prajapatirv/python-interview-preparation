@@ -404,7 +404,7 @@ without a key). Full detail in `interview-coach/README.md`; research notes in `i
 ```bash
 cd interview-coach
 ./start.sh                                  # Windows: start.cmd -> http://127.0.0.1:8100 ; stop: ./stop.sh
-.venv/Scripts/python.exe -m pytest          # 62 tests, incl. tests/test_real_repo.py against the real content
+.venv/Scripts/python.exe -m pytest          # 69 tests, incl. tests/test_real_repo.py against the real content
 ```
 
 - **Content is file-driven.** `skills/<stack>/_persona.md` (stack, content root, mixed `guides`, Python
@@ -445,6 +445,9 @@ cd interview-coach
   by following its "Adding more material" steps; `tests/test_real_repo.py` fails on any "Bank N Qm" reference that doesn't exist. Numbers quoted in those answers come from
   `examples/21_coding_interview/07`-`09`, so if a program changes, update the answer. Inside a question, a line that is only `**bold**` becomes a machine-read section:
   use plain text for sub-headings.
+- **Experience tracks (2026-11-03)**: the Topics tab opens with a 2+/6+/12+ years picker. `skills/<stack>/_tracks.json` holds each track's topics, weights and
+  per-level quotas; `app/services/tracks.py` selects the plan. Only `scenario` and `crib` questions have trustworthy levels (others default to `mid`, and all Python is `mid`), so
+  don't widen a track's `kinds` without labelling them first. After editing a track, read the questions it actually selects: the canary test can't judge whether a plan is balanced.
 - **Answer style the user wants**: scenario-first, spoken-interview narrative, minimal code (a few config
   lines at most). The `_persona.md` files encode it for the AI; keep new bank entries in the same voice.
   For production / monitoring / performance questions use the **three-tier format**: *Short answer*

@@ -108,9 +108,29 @@ Settings (env or `.env`): `ANTHROPIC_API_KEY`, `AI_MODE` (`auto`|`claude`|`mock`
 ## Tests
 
 ```bash
-.venv/Scripts/python.exe -m pytest      # 62 tests; Linux/macOS: .venv/bin/python -m pytest
+.venv/Scripts/python.exe -m pytest      # 69 tests; Linux/macOS: .venv/bin/python -m pytest
 ```
 
 `tests/test_real_repo.py` runs against the real content and is the **"nothing forgotten" canary**:
 it fails if any question file is not wired into a topic, if the crib count drops below 473, if a
 scenario answer misses a required section, or if the `general` bucket grows (a keyword gap).
+
+## Experience tracks
+
+The Topics tab starts by asking for your experience: **2+ years**, **6+ years**, **12+ years**, or **All topics**. A track
+turns the whole bank into a short plan with topics grouped as *Focus first*, *Also prepare* and *Know the basics*, and
+questions grouped as *Basics*, *Applied*, *Advanced* and *Design*. Every topic page can still show all of its questions.
+
+To change a track, edit `skills/<stack>/_tracks.json`, with no code change:
+
+| Field | Meaning |
+|---|---|
+| `focus` | Topics in the track, each with a `weight` (`core`, `also`, `aware`) and a `why` shown on its card |
+| `quota` | How many questions a `core` topic takes at each level; `weights` scale that for the other two |
+| `stage_order` | Study order, so a senior track can start with Design |
+| `kinds` | Sources to draw from; only use those with reliable level labels |
+| `levels_reliable` | `false` hides the stages, for a stack whose questions aren't labelled (Python today) |
+
+Selection (`app/services/tracks.py`) is repeatable. Questions reported from real interviews come first, sources take turns so
+one big list can't fill a stage, and a question that repeats one already chosen is skipped. Which topics matter at which level is an
+editorial judgement based on the reported rounds in this repo, not survey data, so adjust it as you learn more.
