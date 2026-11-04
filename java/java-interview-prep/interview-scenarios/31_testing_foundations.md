@@ -4,7 +4,7 @@ title: Testing & quality: from the basics (drafted)
 stack: java
 skill: testing
 ---
-Drafted concepts-first answers for questions whose stored answer was too short. Each starts with the concepts in plain words, then a real scenario, then the answer. Review before relying on them.
+Concepts-first answers for questions whose crib-sheet answer was too short. Each starts with the concepts in plain words, then a real scenario, then the answer. Review before relying on them.
 
 Levels: **fresher** (0-2 yrs) · **mid** (3-6) · **senior** (6-10) · **architect** (10+).
 
@@ -360,7 +360,7 @@ Whether you can make timing-dependent tests fast and deterministic, and whether 
    The 5 seconds is a safety limit, not a delay. A failure then means "it did not happen in time", not "I guessed wrong".
 2. **Make time and threads controllable where you can.** Inject a `Clock` and an `Executor`. In unit tests, use a fake clock or a same-thread executor, so retries and timeouts run instantly and in a fixed order. Don't wait for real time.
 3. **For Kafka, test through the real boundary and watch the sink.** Produce a message, then await the observable result, such as the DB row or the output topic. Run against a real broker with Testcontainers (a throwaway Docker container started by the test) or Spring's embedded Kafka. Avoid asserting on internal method calls, because they break whenever you refactor.
-4. **For `CompletableFuture`, always bound the wait.** Plain `join()` has no timeout and can hang the build forever. The stored answer's "join with timeouts" needs a correction here. Use `future.get(2, SECONDS)`, or add `orTimeout(...)` (Java 9+) to the future first. Then a stuck future fails the test quickly.
+4. **For `CompletableFuture`, always bound the wait.** Plain `join()` has no timeout and can hang the build forever. Use `future.get(2, SECONDS)`, or add `orTimeout(...)` (Java 9+) to the future first. Then a stuck future fails the test quickly.
 5. **Keep unit tests synchronous where possible.** Test the business logic directly, and use a few async integration tests only for the wiring.
 
 **Trade-offs and what can go wrong**

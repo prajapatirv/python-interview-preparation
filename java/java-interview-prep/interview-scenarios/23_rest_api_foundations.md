@@ -4,7 +4,7 @@ title: REST APIs & third-party integration: from the basics (drafted)
 stack: java
 skill: rest-api
 ---
-Drafted concepts-first answers for questions whose stored answer was too short. Each starts with the concepts in plain words, then a real scenario, then the answer. Review before relying on them.
+Concepts-first answers for questions whose crib-sheet answer was too short. Each starts with the concepts in plain words, then a real scenario, then the answer. Review before relying on them.
 
 Levels: **fresher** (0-2 yrs) · **mid** (3-6) · **senior** (6-10) · **architect** (10+).
 
@@ -1050,7 +1050,7 @@ Link: <https://docs.example.com/v2-migration>; rel="deprecation"
 5. **Log who still calls it, by client id.** This tells you who to contact and how big the risk is.
 6. **Contact heavy users directly.** Emails get ignored, so call the owners of the biggest traffic. Offer help.
 7. **Use brownouts (optional).** Briefly return errors on the old endpoint, for example 30 minutes, so hidden dependencies surface while the cost is small.
-8. **Remove on the date, with data guiding exceptions.** The stored answer said to wait for usage near zero. That can mean waiting forever, because someone always forgets. The date is the commitment. Metrics tell you whether to hold for a named client with a plan. After removal, return `410 Gone` with a problem-details body pointing to v2, not a bare 404.
+8. **Remove on the date, with data guiding exceptions.** Waiting for usage to reach near zero can mean waiting forever, because someone always forgets. The date is the commitment. Metrics tell you whether to hold for a named client with a plan. After removal, return `410 Gone` with a problem-details body pointing to v2, not a bare 404.
 
 **Trade-offs and what can go wrong**
 - Running two versions doubles testing and bug-fixing, so keep the window bounded.

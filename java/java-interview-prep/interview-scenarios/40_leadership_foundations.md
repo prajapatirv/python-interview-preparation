@@ -4,7 +4,7 @@ title: Leadership, behavioural & your projects: from the basics (drafted)
 stack: java
 skill: leadership
 ---
-Drafted concepts-first answers for questions whose stored answer was too short. Each starts with the concepts in plain words, then a real scenario, then the answer. Review before relying on them.
+Concepts-first answers for questions whose crib-sheet answer was too short. Each starts with the concepts in plain words, then a real scenario, then the answer. Review before relying on them.
 
 Levels: **fresher** (0-2 yrs) · **mid** (3-6) · **senior** (6-10) · **architect** (10+).
 
@@ -540,7 +540,7 @@ The interviewer notes your scope (parent POM/BOM, convergence, vulnerable versio
 Ownership: did you drive the work or just follow tickets? Judgement: how did you sequence changes and limit risk? Communication: can you explain a dull build task by its impact?
 
 **How I answer it**
-1. **Open with scope (15 seconds).** Name what you handled from the stored list: BOM alignment, convergence checks with `mvn dependency:tree` and the enforcer plugin, upgrading vulnerable versions, plugin upgrades, removing duplicates, profiles, multi-module layout, CI caching.
+1. **Open with scope (15 seconds).** Name what you handled: BOM alignment, convergence checks with `mvn dependency:tree` and the enforcer plugin, upgrading vulnerable versions, plugin upgrades, removing duplicates, profiles, multi-module layout, CI caching.
 2. **Pick one risk as your story.** Choose the upgrade that could have broken behaviour, such as a transitive version conflict.
 3. **Spend most of the time on Action.** Cover how you found the conflict, what you pinned or excluded in the BOM, and how you rolled the change out in small steps.
 4. **Show the safety net.** Name the tests that protected the upgrade and what they caught.
@@ -1415,7 +1415,7 @@ Illustrative example (replace with your own story):
 - **"I just worked weekends."** This shows no judgement and is not repeatable.
 - **"We never compromise on quality."** It sounds unrealistic and shows no negotiation skill.
 - **Untracked shortcuts.** If the debt has no owner or plan, it is just hidden risk.
-- **Adding people late.** More capacity can slow a team down, which is why the stored answer says "only if it helps".
+- **Adding people late.** More capacity can slow a team down, so add people only if it helps.
 - **Not exaggerating:** do not inflate numbers or claim sole credit for team work. Be exact about your own actions.
 
 **Your story prompt**
@@ -2314,7 +2314,7 @@ Illustrative example (replace with your own story):
 **Trade-offs and what can go wrong**
 - Reciting a feature list with no problem attached sounds memorised.
 - Claiming production use you do not have is easy to expose with one follow-up.
-- Calling the built-in resilience annotations a full replacement for Resilience4j overclaims. The stored answer says "simple retry cases" only.
+- Calling the built-in resilience annotations a full replacement for Resilience4j overclaims. They suit simple retry cases only.
 - Adopting every new feature at once, with no rollout plan, shows weak judgement.
 - Do not invent numbers for startup gains. Measure on your own service or say you have not.
 
@@ -2818,7 +2818,7 @@ tags: zero-trust, api-security, mtls, oauth2, owasp, behavioural, leadership
 
 **Start here: the concepts**
 - Zero-trust means no call is trusted just because it comes from inside the network. Every request proves who it is and what it may do.
-- The stored answer's building blocks:
+- The building blocks:
   - mTLS between services, usually through a mesh, so both sides prove identity.
   - Short-lived tokens.
   - OAuth2/OIDC at the edge, with re-validation inside.
@@ -2886,7 +2886,7 @@ tags: finops, cloud-cost, right-sizing, autoscaling, observability-cost, star, b
 
 **Start here: the concepts**
 - **FinOps** means engineers treat cloud spend as a design constraint, like latency or reliability, and not only as finance's problem.
-- The levers from the stored answer:
+- The levers:
   - right-sizing
   - autoscaling
   - spot instances
@@ -3005,7 +3005,7 @@ tags: data trends, cdc, debezium, outbox, redis, caffeine, behavioural, leadersh
 
 **Start here: the concepts**
 - This is a "what is trending" question. It tests whether you know current data patterns and have the judgement to say when each one fits. It is not a quiz on tool names.
-- The trends in the stored answer, in plain words:
+- The trends, in plain words:
   - **CDC with Debezium:** stream database changes to other systems instead of dual-writing.
   - **Outbox:** write the business row and the event in one transaction, then publish the event reliably.
   - **Lakehouse/analytics offload:** move heavy reporting off the OLTP database.
@@ -3126,7 +3126,7 @@ tags: testing, testcontainers, contract-tests, mutation-testing, jqwik, behaviou
 
 **Start here: the concepts**
 - This is a "what is good practice now, and have you used it?" question. It tests judgement and ownership of quality, not just tool names.
-- The stored answer's list of "expected" practices:
+- The "expected" practices:
   - Testcontainers for all external dependencies. It runs real databases and brokers in throwaway Docker containers, so tests do not rely on mocks or shared environments.
   - Contract tests, which check that a service and its consumers agree on the API.
   - Mutation testing, which checks whether your tests actually fail when the code is changed.

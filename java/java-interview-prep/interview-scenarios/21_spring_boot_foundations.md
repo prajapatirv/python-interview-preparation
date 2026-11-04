@@ -4,7 +4,7 @@ title: Spring & Spring Boot: from the basics (drafted)
 stack: java
 skill: spring-boot
 ---
-Drafted concepts-first answers for questions whose stored answer was too short. Each starts with the concepts in plain words, then a real scenario, then the answer. Review before relying on them.
+Concepts-first answers for questions whose crib-sheet answer was too short. Each starts with the concepts in plain words, then a real scenario, then the answer. Review before relying on them.
 
 Levels: **fresher** (0-2 yrs) · **mid** (3-6) · **senior** (6-10) · **architect** (10+).
 
@@ -918,7 +918,7 @@ Whether you understand the timing race between "pod gets SIGTERM" and "load bala
 1. **Enable graceful shutdown in Spring Boot.** Set `server.shutdown=graceful` and `spring.lifecycle.timeout-per-shutdown-phase=30s`. On SIGTERM the web server stops accepting new requests, in-flight ones get up to 30s to finish, and only then are beans (connection pools, Kafka consumers) destroyed. This way, work in progress is not cut off.
 2. **Expose probe endpoints.** Spring Boot's actuator has liveness and readiness health groups (`/actuator/health/liveness` and `/readiness`), switched on automatically when it detects Kubernetes or via `management.endpoint.health.probes.enabled=true`. During shutdown, readiness reports "refusing traffic".
 3. **Add a preStop sleep of about 5s.** Removing a pod from the load balancer is asynchronous: Kubernetes updates the endpoint list, and proxies and ingress controllers pick it up a moment later. SIGTERM and that removal start at about the same time, so the app may stop accepting requests while some traffic is still arriving. The sleep keeps the app fully serving during that window.
-4. **Size the grace period for the whole sequence.** `terminationGracePeriodSeconds` must be greater than preStop time **plus** the shutdown timeout (5 + 30 = 35, so use about 45). Otherwise Kubernetes sends SIGKILL in the middle of your graceful drain. The stored shorthand of "greater than the timeout" understates this.
+4. **Size the grace period for the whole sequence.** `terminationGracePeriodSeconds` must be greater than preStop time **plus** the shutdown timeout (5 + 30 = 35, so use about 45). Otherwise Kubernetes sends SIGKILL in the middle of your graceful drain. "Greater than the timeout" is not enough.
 5. **Keep liveness local.** Liveness should only say whether the JVM itself is healthy. If it checks the database and the database blips, Kubernetes restarts every pod at once and turns a small outage into a big one. Downstream checks, if any, belong in readiness, and only for dependencies without which the pod is useless.
 
 ```yaml
@@ -1397,7 +1397,7 @@ Whether you know what each option actually does at runtime, not just its name. T
    - `SUPPORTS`: join if one exists, otherwise run without one.
    - `MANDATORY`: a transaction must already exist, otherwise throw an exception.
    - `NEVER`: throw an exception if one exists.
-   - `NOT_SUPPORTED` (not in the stored answer): suspend any transaction and run without one.
+   - `NOT_SUPPORTED`: suspend any transaction and run without one.
 5. **Isolation is about concurrent transactions.** From weakest to strongest:
    - `READ_UNCOMMITTED`: allows dirty reads.
    - `READ_COMMITTED`: no dirty reads. This is the default in Oracle, PostgreSQL and SQL Server.
@@ -1599,7 +1599,7 @@ tags: spring-data, pagination, jpa, keyset-pagination, sql-performance, database
 **Start here: the concepts**
 - **Paging:** returning a big result set in small chunks (say 50 rows) instead of all at once. It protects memory, network and the database, and keeps screens and APIs fast.
 - **`Pageable`:** a Spring Data object holding the page number, page size and sort order. You pass it to a repository method and Spring turns it into SQL.
-- **Offset paging:** "skip N rows, then take 50" (`OFFSET`/`LIMIT`). To skip N rows, the database still walks past them, so cost grows with N. That is the O(offset) in the stored answer.
+- **Offset paging:** "skip N rows, then take 50" (`OFFSET`/`LIMIT`). To skip N rows, the database still walks past them, so cost grows with N. That is what O(offset) means.
 - **Stable sort:** an `ORDER BY` that always puts rows in exactly the same order. Without it, or when sorting on a column with duplicates (like `created_date`), rows can appear on two pages or on none while you page.
 - **Keyset (seek) paging:** instead of "skip N", you remember the last key you saw and ask for rows after it: `WHERE id > :last ORDER BY id LIMIT 50`. With an index on the key, the database jumps straight there, so page 10,000 costs about the same as page 1.
 - **`Page` vs `Slice`:** `Page` knows the total row count, so it runs an extra `select count(*)`. `Slice` only knows whether a next page exists. It fetches one extra row (size + 1) and skips the count.
@@ -2268,7 +2268,7 @@ Whether you know the annotations are not just labels. Three of them are `@Compon
 2. **`@Service` marks business logic.** It currently adds no extra behaviour. I use it because it documents the layer and lets tools or AOP pointcuts target it.
 3. **`@Repository` marks the persistence layer and adds exception translation.** Spring wraps the bean in a proxy that converts technology-specific exceptions into `DataAccessException`. This needs a `PersistenceExceptionTranslationPostProcessor`, which Spring Boot registers automatically. Spring Data repository interfaces get translation without the annotation.
 4. **`@RestController` is `@Controller` plus `@ResponseBody`.** Every handler method writes its return value to the response body, usually as JSON via Jackson. Plain `@Controller` is for views (such as Thymeleaf pages).
-5. **Correcting the stored answer:** all four are scan candidates, including `@RestController`, because `@Controller` is itself meta-annotated with `@Component`. Scanning does not treat it differently.
+5. **A common mistake:** treating `@RestController` as special. All four are scan candidates, including `@RestController`, because `@Controller` is itself meta-annotated with `@Component`. Scanning does not treat it differently.
 6. **Choose by role.** The annotation tells the next developer what the class is for.
 
 ```java

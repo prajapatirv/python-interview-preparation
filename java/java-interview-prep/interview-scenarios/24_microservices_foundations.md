@@ -4,7 +4,7 @@ title: Microservices architecture: from the basics (drafted)
 stack: java
 skill: microservices
 ---
-Drafted concepts-first answers for questions whose stored answer was too short. Each starts with the concepts in plain words, then a real scenario, then the answer. Review before relying on them.
+Concepts-first answers for questions whose crib-sheet answer was too short. Each starts with the concepts in plain words, then a real scenario, then the answer. Review before relying on them.
 
 Levels: **fresher** (0-2 yrs) · **mid** (3-6) · **senior** (6-10) · **architect** (10+).
 
@@ -49,7 +49,7 @@ Whether you see microservices as a trade-off rather than "modern and better". A 
 - A shared database hides coupling and removes the main benefit.
 - Calls without timeouts or retry limits let one slow service drag down its callers (a cascading failure).
 - Teams adopt microservices before they have automated deployment and monitoring, so the operational cost overwhelms them.
-- Never claim microservices are "always better". The stored claim of "fault isolation" is only true when resilience is designed in.
+- Never claim microservices are "always better". Fault isolation only holds when resilience is designed in.
 
 **How I'd monitor it**
 - Per-call latency (p95/p99), error rate, and timeouts between services.

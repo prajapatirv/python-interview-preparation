@@ -4,7 +4,7 @@ title: Java 8, Java 11 & modern Java: from the basics (drafted)
 stack: java
 skill: java-core
 ---
-Drafted concepts-first answers for questions whose stored answer was too short. Each starts with the concepts in plain words, then a real scenario, then the answer. Review before relying on them.
+Concepts-first answers for questions whose crib-sheet answer was too short. Each starts with the concepts in plain words, then a real scenario, then the answer. Review before relying on them.
 
 Levels: **fresher** (0-2 yrs) · **mid** (3-6) · **senior** (6-10) · **architect** (10+).
 
@@ -603,7 +603,7 @@ Whether you know Optional's narrow purpose (a return type that makes absence exp
    ```
 3. **Don't use it for fields or method parameters.** It was not designed for them. It is not serializable, it adds an extra object, and a caller can still pass `null` instead of an Optional. For an optional parameter, use method overloads.
 4. **Don't wrap collections.** Return an empty list. "Empty" already means "nothing", so `Optional<List<T>>` has two ways to say "none" and callers must check both.
-5. **Avoid `get()`.** If the Optional is empty it throws. The stored advice, `isPresent()` then `get()`, is just a null check with extra steps. Prefer `orElseThrow()` (no-argument version since Java 10), `orElse`, `map` or `ifPresent`.
+5. **Avoid `get()`.** If the Optional is empty it throws. `isPresent()` then `get()` is just a null check with extra steps. Prefer `orElseThrow()` (no-argument version since Java 10), `orElse`, `map` or `ifPresent`.
 6. **Prefer `orElseGet` for anything costly.** `orElse(x)` always evaluates `x`. `orElseGet(supplier)` runs only when the Optional is empty. `orElse` is fine for cheap constants such as `orElse("N/A")`.
 7. **Never return null from a method that returns Optional**, and use `ofNullable` (not `of`) when the value may be null, because `Optional.of(null)` throws an NPE.
 

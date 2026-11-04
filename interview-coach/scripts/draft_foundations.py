@@ -126,7 +126,8 @@ def shallow(lib, topic, max_words):
 async def draft(client, stack, topic, q, sem, retries=1):
     system = ai.system_prompt(stack, topic)
     head = (f"Candidate level: {q['level']}\n<question>{q['title']}</question>\n"
-            f"<stored_answer>\n{q['body'][:3000]}\n</stored_answer>\n\n")
+            f"<stored_answer>\n{q['body'][:3000]}\n</stored_answer>\n\n"
+            "The reader never sees the stored answer, so don't mention it. State a correction as a plain fact.\n\n")
     if topic.id in BEHAVIORAL:
         system += "\n\n" + BEHAVIORAL_CONTEXT
         prompt = (head + "Turn this into a complete coaching answer for a senior Java backend candidate. Keep the "
@@ -193,8 +194,8 @@ async def run(args):
         todo = [q for q in qs if q["title"].strip().lower() not in done]
         if not existing:
             existing = (f"---\nid: foundations-{topic.id}\ntitle: {topic.title}: from the basics (drafted)\n"
-                        f"stack: java\nskill: {topic.id}\n---\nDrafted concepts-first answers for questions whose "
-                        "stored answer was too short. Each starts with the concepts in plain words, then a real "
+                        f"stack: java\nskill: {topic.id}\n---\nConcepts-first answers for questions whose "
+                        "crib-sheet answer was too short. Each starts with the concepts in plain words, then a real "
                         "scenario, then the answer. Review before relying on them.\n\n"
                         "Levels: **fresher** (0-2 yrs) · **mid** (3-6) · **senior** (6-10) · **architect** (10+).\n")
         n = len(re.findall(r"^### Q\d+ ", existing, re.M))

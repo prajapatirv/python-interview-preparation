@@ -95,6 +95,7 @@ app/main.py -> app/api/routes.py -> app/services/{library, bank, retrieve, ai, c
   copy local data with `scripts/migrate_sqlite_to_supabase.py`.
 - `services/auth.py` — Supabase bearer token verified against `/auth/v1/user`; reviewer = `app_metadata.role`
   or `COACH_REVIEWERS`. Without Supabase the single local user is also the reviewer.
+- `scripts/answer_map/` — builds the shareable Interview Answer Map page from the same banks and tracks; see its README.
 - `services/evaluation.py` + `evals/checker_cases.json` + `scripts/run_eval.py` — planted-error eval of the
   checker (error recall, false-alarm rate); needs the Claude provider, the mock is reported as not evaluable.
 - `static/index.html` — single page, no CDN, light/dark, hash routing.

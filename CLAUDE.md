@@ -404,7 +404,7 @@ without a key). Full detail in `interview-coach/README.md`; research notes in `i
 ```bash
 cd interview-coach
 ./start.sh                                  # Windows: start.cmd -> http://127.0.0.1:8100 ; stop: ./stop.sh
-.venv/Scripts/python.exe -m pytest          # 72 tests, incl. tests/test_real_repo.py against the real content
+.venv/Scripts/python.exe -m pytest          # 73 tests, incl. tests/test_real_repo.py against the real content
 ```
 
 - **Content is file-driven.** `skills/<stack>/_persona.md` (stack, content root, mixed `guides`, Python
@@ -448,6 +448,7 @@ cd interview-coach
 - **Experience tracks (2026-11-03)**: the Topics tab opens with a picker: 2+ years, 6+ years, Senior engineer, Architect or lead. `skills/<stack>/_tracks.json` holds each track's topics, weights and
   per-level quotas; `app/services/tracks.py` selects the plan. Only `scenario` and `crib` questions have trustworthy levels (others default to `mid`, and all Python is `mid`), so
   don't widen a track's `kinds` without labelling them first. A `topic-<id>` tag moves one question from a mixed bank to its proper card. `exclude` keeps personal and company-specific material out of plans. After editing a track, read the questions it actually selects: the canary test can't judge whether a plan is balanced.
+- **Answer Map page (2026-11-04)**: `interview-coach/scripts/answer_map/` builds the shareable single-page site from the same banks and tracks. An answer goes on it only after being read: approved ids live in `reviewed/batchN.json`, and `out/unread.txt` lists what is left. See its README.
 - **Answer style the user wants**: scenario-first, spoken-interview narrative, minimal code (a few config
   lines at most). The `_persona.md` files encode it for the AI; keep new bank entries in the same voice.
   For production / monitoring / performance questions use the **three-tier format**: *Short answer*

@@ -4,7 +4,7 @@ title: Splunk & observability: from the basics (drafted)
 stack: java
 skill: splunk-observability
 ---
-Drafted concepts-first answers for questions whose stored answer was too short. Each starts with the concepts in plain words, then a real scenario, then the answer. Review before relying on them.
+Concepts-first answers for questions whose crib-sheet answer was too short. Each starts with the concepts in plain words, then a real scenario, then the answer. Review before relying on them.
 
 Levels: **fresher** (0-2 yrs) · **mid** (3-6) · **senior** (6-10) · **architect** (10+).
 
@@ -189,7 +189,7 @@ histogram_quantile(0.95, sum by (le) (rate(http_server_requests_seconds_bucket[5
 4. **Use `rate()` on counters, and don't graph the raw value.** A raw counter only grows, so it hides the current speed. `rate()` gives requests per second now. The raw value is only useful for debugging.
 5. **Error ratio:** `status=~"5.."` is a regex for any 5xx code. Sum the numerator and denominator separately, then divide. This gives a true ratio, not an average of averages.
 6. **p95:** `rate()` on `_bucket` gives bucket speeds. `sum by (le)` merges instances and **must keep `le`**, or the quantile cannot be computed. The result is an estimate, as accurate as the bucket boundaries allow.
-7. **Corrections to the stored answer:** the `service` label is not automatic. It comes from scrape config or Micrometer common tags (often `application`). `_bucket` series exist only if histograms are enabled, e.g. `management.metrics.distribution.percentiles-histogram.http.server.requests=true`.
+7. **Two common mistakes:** the `service` label is not automatic. It comes from scrape config or Micrometer common tags (often `application`). `_bucket` series exist only if histograms are enabled, e.g. `management.metrics.distribution.percentiles-histogram.http.server.requests=true`.
 
 **Trade-offs and what can go wrong**
 - The error-ratio query has no `by`, so it is global. Use `sum by (service)` on both sides for per-service ratios, and add `service` to the p95 grouping too.
@@ -320,7 +320,7 @@ tags: splunk, observability, dashboards, red-method, golden-signals, saturation,
 **Start here: the concepts**
 - **Dashboard**: one screen of charts that answers "is this service healthy right now, and if not, where is it hurting?" It exists so you do not search logs by hand during an incident.
 - **RED method**: three numbers per endpoint. **Rate** is requests per second, **Errors** is the share (or count) of failed requests, and **Duration** is how long requests take. It describes what users experience.
-- **Golden signals**: Google's SRE list of latency, traffic, errors and saturation. RED is basically the first three, so the stored answer's "golden signals / RED" is two related ideas, not one. Saturation is the extra one.
+- **Golden signals**: Google's SRE list of latency, traffic, errors and saturation. RED is basically the first three, so "golden signals" and "RED" are two related ideas, not one. Saturation is the extra one.
 - **Saturation**: how full a limited resource is: CPU, memory, a thread pool, a connection pool, a queue. Near 100% means requests start waiting.
 - **Percentiles (p50/p95/p99)**: p99 = 99% of requests were faster than this. Averages hide slow tail requests, so use percentiles for Duration.
 - **GC pause and heap after GC**: the JVM periodically stops to free memory (garbage collection). "Heap after GC" is the memory still in use after cleanup. If it keeps climbing, you likely have a leak.

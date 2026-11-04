@@ -3,6 +3,7 @@
 These are the tests that catch a question source silently dropping out of the coach — the
 "nothing forgotten" guarantee. When content is added on purpose, update the numbers here.
 """
+import json
 import re
 from pathlib import Path
 
@@ -117,3 +118,12 @@ def test_general_bucket_stays_small(lib):
     """If this grows, a topic's keywords need extending (skills/<stack>/NN_*.md)."""
     for s in lib.stacks:
         assert len(lib.questions(s.id, "general")) <= 10
+
+
+def test_answer_map_reviewed_ids_exist(lib):
+    """Retitling a question changes its id; the page build needs the reviewed list to follow."""
+    reviewed = Path(__file__).resolve().parents[1] / "scripts" / "answer_map" / "reviewed"
+    ids = [i for batch in reviewed.glob("batch*.json") for i in json.loads(batch.read_text())]
+    assert ids
+    known = {q["id"] for t in lib.stack("java").topics for q in lib.questions("java", t.id)}
+    assert [i for i in ids if i not in known] == []

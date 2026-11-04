@@ -4,7 +4,7 @@ title: System design & design patterns: from the basics (drafted)
 stack: java
 skill: architecture
 ---
-Drafted concepts-first answers for questions whose stored answer was too short. Each starts with the concepts in plain words, then a real scenario, then the answer. Review before relying on them.
+Concepts-first answers for questions whose crib-sheet answer was too short. Each starts with the concepts in plain words, then a real scenario, then the answer. Review before relying on them.
 
 Levels: **fresher** (0-2 yrs) · **mid** (3-6) · **senior** (6-10) · **architect** (10+).
 
@@ -2368,7 +2368,7 @@ That you can connect pattern names to real classes you use daily, and that you u
 1. **Start with the JDK**, because it is the easiest to see. Group by purpose. Creation: Singleton, Factory, Builder, Flyweight. Structure: Decorator, Adapter. Behaviour: Iterator, Strategy, Observer, Template Method. Grouping shows you understand why the patterns exist.
 2. **Be precise about the loose ones.** `StringBuilder` is not a textbook Builder. `unmodifiableList` is a wrapper, closer to Proxy/Decorator.
 3. **Move to Hibernate.** `SessionFactory` is a Factory: expensive, built once, creates cheap `Session`s. Lazy loading is a Proxy (a generated subclass loads data on first access). The persistence context (the `Session`) is Unit of Work plus Identity Map: it tracks dirty entities and flushes at commit, and it returns the same object for the same id. **Correction:** Hibernate itself is not a Template or DAO. The DAO is a pattern you write on top, and Template came from Spring's old `HibernateTemplate`, now legacy.
-4. **Then Spring**, since the stored answer only said "see Q24":
+4. **Then Spring:**
    - Singleton scope: one bean per container, not per JVM.
    - Factory: `BeanFactory` and `ApplicationContext`.
    - Proxy: AOP, `@Transactional`, `@Async`.

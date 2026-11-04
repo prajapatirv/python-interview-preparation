@@ -4,7 +4,7 @@ title: NoSQL: Couchbase, MongoDB, Cassandra: from the basics (drafted)
 stack: java
 skill: nosql
 ---
-Drafted concepts-first answers for questions whose stored answer was too short. Each starts with the concepts in plain words, then a real scenario, then the answer. Review before relying on them.
+Concepts-first answers for questions whose crib-sheet answer was too short. Each starts with the concepts in plain words, then a real scenario, then the answer. Review before relying on them.
 
 Levels: **fresher** (0-2 yrs) · **mid** (3-6) · **senior** (6-10) · **architect** (10+).
 
@@ -562,7 +562,7 @@ CONSISTENCY LOCAL_QUORUM;   -- cqlsh: applies to following reads and writes
 
 **Trade-offs and what can go wrong**
 - Higher R or W means you wait for slower replicas, so latency rises. Fewer nodes can be down: with N=3 and QUORUM, one node may fail, but two failing makes requests error out.
-- The stored claim "strong consistency" needs care. R+W>N guarantees you overlap the latest *acknowledged* write. It is not full linearizability. Concurrent writes resolve by last-write-wins timestamps, so clock skew can matter, and a failed write may still land on some replicas. For true compare-and-set, Cassandra uses lightweight transactions (SERIAL).
+- The phrase "strong consistency" needs care. R+W>N guarantees you overlap the latest *acknowledged* write. It is not full linearizability. Concurrent writes resolve by last-write-wins timestamps, so clock skew can matter, and a failed write may still land on some replicas. For true compare-and-set, Cassandra uses lightweight transactions (SERIAL).
 - A common mistake is W=ONE with R=ONE while expecting fresh reads. Another is using plain QUORUM across datacentres and paying cross-region latency.
 
 **How I'd monitor it**

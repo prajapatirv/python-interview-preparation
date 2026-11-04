@@ -4,7 +4,7 @@ title: Apache Kafka: from the basics (drafted)
 stack: java
 skill: kafka
 ---
-Drafted concepts-first answers for questions whose stored answer was too short. Each starts with the concepts in plain words, then a real scenario, then the answer. Review before relying on them.
+Concepts-first answers for questions whose crib-sheet answer was too short. Each starts with the concepts in plain words, then a real scenario, then the answer. Review before relying on them.
 
 Levels: **fresher** (0-2 yrs) · **mid** (3-6) · **senior** (6-10) · **architect** (10+).
 
@@ -942,7 +942,7 @@ Whether you connect key, ordering, retries, duplicates, and provider limits, and
 4. **Make producers safe.** Use `acks=all`, `enable.idempotence=true`, replication factor 3, and `min.insync.replicas=2`. This avoids losing or duplicating events on the producer side.
 5. **Make consumers idempotent.** Delivery is at-least-once, so dedupe by event id in a fast store with a TTL. Commit offsets only after the send is recorded.
 6. **Get concurrency.** A provider call takes about 50 ms, so one thread per partition gives only about 20/s. Run a worker pool inside each consumer, routed by `hash(userId)`. This keeps per-user order and adds parallelism. Commit only up to the last contiguous finished offset.
-7. **Retry without blocking.** Use per-channel retry topics with growing delays, then a DLT (Spring Kafka: `@RetryableTopic` or `DefaultErrorHandler` with `DeadLetterPublishingRecoverer`). **The correction to the stored answer:** retry topics break strict ordering. Fix this by attaching a per-user sequence number and dropping stale messages, or by retrying in place only for message types where order truly matters. Most notifications are independent, so order is enforced only where the business needs it.
+7. **Retry without blocking.** Use per-channel retry topics with growing delays, then a DLT (Spring Kafka: `@RetryableTopic` or `DefaultErrorHandler` with `DeadLetterPublishingRecoverer`). **The catch:** retry topics break strict ordering. Fix this by attaching a per-user sequence number and dropping stale messages, or by retrying in place only for message types where order truly matters. Most notifications are independent, so order is enforced only where the business needs it.
 8. **Protect providers.** Apply a token-bucket rate limit per provider and a circuit breaker. When the breaker opens, pause the consumer or route to a fallback provider.
 9. **Keep a read model.** Write delivery status (queued, sent, failed, DLT) to a store such as Couchbase or Cassandra so support can answer "was it sent?".
 

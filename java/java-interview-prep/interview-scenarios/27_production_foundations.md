@@ -4,7 +4,7 @@ title: Production incidents & troubleshooting: from the basics (drafted)
 stack: java
 skill: production
 ---
-Drafted concepts-first answers for questions whose stored answer was too short. Each starts with the concepts in plain words, then a real scenario, then the answer. Review before relying on them.
+Concepts-first answers for questions whose crib-sheet answer was too short. Each starts with the concepts in plain words, then a real scenario, then the answer. Review before relying on them.
 
 Levels: **fresher** (0-2 yrs) · **mid** (3-6) · **senior** (6-10) · **architect** (10+).
 
@@ -410,7 +410,7 @@ Whether you can map each status code to a cause, work out which layer produced i
 2. **Identify which layer returned the error.** Compare LB access logs (the LB's status and upstream status) with app logs in Splunk. If the app never saw the request, the problem is between LB and app. Reason: this splits "app is slow" from "connection problem".
 3. **Read the code.** 502 usually means a reset or stale connection, or a pod killed mid-request. 503 means no healthy targets (failing readiness, or a pod not yet ready or already gone). 504 means the app or a downstream call was slower than the LB timeout.
 4. **Fix the keep-alive mismatch.** The app's idle timeout must be longer than the LB's, so the LB closes first and never reuses a connection the app already closed. In the scenario, set Tomcat's keep-alive above 60s.
-5. **Fix the request timeouts.** Each outer layer should wait slightly longer than the one inside it (client > LB > app > downstream call). Then the innermost layer fails cleanly with a real error instead of an outer layer giving up and returning a generic 504. The stored answer's "client < LB < server" is only right for the idle timeouts above, not for request timeouts.
+5. **Fix the request timeouts.** Each outer layer should wait slightly longer than the one inside it (client > LB > app > downstream call). Then the innermost layer fails cleanly with a real error instead of an outer layer giving up and returning a generic 504. "Client < LB < server" is only right for the idle timeouts above, not for request timeouts.
 6. **Make shutdown graceful.** Remove the pod from the LB first (preStop sleep of a few seconds), then drain in-flight requests, then exit. Set `terminationGracePeriodSeconds` larger than the sleep plus drain time. Reason: the LB takes a few seconds to learn a pod is leaving.
 ```yaml
 server.shutdown: graceful   # Spring Boot 2.3+

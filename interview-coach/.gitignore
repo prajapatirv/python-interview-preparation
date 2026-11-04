@@ -5,3 +5,4 @@ __pycache__/
 .pytest_cache/
 .run/
 data/
+scripts/answer_map/out/
