@@ -24,19 +24,19 @@ class Employee:
     def __init__(self):
         print("Default Constructor")
 
-    def __init__(cybage,name,email,designation,salary):# Local variables
+    def __init__(obj,name,email,designation,salary):# Local variables
         print("Second Constructor")
         # Declare instance variable using 'self'
         # Copy data from local to instance variable--constructor is build from initialization of Instance variable
-        cybage.name=name
-        cybage.email=email
-        cybage.salary=salary
-        cybage.designation=designation
+        obj.name=name
+        obj.email=email
+        obj.salary=salary
+        obj.designation=designation
 
     # Instance methods
-    def display(cybage):
+    def display(obj):
         print("!!!Employee Details!!!")
-        print(cybage.name,cybage.email,cybage.designation,cybage.salary)
+        print(obj.name,obj.email,obj.designation,obj.salary)
 # Object
 # emp=Employee()# call default constructor
 emp=Employee("Anagha","a@gmail.com","QA",70000)# call last implemented parametrized constructor

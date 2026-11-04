@@ -10,7 +10,7 @@ question to its answer). This bank holds only the gaps; questions the repo alrea
 Code in Q1-Q3, Q9 and Q11 ran and passed in `examples/21_coding_interview/08_reported_rounds_coding_and_internals.java`.
 
 ### Q1 [mid] Find the least number of coins to reach a target, where each coin can be used many times.
-tags: coin-change, dynamic-programming, greedy, bottom-up, coding, virtusa, reported-rounds
+tags: coin-change, dynamic-programming, greedy, bottom-up, coding, virtusa, reported-rounds, topic-coding
 
 **Start here: the concepts**
 - **Greedy** always takes the largest coin that fits. It is fast, and it is wrong for some coin sets.
@@ -55,7 +55,7 @@ return best[target] == unreachable ? -1 : best[target];
 "Greedy doesn't work: for coins 1, 3, 4 and target 6, it uses three coins when two is possible. So I use dynamic programming. best[amount] is one plus the minimum of best[amount minus coin] for every coin that fits, starting from best[0] equals 0. I fill it upward, using target plus one as 'unreachable', since MAX_VALUE would overflow, and return minus one if it's still unreachable. That's O(target times coins) time and O(target) space."
 
 ### Q2 [mid] Find a pair of numbers in an array whose sum is nearest to a given target.
-tags: two-pointers, closest-sum, sorting, overflow, coding, virtusa, reported-rounds
+tags: two-pointers, closest-sum, sorting, overflow, coding, virtusa, reported-rounds, topic-coding
 
 **Start here: the concepts**
 - After sorting, two pointers can move inward: the sum tells you which pointer to move.
@@ -100,7 +100,7 @@ while (lo < hi) {
 "I'd sort a copy and use two pointers from both ends. At each step I compute the sum and record it if its distance to the target is the best so far. If the sum is too small, I move the left pointer up; too big, the right pointer down; exact, I stop. Moving a pointer is safe because the discarded element can't do better. That's O(n log n) overall. I use long for the sum to avoid overflow, and a HashSet wouldn't help because it only finds exact matches."
 
 ### Q3 [mid] Write a Stream to count employees who joined in each month, and to list them in monthly order. How do you extract the month from a date?
-tags: streams, groupingby, yearmonth, localdate, month, treemap, coding, virtusa, reported-rounds
+tags: streams, groupingby, yearmonth, localdate, month, treemap, coding, virtusa, reported-rounds, topic-coding
 
 **Start here: the concepts**
 - `LocalDate.getMonth()` returns the `Month` enum, whose natural order is calendar order. `getMonthValue()` returns 1-12.
@@ -192,7 +192,7 @@ class EmployeeController {
 "A RestController with PostMapping taking a validated request DTO with @Valid and @RequestBody. It calls the service and returns 201 Created with a Location header and a response DTO. I never expose the entity, to avoid mass assignment. Validation errors become 400 in a RestControllerAdvice, and a duplicate email becomes 409, backed by a database unique constraint because a check-then-insert would race. Business logic and @Transactional live in the service."
 
 ### Q5 [mid] How do you write JUnit tests for void methods?
-tags: junit, mockito, void-methods, verify, argumentcaptor, dothrow, testing, virtusa, reported-rounds
+tags: junit, mockito, void-methods, verify, argumentcaptor, dothrow, testing, virtusa, reported-rounds, topic-testing
 
 **Start here: the concepts**
 - A void method returns nothing, so you test its **effects**: a changed state, a collaborator call, or an exception.
@@ -245,7 +245,7 @@ class NotificationServiceTest {
 "A void method returns nothing, so I test its effects. For state, I assert on the object afterwards. For a collaborator, I use Mockito verify, with an ArgumentCaptor to check what was passed. For failure, assertThrows. Since when doesn't compile on a void method, I stub with doThrow().when(mock).send(any()). I also test the negative case using verifyNoInteractions. And I verify external effects rather than every internal call, or the tests break on each refactor."
 
 ### Q6 [mid] How do you write JUnit tests for static methods?
-tags: junit, mockito, mockstatic, static-methods, clock, testability, powermock, testing, virtusa, reported-rounds
+tags: junit, mockito, mockstatic, static-methods, clock, testability, powermock, testing, virtusa, reported-rounds, topic-testing
 
 **Start here: the concepts**
 - A **pure** static method has no outside dependency, so just call it and assert.
@@ -372,7 +372,7 @@ The default scan root, because that causes the real-world bug.
 "@ComponentScan tells Spring which packages to search for stereotype-annotated classes. @SpringBootApplication includes it, and by default scans the main class's package and everything below. So the main class goes in the root package, and a class in a sibling package gives NoSuchBeanDefinition, which is the most common bug. You can set basePackages, but declaring it replaces the default. Auto-configuration isn't found by scanning, but through the AutoConfiguration.imports file."
 
 ### Q9 [mid] Implement an immutable class.
-tags: immutable, final, defensive-copy, record, list-copyof, thread-safety, virtusa, reported-rounds
+tags: immutable, final, defensive-copy, record, list-copyof, thread-safety, virtusa, reported-rounds, topic-java-core
 
 **Start here: the concepts**
 - **Immutable** means the object's observable state can't change after construction, so it's safe to share between threads with no locks.
@@ -453,7 +453,7 @@ tags: oauth2, jwt, authorization-server, resource-server, access-token, jwks, se
 "OAuth 2 is a protocol for delegated authorization, and JWT is a token format: signed JSON that's encoded rather than encrypted. They're independent. The JWT is created by the authorization server, like Keycloak or Okta, which signs it with its private key. My API never creates it; it only verifies the signature with the public key from the JWKS endpoint, then checks expiry, issuer, audience and scopes. That local verification is why JWT suits microservices. The catch is revocation, so I keep access tokens short-lived, with refresh tokens."
 
 ### Q11 [mid] Explain the Strategy and Factory patterns, with a real use.
-tags: strategy-pattern, factory-pattern, open-closed, enum, spring-injection, design-patterns, virtusa, reported-rounds
+tags: strategy-pattern, factory-pattern, open-closed, enum, spring-injection, design-patterns, virtusa, reported-rounds, topic-architecture
 
 **Start here: the concepts**
 - **Strategy:** the algorithm varies, so put each behind one interface and choose at run time.
@@ -550,7 +550,7 @@ class ApiErrors {
 "They aren't alternatives. @ExceptionHandler marks a method that handles an exception, and @RestControllerAdvice marks a class that makes those handlers global. A handler in a controller applies only there and takes priority. So I use one advice class for a consistent ProblemDetail format, with specific handlers and a generic 500 catch-all. It doesn't catch filter errors like Spring Security's. And I never leak stack traces to the client."
 
 ### Q13 [senior] Explain a rate limiter. What parameters matter? If there is no user id, what can be the key?
-tags: rate-limiter, token-bucket, sliding-window, redis, key-design, api-key, ip-address, 429, virtusa, reported-rounds
+tags: rate-limiter, token-bucket, sliding-window, redis, key-design, api-key, ip-address, 429, virtusa, reported-rounds, topic-architecture
 
 **Start here: the concepts**
 - A **rate limiter** caps how many requests a client may make per time window, protecting capacity and fairness.
@@ -606,7 +606,7 @@ I layer them: IP with a generous limit, and a tighter limit on an API key or bus
 "A rate limiter caps requests per client over time. I decide the key, the limit and burst, the algorithm (usually token bucket), where it runs, what happens if the store fails, and the response: 429 with Retry-After. With no user id, I'd use an API key or client id if one exists. Otherwise the IP from a trusted proxy, knowing NAT shares it and attackers rotate it, so a /64 prefix for IPv6, plus a session cookie or fingerprint. For OTP abuse, the phone number is the best key. I usually layer a generous IP limit with tighter limits on stronger keys."
 
 ### Q14 [mid] Redis cache vs in-memory cache: how do you choose?
-tags: redis, caffeine, in-memory-cache, two-level-cache, invalidation, consistency, virtusa, reported-rounds
+tags: redis, caffeine, in-memory-cache, two-level-cache, invalidation, consistency, virtusa, reported-rounds, topic-architecture
 
 **Start here: the concepts**
 - **In-memory (Caffeine):** inside the JVM, one copy per pod. Nanoseconds to microseconds.
@@ -648,7 +648,7 @@ Consistency across pods, and whether you know the option of using both.
 "An in-memory cache like Caffeine lives inside each JVM, so it's extremely fast, but every pod has its own copy and it's lost on restart. Redis is shared by all pods and survives restarts, at around a millisecond per call, plus an operational dependency. I use in-memory for small, rarely changing data, and Redis when pods must agree, like sessions and rate limits. For high read traffic, I use both: a short-TTL local cache in front of Redis, with pub/sub to invalidate. The real question is how stale the data can be."
 
 ### Q15 [mid] What is WebSocket, and when would you use it instead of REST?
-tags: websocket, sse, polling, stomp, sticky-sessions, redis-pubsub, spring-websocket, capgemini, reported-rounds
+tags: websocket, sse, polling, stomp, sticky-sessions, redis-pubsub, spring-websocket, capgemini, reported-rounds, topic-rest-api
 
 **Start here: the concepts**
 - **HTTP** is request-response: the server speaks only when asked.
@@ -690,7 +690,7 @@ When to use it (and when not), and how it scales.
 "WebSocket upgrades an HTTP connection to a long-lived two-way channel where either side can send anytime. I use it for chat or live collaboration. For server-to-client only, like notifications or streaming LLM tokens, SSE is simpler. For plain request-response, REST. The hard part is scale: connections are stateful and tied to a pod, so I broadcast through Redis pub/sub or a broker, make sure the load balancer supports upgrades, authenticate during the handshake, and have clients reconnect with backoff."
 
 ### Q16 [mid] Why use SonarQube, and how do you implement code coverage? What is coverage for?
-tags: sonarqube, jacoco, code-coverage, quality-gate, mutation-testing, ci, capgemini, reported-rounds
+tags: sonarqube, jacoco, code-coverage, quality-gate, mutation-testing, ci, capgemini, reported-rounds, topic-testing
 
 **Start here: the concepts**
 - **Code coverage** measures which lines and branches your tests executed. It shows what is **not tested**, and can't show that tested code is correct.
@@ -734,7 +734,7 @@ That you know what the tools do, and that coverage doesn't equal quality.
 "Coverage shows which code tests actually ran, so it tells me what's untested. It can't tell me the tests are good. I add the JaCoCo plugin, which measures during tests and produces a report. SonarQube reads that plus its own static analysis: bugs, vulnerabilities, duplication. Its key feature is a quality gate on new code that fails CI, so old code doesn't block anyone. I care more about branch coverage than line coverage, and mutation testing with PIT is the check that catches tests with no real assertions."
 
 ### Q17 [mid] If Service A calls Service B, how does the complete service-discovery flow work? How do you register a service?
-tags: service-discovery, eureka, kubernetes-dns, loadbalancer, heartbeat, registration, capgemini, reported-rounds
+tags: service-discovery, eureka, kubernetes-dns, loadbalancer, heartbeat, registration, capgemini, reported-rounds, topic-microservices
 
 **Start here: the concepts**
 - Pods get new IPs on every deploy, so hardcoded addresses break. A **registry** maps a service name to its current live instances.
@@ -777,7 +777,7 @@ On Kubernetes, usually no Eureka is needed:
 "With Eureka, B registers its name and address at startup and sends heartbeats. A fetches and caches the registry. When A calls http://payments, Spring Cloud LoadBalancer picks an instance from that cache, and the call goes directly there, so Eureka isn't in the request path. If B dies, Eureka removes it after missed heartbeats, so A still needs retries and a breaker. To register, I add the Eureka client, set the application name and the server URL. On Kubernetes, you usually don't need Eureka: a Service gives a stable DNS name, and readiness probes decide who gets traffic."
 
 ### Q18 [mid] From a performance and security perspective, why move from Java 8 to Java 17, even without using records or sealed classes?
-tags: java8, java17, upgrade, g1, zgc, tls13, strong-encapsulation, containers, lts, capgemini, reported-rounds
+tags: java8, java17, upgrade, g1, zgc, tls13, strong-encapsulation, containers, lts, capgemini, reported-rounds, topic-java-core
 
 **Start here: the concepts**
 - A new JDK improves the **runtime** (GC, JIT, security, container support), which you get without changing a line of code.

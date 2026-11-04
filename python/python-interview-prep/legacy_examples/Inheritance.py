@@ -43,7 +43,7 @@ class PartTimeEmployee(Employee):
         self.salary=self.no_of_hrs*self.per_hrs_salary # use of inheritance:- access parent salary property into child
 
 
-pemp=PartTimeEmployee(30,2000,"Ashish","ashish@cybage.com","DBA")
+pemp=PartTimeEmployee(30,2000,"Ashish","ashish@example.com","DBA")
 pemp.calSal()
 pemp.display()
 

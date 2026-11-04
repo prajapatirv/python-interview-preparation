@@ -61,7 +61,7 @@ Fast-path p99 against the budget, consumer lag per group, event-time lag, DLT ra
 "I'd split it. The blocking check is a synchronous scoring service reading precomputed features from Redis, within about 100 milliseconds, with no Kafka on that path. All transactions also flow into Kafka, keyed by card so each card stays ordered, and Kafka Streams or Flink computes windowed features into Redis and raises analyst alerts. For recovery, Kafka is the source of truth: on crash, a rebalance and the changelog restore state. Bad messages go to a retry topic then a DLT. After a bug, I replay from a retained offset, with alerts turned off. And if scoring is down, I fail open for small amounts and closed for large ones."
 
 ### Q2 [senior] How would you process millions of Kafka events per hour using Spring Boot, while controlling concurrency, batching and database load?
-tags: spring-kafka, batch-listener, concurrency, backpressure, hikari, jdbc-batch, max-poll-records, deloitte, reported-rounds
+tags: spring-kafka, batch-listener, concurrency, backpressure, hikari, jdbc-batch, max-poll-records, deloitte, reported-rounds, topic-kafka
 
 **Start here: the concepts**
 - 10 million events per hour is only about 2,800 per second. Getting Kafka to deliver that is easy. **The database is usually the bottleneck.**
@@ -123,7 +123,7 @@ Lag per partition, records per second, batch duration, Hikari pending, database 
 "First the arithmetic: 10 million an hour is under 3,000 a second, so Kafka isn't the constraint; the database is. I use batch listeners with 500-record polls and write with a JDBC batch using ON CONFLICT DO NOTHING, so redelivery is harmless, committing offsets only after the database commit. I measure one thread's rate, and set partitions and concurrency from that with headroom for peaks. This consumer gets a capped connection pool, so it can't starve the API. If the database slows, lag grows, and that's the safe outcome. One bad record goes to a DLT without failing the whole batch."
 
 ### Q3 [senior] A production application hangs intermittently because of lock contention and database waits. How would you investigate?
-tags: thread-dump, lock-contention, blocked, pg-locks, jfr, async-profiler, deadlock, production, deloitte, reported-rounds
+tags: thread-dump, lock-contention, blocked, pg-locks, jfr, async-profiler, deadlock, production, deloitte, reported-rounds, topic-production
 
 **Start here: the concepts**
 - A "hang" usually means threads are **waiting**, not working, so CPU may be low.
@@ -182,7 +182,7 @@ Blocked thread count, lock wait time from JFR, Hikari acquire time, database loc
 "Low CPU with freezes means threads are waiting. I'd capture three thread dumps during the freeze, automatically from an alert, and keep JFR running. BLOCKED threads point at a monitor, and I find the holder in the dump and see what it's doing. On the database, pg_stat_activity and pg_blocking_pids show who's blocking whom, especially idle-in-transaction sessions. Then I correlate timing with batch jobs and migrations. The usual cause is slow work while holding a lock, like an HTTP call inside a transaction. The fix is shortening that, and adding lock timeouts so a hang becomes a visible error."
 
 ### Q4 [senior] A database connection pool is exhausted even though queries are fast. How would you investigate?
-tags: hikaricp, connection-pool, leak-detection, transaction-scope, open-in-view, idle-in-transaction, production, deloitte, reported-rounds
+tags: hikaricp, connection-pool, leak-detection, transaction-scope, open-in-view, idle-in-transaction, production, deloitte, reported-rounds, topic-production
 
 **Start here: the concepts**
 - A connection is held for the **whole transaction**, not just for the query. A 2 ms query inside a 3-second transaction holds its connection for 3 seconds.
@@ -232,7 +232,7 @@ Alert on `pending > 0` for one minute, and chart usage time against query time. 
 "Query time isn't connection hold time: a connection stays out for the whole transaction. So fast queries with an exhausted pool means something holds connections between queries. I compare Hikari's usage time with query time, and turn on leak detection to get the stack trace of the holder, and look for idle-in-transaction sessions in Postgres. The usual cause is an HTTP call inside @Transactional, then Open Session in View, a real leak, or nested REQUIRES_NEW. I fix that first. I don't just raise the pool size, because that hides the bug and pushes the load onto the database."
 
 ### Q5 [mid] What branching strategies are available in GitHub, and how do you configure branch protection rules?
-tags: git, github, branching-strategy, trunk-based, gitflow, branch-protection, rulesets, codeowners, mastercard, reported-rounds
+tags: git, github, branching-strategy, trunk-based, gitflow, branch-protection, rulesets, codeowners, mastercard, reported-rounds, topic-testing
 
 **Start here: the concepts**
 - A **branching strategy** decides how work reaches `main`. **Branch protection** enforces it, so nobody can bypass the process.
@@ -277,7 +277,7 @@ Rulesets can apply across repositories at organisation level, and several can be
 "The main options are trunk-based with short branches and feature flags, GitHub Flow, GitFlow for scheduled versioned releases, and release branches when several versions are supported. For a service that releases daily, I'd pick trunk-based or GitHub Flow. In GitHub, I'd use rulesets on main: require a PR with approvals and code owner review, required status checks including tests and a quality gate, conversation resolution, no force pushes or deletions, and apply them to admins too. Busy repos should add a merge queue."
 
 ### Q6 [senior] How would you securely manage passwords, API keys, secrets and sensitive information in application logs?
-tags: secrets-management, vault, secrets-manager, log-masking, logback, pii, rotation, security, deloitte, reported-rounds
+tags: secrets-management, vault, secrets-manager, log-masking, logback, pii, rotation, security, deloitte, reported-rounds, topic-cloud-devops
 
 **Start here: the concepts**
 - Two separate problems: **storing** secrets safely, and **keeping** secrets and personal data out of logs.

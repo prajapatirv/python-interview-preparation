@@ -43,6 +43,12 @@ year. Treat them as likely topics, not a syllabus. Social-media infographics are
 Questions that the repo already answered well are linked rather than repeated. Tags let you search by source in the
 coach: `reported-streams`, `reported-rounds`, `reported-genai`, or by company: `deloitte`, `mastercard`, `capgemini`, `virtusa`.
 
+## Plans by experience
+
+The coach's **Topics** tab opens with a picker: **2+ years**, **6+ years**, **Senior engineer** (10+, hands-on) or **Architect or lead** (12+).
+Each builds a short plan from the whole bank, and the shareable web page has the same plans. To change them, see "Experience tracks" in `interview-coach/README.md`.
+The "Coach topic" column below is each bank's main card; a `topic-<id>` tag moves individual questions to the card they belong on.
+
 ## Study paths
 
 | Your goal | Time | Do this |

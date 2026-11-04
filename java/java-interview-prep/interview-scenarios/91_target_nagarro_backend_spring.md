@@ -14,7 +14,7 @@ crisp 60-second answer ready for each.
 Every answer has a **120-second** point-by-point version (*How I answer it*) and a **60-second answer**.
 
 ### Q1 [mid] REST vs gRPC: how do they differ and when would you choose each?
-tags: rest, grpc, protobuf, http2, streaming, api-design, inter-service, nagarro
+tags: rest, grpc, protobuf, http2, streaming, api-design, inter-service, nagarro, topic-rest-api
 
 **Start here: the concepts**
 - **REST** = resources over HTTP (usually JSON), verbs like GET/POST, human-readable, works everywhere.
@@ -54,7 +54,7 @@ load balancing or traffic sticks to one pod, and debugging binary payloads needs
 inside when latency and call volume justify it."
 
 ### Q2 [mid] How does a database index work, and how do you decide which indexes to create?
-tags: database-indexing, b-tree, composite-index, covering-index, explain-plan, query-performance, sql, nagarro
+tags: database-indexing, b-tree, composite-index, covering-index, explain-plan, query-performance, sql, nagarro, topic-sql
 
 **Start here: the concepts**
 - An index is a separate sorted structure (usually a **B-tree**) that maps column values to row locations, like the index at the back of a book.
@@ -97,7 +97,7 @@ columns, use partial or covering indexes where they fit, avoid functions on inde
 write-heavy tables, and build them concurrently in production."
 
 ### Q3 [mid] Explain transactions: ACID, isolation levels, and how @Transactional works in Spring
-tags: transactions, acid, isolation-levels, transactional, propagation, rollback, self-invocation, spring, nagarro
+tags: transactions, acid, isolation-levels, transactional, propagation, rollback, self-invocation, spring, nagarro, topic-sql
 
 **Start here: the concepts**
 - **ACID:** Atomic (all or nothing), Consistent (constraints hold), Isolated (concurrent transactions do not see each other's half-work), Durable (committed data survives a crash).
@@ -139,7 +139,7 @@ through a proxy, so self-invocation and private methods get no transaction, and 
 exceptions. I keep transactions short and never make remote calls inside them."
 
 ### Q4 [senior] You are building a payment API and receive duplicate requests. How do you ensure idempotency?
-tags: idempotency, idempotency-key, payment-api, duplicate-requests, unique-constraint, retries, redis, nagarro
+tags: idempotency, idempotency-key, payment-api, duplicate-requests, unique-constraint, retries, redis, nagarro, topic-rest-api
 
 **Start here: the concepts**
 - **Idempotent** = doing the same request twice has the same effect as once.
@@ -226,7 +226,7 @@ confirmed, the compensation is an automatic refund and a clear message to the cu
 status check with the gateway, and a daily reconciliation catches anything left."
 
 ### Q6 [mid] What is auto-configuration in Spring Boot, and how does @SpringBootApplication work?
-tags: spring-boot, auto-configuration, springbootapplication, starters, conditional, component-scan, nagarro
+tags: spring-boot, auto-configuration, springbootapplication, starters, conditional, component-scan, nagarro, topic-spring-boot
 
 **Start here: the concepts**
 - **Auto-configuration** = Spring Boot creates sensible beans for you based on what is on the classpath and in your properties (a `DataSource` when a JDBC driver is present, for example).
@@ -267,7 +267,7 @@ setting properties, or excluding the auto-configuration. To debug I use the cond
 the actuator conditions endpoint. And I've written a company starter the same way for shared logging and security."
 
 ### Q7 [mid] How do you add caching to a Spring Boot service, and how do you keep the cache correct?
-tags: caching, cacheable, cacheevict, redis, caffeine, ttl, cache-aside, invalidation, stampede, spring-boot, nagarro
+tags: caching, cacheable, cacheevict, redis, caffeine, ttl, cache-aside, invalidation, stampede, spring-boot, nagarro, topic-spring-boot
 
 **Start here: the concepts**
 - **Cache-aside:** read from the cache; on a miss, read from the database and put it in the cache.
@@ -351,7 +351,7 @@ timeouts, retries for idempotent calls and circuit breakers. The gateway runs as
 it's on every request path."
 
 ### Q9 [mid] Do you know Kafka? How do partitions give you ordering and scale?
-tags: kafka, partitions, ordering, message-key, consumer-group, offsets, scaling, nagarro
+tags: kafka, partitions, ordering, message-key, consumer-group, offsets, scaling, nagarro, topic-kafka
 
 **Start here: the concepts**
 - A **topic** is split into **partitions**; each partition is an ordered, append-only log.
@@ -391,7 +391,7 @@ ordering safe with retries. Consumers commit after processing and are idempotent
 DLT so they don't block the partition."
 
 ### Q10 [mid] Java 8 streams round: find the second non-repeating character, and group employees by department and role
-tags: java8, streams, collectors, groupingby, linkedhashmap, coding-round, nagarro
+tags: java8, streams, collectors, groupingby, linkedhashmap, coding-round, nagarro, topic-coding
 
 **Start here: the concepts**
 - `Collectors.groupingBy(classifier, mapFactory, downstream)` groups elements; nesting it gives multi-level maps.

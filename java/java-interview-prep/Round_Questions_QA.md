@@ -12,7 +12,7 @@ Deeper material, if you want it: **G** = `Java_SpringBoot_Kafka_Interview_QA_Gui
 
 | Section | IDs | Count |
 |---|---|---|
-| A. Cybage list | A1-A9 | 9 |
+| A. Core round list | A1-A9 | 9 |
 | B. Fresher | F1-F27 | 27 |
 | C. Experienced | E1-E38 | 38 |
 | D. Kafka round | K1-K18 | 18 |
@@ -26,7 +26,7 @@ example. Do not start with the example.
 
 ---
 
-# A. Cybage list
+# A. Core round list
 
 ## A1. Kafka partitioning
 
