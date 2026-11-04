@@ -80,18 +80,37 @@ def test_tracks_point_at_real_topics_and_stay_focused(lib):
     plans = {}
     for stack in ("java", "python"):
         ids = {t.id for t in lib.stack(stack).topics}
+        for track in tracks.load(stack)["tracks"]:
+            assert {f["topic"] for f in track["focus"]} <= ids, f"{stack}/{track['id']} names an unknown topic"
         for summary in tracks.summaries(stack):
             plan = tracks.plan(lib, stack, summary["id"])
-            assert {f["topic"] for f in tracks.load(stack)["tracks"][0]["focus"]} <= ids
             assert all(t["questions"] for t in plan["topics"]), f"{stack}/{summary['id']} has an empty topic"
             assert 60 <= plan["total"] <= 320, f"{stack}/{summary['id']} has {plan['total']} questions"
             chosen = [q["id"] for t in plan["topics"] for q in t["questions"]]
             assert len(chosen) == len(set(chosen))
             plans[stack, summary["id"]] = plan
-    early, senior = plans["java", "early"], plans["java", "senior"]
-    assert senior["stages"]["architect"] > senior["stages"].get("fresher", 0)
+    early, senior, architect = plans["java", "early"], plans["java", "senior"], plans["java", "architect"]
+    assert senior["stages"]["senior"] > senior["stages"]["architect"]        # hands-on: depth leads
+    assert architect["stages"]["architect"] > architect["stages"]["senior"]  # architect: design leads
+    assert architect["stages"]["architect"] > senior["stages"]["architect"]
     assert "architect" not in early["stages"]
     assert early["stages"]["fresher"] > early["stages"].get("senior", 0)
+
+
+def test_topic_tags_move_a_question_to_its_card(lib):
+    coins = next(q for q in lib.questions("java") if q["title"].startswith("Find the least number of coins"))
+    assert coins["topic"] == "coding"
+    assert coins["id"] in {q["id"] for q in lib.topic("java", "coding").questions}
+    assert coins["id"] not in {q["id"] for q in lib.topic("java", "spring-boot").questions}
+
+
+def test_plans_for_other_people_hold_no_personal_material(lib):
+    for summary in tracks.summaries("java"):
+        for t in tracks.plan(lib, "java", summary["id"])["topics"]:
+            for q in t["questions"]:
+                full = lib.question(q["id"])
+                assert not re.search(r"8[012]_company_chase|40_leadership|19-resume", full["source"]), full["title"]
+                assert "hackathon" not in full["title"] and "Why Nagarro" not in full["title"]
 
 
 def test_general_bucket_stays_small(lib):

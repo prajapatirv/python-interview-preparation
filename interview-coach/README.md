@@ -108,7 +108,7 @@ Settings (env or `.env`): `ANTHROPIC_API_KEY`, `AI_MODE` (`auto`|`claude`|`mock`
 ## Tests
 
 ```bash
-.venv/Scripts/python.exe -m pytest      # 69 tests; Linux/macOS: .venv/bin/python -m pytest
+.venv/Scripts/python.exe -m pytest      # 72 tests; Linux/macOS: .venv/bin/python -m pytest
 ```
 
 `tests/test_real_repo.py` runs against the real content and is the **"nothing forgotten" canary**:
@@ -117,7 +117,7 @@ scenario answer misses a required section, or if the `general` bucket grows (a k
 
 ## Experience tracks
 
-The Topics tab starts by asking for your experience: **2+ years**, **6+ years**, **12+ years**, or **All topics**. A track
+The Topics tab starts by asking for your experience: **2+ years**, **6+ years**, **Senior engineer** (10+, hands-on), **Architect or lead** (12+), or **All topics**. A track
 turns the whole bank into a short plan with topics grouped as *Focus first*, *Also prepare* and *Know the basics*, and
 questions grouped as *Basics*, *Applied*, *Advanced* and *Design*. Every topic page can still show all of its questions.
 
@@ -129,6 +129,7 @@ To change a track, edit `skills/<stack>/_tracks.json`, with no code change:
 | `quota` | How many questions a `core` topic takes at each level; `weights` scale that for the other two |
 | `stage_order` | Study order, so a senior track can start with Design |
 | `kinds` | Sources to draw from; only use those with reliable level labels |
+| `exclude` | Patterns matched against a source path or title: personal project material and one company's domain, which suit your own prep but not a general plan |
 | `levels_reliable` | `false` hides the stages, for a stack whose questions aren't labelled (Python today) |
 
 Selection (`app/services/tracks.py`) is repeatable. Questions reported from real interviews come first, sources take turns so

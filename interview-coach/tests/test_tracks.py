@@ -1,5 +1,6 @@
 """Experience tracks: the plan respects a track's topics and quotas, skips repeats and honours the viewer's changes."""
 import json
+import re
 
 from fastapi.testclient import TestClient
 
@@ -57,6 +58,18 @@ def test_reported_questions_are_recognised():
     assert tracks.is_reported({"tags": ["deloitte"], "source": "x.md"})
     assert tracks.is_reported({"tags": [], "source": "java/62_round_kafka.md"})
     assert not tracks.is_reported({"tags": ["reported-genai"], "source": "x.md"})
+
+
+def test_exclude_keeps_personal_material_out_of_plans(workspace):
+    _write_track([{"topic": "kafka", "weight": "core", "why": "w"}], {"mid": 9, "senior": 9, "fresher": 9})
+    lib = Library.load()
+    title = lib.topic("java", "kafka").questions[0]["title"]
+    path = config.SKILLS_DIR / "java" / "_tracks.json"
+    data = json.loads(path.read_text(encoding="utf-8"))
+    data["exclude"] = [re.escape(title)]
+    path.write_text(json.dumps(data), encoding="utf-8")
+    chosen = [lib.question(q["id"])["title"] for t in tracks.plan(lib, "java", "t")["topics"] for q in t["questions"]]
+    assert title not in chosen
 
 
 def test_track_routes(workspace):

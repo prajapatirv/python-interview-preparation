@@ -192,7 +192,24 @@ class Library:
                                   "questions": sum(1 for t in stack.topics for q in t.questions
                                                    if q["source"] == stack.index)})
         cls._rehome_misfiled(stack)
+        cls._apply_topic_tags(stack)
         cls._merge_foundations(stack)
+
+    @staticmethod
+    def _apply_topic_tags(stack: Stack) -> None:
+        """A bank file attaches to one topic, but company and interview-report banks mix subjects. A ``topic-<id>`` tag
+        moves that one question to the card it belongs on."""
+        by_id = {t.id: t for t in stack.topics}
+        for topic in stack.topics:
+            keep = []
+            for q in topic.questions:
+                dest = next((by_id[t[6:]] for t in q["tags"] if t.startswith("topic-") and t[6:] in by_id), topic)
+                if dest is topic:
+                    keep.append(q)
+                else:
+                    q["topic"] = dest.id
+                    dest.questions.append(q)
+            topic.questions = keep
 
     @classmethod
     def _rehome_misfiled(cls, stack: Stack) -> None:

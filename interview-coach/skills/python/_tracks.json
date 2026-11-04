@@ -1,7 +1,14 @@
 {
   "levels_reliable": false,
-  "kinds": ["deepdive", "index"],
-  "weights": { "core": 1.0, "also": 0.4, "aware": 0.2 },
+  "kinds": [
+    "deepdive",
+    "index"
+  ],
+  "weights": {
+    "core": 1.0,
+    "also": 0.4,
+    "aware": 0.2
+  },
   "tracks": [
     {
       "id": "early",
@@ -10,14 +17,40 @@
       "title": "Build strong foundations",
       "expect": "Interviewers test whether you understand the language and can write working code. They ask how things work, then give you a small problem to solve.",
       "advice": "Write the code yourself instead of only reading the answer, and be ready to explain one project clearly.",
-      "quota": { "mid": 25 },
+      "quota": {
+        "mid": 25
+      },
       "focus": [
-        { "topic": "python-core", "weight": "core", "why": "The first round at almost every company: data structures, decorators and the object model." },
-        { "topic": "python-coding", "weight": "core", "why": "Most early-career roles include a coding test or live coding." },
-        { "topic": "python-web", "weight": "core", "why": "Know how a FastAPI request flows and how to structure a small service." },
-        { "topic": "python-testing", "weight": "core", "why": "Expect pytest fixtures and mocking." },
-        { "topic": "python-data", "weight": "also", "why": "Useful if the role touches data: pandas and pipelines." },
-        { "topic": "python-concurrency", "weight": "aware", "why": "Be able to explain threads, async and the GIL." }
+        {
+          "topic": "python-core",
+          "weight": "core",
+          "why": "The first round at almost every company: data structures, decorators and the object model."
+        },
+        {
+          "topic": "python-coding",
+          "weight": "core",
+          "why": "Most early-career roles include a coding test or live coding."
+        },
+        {
+          "topic": "python-web",
+          "weight": "core",
+          "why": "Know how a FastAPI request flows and how to structure a small service."
+        },
+        {
+          "topic": "python-testing",
+          "weight": "core",
+          "why": "Expect pytest fixtures and mocking."
+        },
+        {
+          "topic": "python-data",
+          "weight": "also",
+          "why": "Useful if the role touches data: pandas and pipelines."
+        },
+        {
+          "topic": "python-concurrency",
+          "weight": "aware",
+          "why": "Be able to explain threads, async and the GIL."
+        }
       ]
     },
     {
@@ -27,37 +60,171 @@
       "title": "Show production depth",
       "expect": "Interviewers assume you know the basics and ask why and what if. They want trade-offs and failures you've handled.",
       "advice": "For each topic, prepare one real story from your own work, with numbers.",
-      "quota": { "mid": 30 },
+      "quota": {
+        "mid": 30
+      },
       "focus": [
-        { "topic": "python-core", "weight": "core", "why": "The questions move to internals and language trade-offs." },
-        { "topic": "python-concurrency", "weight": "core", "why": "Expect the GIL, async and when each model fits." },
-        { "topic": "python-web", "weight": "core", "why": "Expect API design, dependencies and error handling." },
-        { "topic": "python-scaling", "weight": "core", "why": "Expect resilience, caching and production behaviour." },
-        { "topic": "python-kafka", "weight": "also", "why": "Delivery guarantees and consumers come up often." },
-        { "topic": "python-testing", "weight": "also", "why": "Know your testing strategy, not only the syntax." },
-        { "topic": "python-coding", "weight": "also", "why": "Many companies still give a coding round." },
-        { "topic": "python-genai", "weight": "aware", "why": "Increasingly asked: know RAG and tool calling at a high level." },
-        { "topic": "python-data", "weight": "aware", "why": "Know how pipelines are orchestrated." }
+        {
+          "topic": "python-core",
+          "weight": "core",
+          "why": "The questions move to internals and language trade-offs."
+        },
+        {
+          "topic": "python-concurrency",
+          "weight": "core",
+          "why": "Expect the GIL, async and when each model fits."
+        },
+        {
+          "topic": "python-web",
+          "weight": "core",
+          "why": "Expect API design, dependencies and error handling."
+        },
+        {
+          "topic": "python-scaling",
+          "weight": "core",
+          "why": "Expect resilience, caching and production behaviour."
+        },
+        {
+          "topic": "python-kafka",
+          "weight": "also",
+          "why": "Delivery guarantees and consumers come up often."
+        },
+        {
+          "topic": "python-testing",
+          "weight": "also",
+          "why": "Know your testing strategy, not only the syntax."
+        },
+        {
+          "topic": "python-coding",
+          "weight": "also",
+          "why": "Many companies still give a coding round."
+        },
+        {
+          "topic": "python-genai",
+          "weight": "aware",
+          "why": "Increasingly asked: know RAG and tool calling at a high level."
+        },
+        {
+          "topic": "python-data",
+          "weight": "aware",
+          "why": "Know how pipelines are orchestrated."
+        }
       ]
     },
     {
       "id": "senior",
-      "label": "12+ years",
-      "range": "10+ years of experience",
+      "label": "Senior engineer",
+      "range": "10+ years, still hands-on",
+      "title": "Prove deep technical ownership",
+      "expect": "Interviewers want to see that you personally solve the hardest problems on the team. Expect deep questions on concurrency, performance and failures you've debugged, often with live code.",
+      "advice": "Practise explaining how you found and fixed a real problem, with the tools and numbers. Stay sharp at coding.",
+      "quota": {
+        "mid": 35
+      },
+      "focus": [
+        {
+          "topic": "python-core",
+          "weight": "core",
+          "why": "Expect sharp questions on internals and memory."
+        },
+        {
+          "topic": "python-concurrency",
+          "weight": "core",
+          "why": "Expect to justify a concurrency model with evidence."
+        },
+        {
+          "topic": "python-scaling",
+          "weight": "core",
+          "why": "Expect resilience, caching and production failures."
+        },
+        {
+          "topic": "python-kafka",
+          "weight": "core",
+          "why": "Expect delivery guarantees, lag and recovery."
+        },
+        {
+          "topic": "python-web",
+          "weight": "also",
+          "why": "Expect API design and error handling in depth."
+        },
+        {
+          "topic": "python-coding",
+          "weight": "also",
+          "why": "Many companies still give senior engineers a coding round."
+        },
+        {
+          "topic": "python-testing",
+          "weight": "also",
+          "why": "Know your testing strategy."
+        },
+        {
+          "topic": "python-genai",
+          "weight": "aware",
+          "why": "Increasingly asked: know RAG and tool calling at a high level."
+        },
+        {
+          "topic": "python-data",
+          "weight": "aware",
+          "why": "Know how pipelines are orchestrated."
+        }
+      ]
+    },
+    {
+      "id": "architect",
+      "label": "Architect or lead",
+      "range": "12+ years, leads design and teams",
       "title": "Lead with design and judgement",
       "expect": "Interviewers test your judgement: what you would build, and why. Expect design problems, trade-offs and incidents you've led.",
       "advice": "Practise out loud, and always state the trade-off and the numbers.",
-      "quota": { "mid": 35 },
+      "quota": {
+        "mid": 35
+      },
       "focus": [
-        { "topic": "python-scaling", "weight": "core", "why": "The centre of the interview: system design, capacity and resilience." },
-        { "topic": "python-kafka", "weight": "core", "why": "Event-driven design: ordering, delivery guarantees and recovery." },
-        { "topic": "python-concurrency", "weight": "core", "why": "Expect to justify a concurrency model with evidence." },
-        { "topic": "python-genai", "weight": "also", "why": "Reference architecture, guardrails and cost." },
-        { "topic": "python-web", "weight": "also", "why": "API strategy and service structure." },
-        { "topic": "python-data", "weight": "also", "why": "Pipelines and orchestration decisions." },
-        { "topic": "python-core", "weight": "also", "why": "Short but sharp checks on the language." },
-        { "topic": "python-coding", "weight": "aware", "why": "Some companies still include a coding round." },
-        { "topic": "python-testing", "weight": "aware", "why": "Focus on testing strategy across teams." }
+        {
+          "topic": "python-scaling",
+          "weight": "core",
+          "why": "The centre of the interview: system design, capacity and resilience."
+        },
+        {
+          "topic": "python-kafka",
+          "weight": "core",
+          "why": "Event-driven design: ordering, delivery guarantees and recovery."
+        },
+        {
+          "topic": "python-concurrency",
+          "weight": "core",
+          "why": "Expect to justify a concurrency model with evidence."
+        },
+        {
+          "topic": "python-genai",
+          "weight": "also",
+          "why": "Reference architecture, guardrails and cost."
+        },
+        {
+          "topic": "python-web",
+          "weight": "also",
+          "why": "API strategy and service structure."
+        },
+        {
+          "topic": "python-data",
+          "weight": "also",
+          "why": "Pipelines and orchestration decisions."
+        },
+        {
+          "topic": "python-core",
+          "weight": "also",
+          "why": "Short but sharp checks on the language."
+        },
+        {
+          "topic": "python-coding",
+          "weight": "aware",
+          "why": "Some companies still include a coding round."
+        },
+        {
+          "topic": "python-testing",
+          "weight": "aware",
+          "why": "Focus on testing strategy across teams."
+        }
       ]
     }
   ]

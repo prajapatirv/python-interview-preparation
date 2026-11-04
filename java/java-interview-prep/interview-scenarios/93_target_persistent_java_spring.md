@@ -14,7 +14,7 @@ HashMap internals is answered in depth in bank 83 Q1 and SQL joins in bank 29; t
 Every answer has a **120-second** point-by-point version (*How I answer it*) and a **60-second answer**.
 
 ### Q1 [fresher] What are wrapper classes and autoboxing, and why does Integer == sometimes fail?
-tags: wrapper-classes, autoboxing, unboxing, integer-cache, equals, nullpointerexception, core-java, persistent
+tags: wrapper-classes, autoboxing, unboxing, integer-cache, equals, nullpointerexception, core-java, persistent, topic-java-core
 
 **Start here: the concepts**
 - Each primitive has a **wrapper** object: `int -> Integer`, `long -> Long`, `boolean -> Boolean`, and so on. Collections and generics need objects, so they use wrappers.
@@ -52,7 +52,7 @@ production, and the fix is equals or Objects.equals. The other traps are an NPE 
 value, and the cost of boxing in hot loops, where I use primitives or IntStream instead."
 
 ### Q2 [mid] What is a functional interface, and why did Java 8 add default and static methods to interfaces?
-tags: functional-interface, lambda, default-method, static-method, diamond-problem, java8, core-java, persistent
+tags: functional-interface, lambda, default-method, static-method, diamond-problem, java8, core-java, persistent, topic-java-core
 
 **Start here: the concepts**
 - A **functional interface** has exactly **one abstract method**, so a lambda or method reference can implement it (`Runnable`, `Comparator`, `Function`, `Predicate`, `Supplier`, `Consumer`).
@@ -100,7 +100,7 @@ method, the class must override it and can call A.super.method(). In a project I
 interface with a default andThen to chain them."
 
 ### Q3 [mid] What is the difference between map and flatMap in streams? Give a real example
-tags: streams, map, flatmap, optional, collectors, java8, persistent
+tags: streams, map, flatmap, optional, collectors, java8, persistent, topic-java-core
 
 **Start here: the concepts**
 - `map` turns **each element into one** new element: `Stream<Order> -> Stream<BigDecimal>`.
@@ -143,7 +143,7 @@ to a set, gives the answer. The same applies to Optional, where flatMap avoids a
 mapMulti or a loop avoids creating many tiny streams."
 
 ### Q4 [mid] How do you write a thread-safe singleton, and how can a singleton be broken?
-tags: singleton, thread-safety, double-checked-locking, volatile, holder-idiom, enum-singleton, reflection, serialization, design-patterns, persistent
+tags: singleton, thread-safety, double-checked-locking, volatile, holder-idiom, enum-singleton, reflection, serialization, design-patterns, persistent, topic-java-core
 
 **Start here: the concepts**
 - A **singleton** guarantees one instance of a class per JVM (per class loader) with a global access point.
@@ -195,7 +195,7 @@ deserialisation creates a copy unless you add readResolve, and clone can copy it
 bean and inject it, because global state is hard to test."
 
 ### Q5 [mid] Multithreading question: print odd and even numbers alternately with two threads
-tags: multithreading, wait-notify, synchronized, reentrantlock, condition, semaphore, coding-round, core-java, persistent
+tags: multithreading, wait-notify, synchronized, reentrantlock, condition, semaphore, coding-round, core-java, persistent, topic-java-core
 
 **Start here: the concepts**
 - Two threads must **take turns**, so they need a shared lock and a condition to wait on.
@@ -430,7 +430,7 @@ I add at most one retry for idempotent calls and a bulkhead to cap concurrency, 
 alerts."
 
 ### Q10 [mid] Explain the main components of a microservice architecture and how services communicate
-tags: microservices, components, api-gateway, service-discovery, config-server, synchronous, asynchronous, kafka, rabbitmq, observability, persistent
+tags: microservices, components, api-gateway, service-discovery, config-server, synchronous, asynchronous, kafka, rabbitmq, observability, persistent, topic-microservices
 
 **Start here: the concepts**
 - A microservice owns **one business capability and its data**, and is deployed independently.

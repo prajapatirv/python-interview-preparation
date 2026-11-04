@@ -186,7 +186,7 @@ Then I roll it out deliberately: agree on a short guideline, apply it to new cod
 "I ask whether it removes a class of bug, states intent more clearly, or lets the compiler check more. Sealed types with exhaustive switch do: a new case becomes a compile error everywhere it matters. Records state that something is immutable data. But var on a method call hides the type the reader needs, so I'd reject that even though it's shorter. I also check tooling and framework fit, for example records can't be JPA entities. Then we adopt it in new code with a short guideline, not a mass rewrite."
 
 ### Q5 [senior] Why would requests time out when a shared HashMap is used across threads, even though the application isn't crashing?
-tags: hashmap, concurrency, thread-dump, data-race, concurrenthashmap, tomcat-threads, production, mastercard, reported-rounds
+tags: hashmap, concurrency, thread-dump, data-race, concurrenthashmap, tomcat-threads, production, mastercard, reported-rounds, topic-production
 
 **Start here: the concepts**
 - `HashMap` isn't thread-safe. Concurrent writes can corrupt its internal structure **without throwing anything**.
@@ -233,7 +233,7 @@ Alert on Tomcat busy threads above about 80% of max, on p99, and capture a threa
 "HashMap isn't thread-safe, and concurrent writes can corrupt its internal links silently, with no exception. Threads then spin or get stuck inside get or put, and each stuck thread is a Tomcat worker lost. The pool runs out, new requests queue and time out, but the process stays up, so nothing looks crashed. I'd prove it with three thread dumps: many threads in HashMap methods. Then I'd check per-thread CPU with top -H. The fix is ConcurrentHashMap or a bounded cache like Caffeine."
 
 ### Q6 [senior] All requests are timing out with exceptions, yet the application is running on the server. Why?
-tags: timeouts, troubleshooting, thread-pool, connection-pool, gc, downstream, production, mastercard, reported-rounds
+tags: timeouts, troubleshooting, thread-pool, connection-pool, gc, downstream, production, mastercard, reported-rounds, topic-production
 
 **Start here: the concepts**
 - "Process is running" says little. A request needs a free thread, a free connection, memory headroom and a healthy downstream. Any one of those running out stops everything.

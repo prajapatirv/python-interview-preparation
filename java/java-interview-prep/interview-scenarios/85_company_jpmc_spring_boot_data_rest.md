@@ -13,7 +13,7 @@ Each answer has a **120-second point-by-point version** (*How I answer it*) and 
 Levels: **mid** (3-6 yrs) · **senior** (6-10) · **architect** (10+, "expert").
 
 ### Q1 [mid] Design a REST API to filter students by name and organisation. What structure do you follow in Spring Boot?
-tags: rest-api, filtering, pagination, jpa-specification, layered-architecture, dto, controller-service-repository, jpmc
+tags: rest-api, filtering, pagination, jpa-specification, layered-architecture, dto, controller-service-repository, jpmc, topic-rest-api
 
 **Start here: the concepts**
 - **Layered structure:** Controller (HTTP only) -> Service (business logic and transactions) -> Repository (database). Dependencies point one way.
@@ -194,7 +194,7 @@ Diagnosis, the right fix per situation, and awareness of pagination and memory t
 "N+1 is one query for the list and then one query per row for a lazy relation: 50 accounts became 51 queries and 2 seconds. I detect it with SQL logging or query-count assertions in tests. For a specific query I use a fetch join or an @EntityGraph. As a general safety net, a batch fetch size, which turns the 50 queries into one IN query. For read-only list screens, DTO projections are usually best. I keep relations lazy, including @ManyToOne, turn off open-in-view, and never fetch-join a collection with pagination, because Hibernate then pages in memory."
 
 ### Q6 [senior] Explain ACID, isolation levels, and optimistic vs pessimistic locking.
-tags: acid, isolation-levels, dirty-read, phantom-read, optimistic-locking, pessimistic-locking, version, jpmc
+tags: acid, isolation-levels, dirty-read, phantom-read, optimistic-locking, pessimistic-locking, version, jpmc, topic-sql
 
 **Start here: the concepts**
 - **ACID:** **A**tomic (all or nothing), **C**onsistent (rules and constraints hold), **I**solated (concurrent transactions don't interfere badly), **D**urable (committed data survives a crash).
@@ -231,7 +231,7 @@ JPMC candidates report direct ACID questions. They want the anomalies, the defau
 "ACID means all-or-nothing, rules always hold, concurrent transactions don't see each other's partial work, and committed data survives crashes. Isolation levels trade safety for concurrency. PostgreSQL defaults to READ COMMITTED, which prevents dirty reads but still allows lost updates. For two operators editing the same credit limit, I use optimistic locking: a version column, a conflict detected at save, returned as 409, and exposed as an ETag in the API. For hot rows like a balance, pessimistic SELECT FOR UPDATE with a timeout, or a single conditional UPDATE. SERIALIZABLE only where invariants demand it, with retries."
 
 ### Q7 [mid] How do you validate input and return consistent errors from a REST API?
-tags: validation, bean-validation, controlleradvice, problem-details, rfc-9457, error-handling, jpmc
+tags: validation, bean-validation, controlleradvice, problem-details, rfc-9457, error-handling, jpmc, topic-rest-api
 
 **Start here: the concepts**
 - **Bean Validation** (`@NotBlank`, `@Size`, `@Positive`) declares rules on request DTOs; `@Valid` triggers them.
@@ -301,7 +301,7 @@ Modern Spring Security configuration, fine-grained authorization, and the OWASP 
 "I make the API an OAuth2 resource server. Spring validates the JWT's signature, expiry, issuer and audience against the identity provider's keys. A SecurityFilterChain bean makes it stateless and authenticated by default. Token scopes become authorities, and I use method security with @PreAuthorize, including object-level checks, so a client can only read their own accounts; that ID-swapping bug is the classic one in banking. Services call each other with client-credentials tokens or mTLS. CSRF is off only because it's a stateless token API, CORS is an explicit list, secrets live in a vault, and every action is audit-logged."
 
 ### Q9 [senior] How do you make a POST endpoint idempotent, for example a payment?
-tags: idempotency, idempotency-key, retries, duplicate-requests, unique-constraint, payments, jpmc
+tags: idempotency, idempotency-key, retries, duplicate-requests, unique-constraint, payments, jpmc, topic-rest-api
 
 **Start here: the concepts**
 - **Idempotent** means doing it twice has the same effect as doing it once. `GET`, `PUT` and `DELETE` are idempotent by definition; `POST` is not.

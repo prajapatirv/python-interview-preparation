@@ -4,6 +4,7 @@ A track is data, not code (``skills/<stack>/_tracks.json``): which topics matter
 has, and how many questions to take at each level. ``plan`` selects them in a stable order:
 
 - only ``kinds`` with trustworthy level labels are used (unlabelled sources just default to "mid"),
+- anything matching ``exclude`` is left out: material about one person's own projects or one company's domain,
 - questions candidates reported from real interviews come first, then scenario answers,
 - sources take turns, so one big list can't fill a stage and narrow what gets studied,
 - a question that repeats one already chosen is skipped, because the banks overlap on purpose.
@@ -90,6 +91,7 @@ def plan(lib: Library, stack_id: str, track_id: str, added: set[str] | None = No
     focus += [{"topic": t.id, "weight": "also", "why": "You added this topic."}
               for t in stack.topics if t.id in added and t.id not in known and t.id not in removed and t.questions]
     kinds = set(cfg["kinds"])
+    excluded = [re.compile(x) for x in cfg.get("exclude", [])]
     seen: list[tuple[set[str], str]] = []
     stage_order = track.get("stage_order", STAGE_ORDER)
     topics = []
@@ -100,7 +102,8 @@ def plan(lib: Library, stack_id: str, track_id: str, added: set[str] | None = No
         chosen = []
         for level, base in track["quota"].items():
             want = math.ceil(base * cfg["weights"][f["weight"]])
-            pool = _take_turns(sorted((q for q in topic.questions if q["kind"] in kinds and q["level"] == level), key=_rank))
+            pool = _take_turns(sorted((q for q in topic.questions if q["kind"] in kinds and q["level"] == level
+                                       and not any(x.search(q["source"]) or x.search(q["title"]) for x in excluded)), key=_rank))
             taken = 0
             for q in pool:
                 if taken >= want:

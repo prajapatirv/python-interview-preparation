@@ -1,83 +1,384 @@
 {
   "levels_reliable": true,
-  "kinds": ["scenario", "crib"],
-  "weights": { "core": 1.0, "also": 0.4, "aware": 0.2 },
+  "kinds": [
+    "scenario",
+    "crib"
+  ],
+  "exclude": [
+    "/8[012]_company_chase",
+    "/40_leadership_foundations",
+    "/19-resume",
+    "Why Nagarro",
+    "equivalent to your",
+    "from your hackathon"
+  ],
+  "weights": {
+    "core": 1.0,
+    "also": 0.4,
+    "aware": 0.2
+  },
   "tracks": [
     {
       "id": "early",
-      "stage_order": ["fresher", "mid", "senior", "architect"],
+      "stage_order": [
+        "fresher",
+        "mid",
+        "senior",
+        "architect"
+      ],
       "label": "2+ years",
       "range": "0-4 years of experience",
       "title": "Build strong foundations",
       "expect": "Interviewers test whether you understand the language and can write working code. They ask what things are and how they work, then give you a small problem to solve. They don't expect you to design large systems.",
       "advice": "Spend most of your time on Basics and Applied. Write the code yourself instead of only reading the answer, and be ready to explain one project clearly.",
-      "quota": { "fresher": 10, "mid": 10, "senior": 1, "architect": 0 },
+      "quota": {
+        "fresher": 10,
+        "mid": 10,
+        "senior": 1,
+        "architect": 0
+      },
       "focus": [
-        { "topic": "java-core", "weight": "core", "why": "The first round at almost every company: collections, OOP, streams and basic concurrency." },
-        { "topic": "coding", "weight": "core", "why": "Most early-career roles include a coding test or live coding, so this needs regular practice." },
-        { "topic": "spring-boot", "weight": "core", "why": "Expect questions on annotations, dependency injection, data access and how a request flows." },
-        { "topic": "sql", "weight": "core", "why": "Joins, indexes and transactions come up often, and you may have to write a query live." },
-        { "topic": "rest-api", "weight": "also", "why": "Know the HTTP methods, status codes and how to design a simple endpoint." },
-        { "topic": "testing", "weight": "also", "why": "Expect JUnit and Mockito questions, such as how to test a void method." },
-        { "topic": "kafka", "weight": "aware", "why": "Be able to explain topics, partitions and consumer groups, even if you haven't used it much." },
-        { "topic": "microservices", "weight": "aware", "why": "Know why teams split services and how those services communicate." },
-        { "topic": "cloud-devops", "weight": "aware", "why": "Know the basics of AWS and Docker, which come up increasingly often." },
-        { "topic": "leadership", "weight": "aware", "why": "Be ready to explain your project and what you personally did." }
+        {
+          "topic": "java-core",
+          "weight": "core",
+          "why": "The first round at almost every company: collections, OOP, streams and basic concurrency."
+        },
+        {
+          "topic": "coding",
+          "weight": "core",
+          "why": "Most early-career roles include a coding test or live coding, so this needs regular practice."
+        },
+        {
+          "topic": "spring-boot",
+          "weight": "core",
+          "why": "Expect questions on annotations, dependency injection, data access and how a request flows."
+        },
+        {
+          "topic": "sql",
+          "weight": "core",
+          "why": "Joins, indexes and transactions come up often, and you may have to write a query live."
+        },
+        {
+          "topic": "rest-api",
+          "weight": "also",
+          "why": "Know the HTTP methods, status codes and how to design a simple endpoint."
+        },
+        {
+          "topic": "testing",
+          "weight": "also",
+          "why": "Expect JUnit and Mockito questions, such as how to test a void method."
+        },
+        {
+          "topic": "kafka",
+          "weight": "aware",
+          "why": "Be able to explain topics, partitions and consumer groups, even if you haven't used it much."
+        },
+        {
+          "topic": "microservices",
+          "weight": "aware",
+          "why": "Know why teams split services and how those services communicate."
+        },
+        {
+          "topic": "cloud-devops",
+          "weight": "aware",
+          "why": "Know the basics of AWS and Docker, which come up increasingly often."
+        },
+        {
+          "topic": "leadership",
+          "weight": "aware",
+          "why": "Be ready to explain your project and what you personally did."
+        }
       ]
     },
     {
       "id": "experienced",
-      "stage_order": ["mid", "senior", "architect", "fresher"],
+      "stage_order": [
+        "mid",
+        "senior",
+        "architect",
+        "fresher"
+      ],
       "label": "6+ years",
       "range": "5-9 years of experience",
       "title": "Show production depth",
       "expect": "Interviewers assume you know the basics and go straight to why and what if. They want trade-offs, failures you've handled, how you tuned something, and how the parts of a service fit together. Expect at least one design discussion.",
       "advice": "Lead with Applied and Advanced. Revise Basics with the 60-second answers only. For each topic, prepare one real story from your own work, with numbers.",
-      "quota": { "fresher": 2, "mid": 10, "senior": 10, "architect": 2 },
+      "quota": {
+        "fresher": 2,
+        "mid": 10,
+        "senior": 10,
+        "architect": 2
+      },
       "focus": [
-        { "topic": "java-core", "weight": "core", "why": "The questions move to concurrency, JVM behaviour and collection internals." },
-        { "topic": "spring-boot", "weight": "core", "why": "Expect auto-configuration, transactions, data access performance and security." },
-        { "topic": "microservices", "weight": "core", "why": "Expect sagas, data ownership, resilience and how services communicate." },
-        { "topic": "kafka", "weight": "core", "why": "A very common topic: consumer groups, delivery guarantees, lag and scaling." },
-        { "topic": "rest-api", "weight": "core", "why": "Expect idempotency, versioning, error design and third-party integration." },
-        { "topic": "performance", "weight": "also", "why": "You may be asked how you would find and fix slowness, using real tools." },
-        { "topic": "production", "weight": "also", "why": "Expect to walk through how you would debug and resolve an incident." },
-        { "topic": "sql", "weight": "also", "why": "Query tuning, isolation levels and locking matter more at this level." },
-        { "topic": "architecture", "weight": "also", "why": "Expect at least one design round, such as a rate limiter or notification service." },
-        { "topic": "coding", "weight": "also", "why": "Many companies still give a coding round, so keep this current." },
-        { "topic": "testing", "weight": "also", "why": "Know your testing strategy, not only the syntax." },
-        { "topic": "nosql", "weight": "aware", "why": "Be able to explain when you would choose it and how you would model the data." },
-        { "topic": "cloud-devops", "weight": "aware", "why": "Know how your service is deployed and scaled." },
-        { "topic": "splunk-observability", "weight": "aware", "why": "Know how you would trace a problem across services." },
-        { "topic": "genai", "weight": "aware", "why": "Increasingly asked: know RAG, tool calling and MCP at a high level." }
+        {
+          "topic": "java-core",
+          "weight": "core",
+          "why": "The questions move to concurrency, JVM behaviour and collection internals."
+        },
+        {
+          "topic": "spring-boot",
+          "weight": "core",
+          "why": "Expect auto-configuration, transactions, data access performance and security."
+        },
+        {
+          "topic": "microservices",
+          "weight": "core",
+          "why": "Expect sagas, data ownership, resilience and how services communicate."
+        },
+        {
+          "topic": "kafka",
+          "weight": "core",
+          "why": "A very common topic: consumer groups, delivery guarantees, lag and scaling."
+        },
+        {
+          "topic": "rest-api",
+          "weight": "core",
+          "why": "Expect idempotency, versioning, error design and third-party integration."
+        },
+        {
+          "topic": "performance",
+          "weight": "also",
+          "why": "You may be asked how you would find and fix slowness, using real tools."
+        },
+        {
+          "topic": "production",
+          "weight": "also",
+          "why": "Expect to walk through how you would debug and resolve an incident."
+        },
+        {
+          "topic": "sql",
+          "weight": "also",
+          "why": "Query tuning, isolation levels and locking matter more at this level."
+        },
+        {
+          "topic": "architecture",
+          "weight": "also",
+          "why": "Expect at least one design round, such as a rate limiter or notification service."
+        },
+        {
+          "topic": "coding",
+          "weight": "also",
+          "why": "Many companies still give a coding round, so keep this current."
+        },
+        {
+          "topic": "testing",
+          "weight": "also",
+          "why": "Know your testing strategy, not only the syntax."
+        },
+        {
+          "topic": "nosql",
+          "weight": "aware",
+          "why": "Be able to explain when you would choose it and how you would model the data."
+        },
+        {
+          "topic": "cloud-devops",
+          "weight": "aware",
+          "why": "Know how your service is deployed and scaled."
+        },
+        {
+          "topic": "splunk-observability",
+          "weight": "aware",
+          "why": "Know how you would trace a problem across services."
+        },
+        {
+          "topic": "genai",
+          "weight": "aware",
+          "why": "Increasingly asked: know RAG, tool calling and MCP at a high level."
+        }
       ]
     },
     {
       "id": "senior",
-      "stage_order": ["architect", "senior", "mid", "fresher"],
-      "label": "12+ years",
-      "range": "10+ years of experience",
-      "title": "Lead with design and judgement",
-      "expect": "Interviewers test your judgement: what you would build, what you would refuse to build, and why. Expect open design problems, trade-offs, incidents you've led and how you influence teams. They still check the basics quickly, and a weak answer there hurts a senior candidate badly.",
-      "advice": "Most of your time goes to Design and Advanced. Keep a short Basics list and revise it with the 60-second answers. Practise out loud, and always state the trade-off and the numbers.",
-      "quota": { "fresher": 2, "mid": 4, "senior": 10, "architect": 10 },
+      "stage_order": [
+        "senior",
+        "architect",
+        "mid",
+        "fresher"
+      ],
+      "label": "Senior engineer",
+      "range": "10+ years, still hands-on",
+      "title": "Prove deep technical ownership",
+      "expect": "Interviewers want to see that you personally solve the hardest problems on the team. Expect deep questions on concurrency, JVM behaviour, performance and failures you've debugged, often with live code. You'll also get a design round, but they'll push into how the parts really work.",
+      "advice": "Most of your time goes to Advanced. Practise explaining how you found and fixed a real problem, with the tools and numbers. Stay sharp at coding, because many companies still test it at this level.",
+      "quota": {
+        "fresher": 2,
+        "mid": 6,
+        "senior": 14,
+        "architect": 4
+      },
       "focus": [
-        { "topic": "architecture", "weight": "core", "why": "The centre of the interview: open design problems, scaling and trade-offs." },
-        { "topic": "microservices", "weight": "core", "why": "Expect service boundaries, consistency, migrations and resilience at scale." },
-        { "topic": "performance", "weight": "core", "why": "You're expected to lead tuning with numbers: capacity, latency and JVM behaviour." },
-        { "topic": "production", "weight": "core", "why": "Expect incidents you've led, root-cause analysis and how you prevented repeats." },
-        { "topic": "kafka", "weight": "core", "why": "Event-driven design at scale: ordering, delivery guarantees and recovery." },
-        { "topic": "leadership", "weight": "core", "why": "Conflict, mentoring, estimates and technical decisions can decide a senior role." },
-        { "topic": "cloud-devops", "weight": "also", "why": "Expect deployment strategy, availability, disaster recovery and cost." },
-        { "topic": "spring-boot", "weight": "also", "why": "Quick depth checks, especially transactions and how the framework behaves in production." },
-        { "topic": "java-core", "weight": "also", "why": "Short but sharp checks on concurrency and JVM internals." },
-        { "topic": "rest-api", "weight": "also", "why": "API strategy: versioning, contracts and idempotency across teams." },
-        { "topic": "sql", "weight": "also", "why": "Data modelling, locking and scaling decisions." },
-        { "topic": "nosql", "weight": "also", "why": "Be able to justify the choice of data store for a design." },
-        { "topic": "genai", "weight": "also", "why": "Increasingly asked of senior engineers: reference architecture, guardrails and cost." },
-        { "topic": "coding", "weight": "aware", "why": "Some companies still include a coding round at this level, so stay in practice." },
-        { "topic": "testing", "weight": "aware", "why": "Focus on testing strategy and quality gates across teams." },
-        { "topic": "splunk-observability", "weight": "aware", "why": "Know what you would require teams to monitor." }
+        {
+          "topic": "java-core",
+          "weight": "core",
+          "why": "Expect sharp questions on concurrency, memory and collection internals."
+        },
+        {
+          "topic": "performance",
+          "weight": "core",
+          "why": "You're expected to find and fix slowness yourself, with real tools and numbers."
+        },
+        {
+          "topic": "production",
+          "weight": "core",
+          "why": "Expect to walk through incidents you've debugged, step by step."
+        },
+        {
+          "topic": "kafka",
+          "weight": "core",
+          "why": "Expect delivery guarantees, lag, rebalancing and tuning under load."
+        },
+        {
+          "topic": "spring-boot",
+          "weight": "core",
+          "why": "Expect transactions, proxies, data access performance and how the framework behaves in production."
+        },
+        {
+          "topic": "microservices",
+          "weight": "core",
+          "why": "Expect sagas, consistency and resilience, explained from real experience."
+        },
+        {
+          "topic": "architecture",
+          "weight": "also",
+          "why": "Expect a design round, with follow-ups into how each part really works."
+        },
+        {
+          "topic": "sql",
+          "weight": "also",
+          "why": "Expect query tuning, locking and isolation levels."
+        },
+        {
+          "topic": "rest-api",
+          "weight": "also",
+          "why": "Expect idempotency, error design and third-party failure handling."
+        },
+        {
+          "topic": "coding",
+          "weight": "also",
+          "why": "Many companies still give senior engineers a coding round, so keep this current."
+        },
+        {
+          "topic": "testing",
+          "weight": "also",
+          "why": "Know your testing strategy and what you'd insist on in a review."
+        },
+        {
+          "topic": "nosql",
+          "weight": "aware",
+          "why": "Be able to justify when you'd choose it and how you'd model the data."
+        },
+        {
+          "topic": "cloud-devops",
+          "weight": "aware",
+          "why": "Know how your service is deployed, scaled and recovered."
+        },
+        {
+          "topic": "splunk-observability",
+          "weight": "aware",
+          "why": "Know how you'd trace a problem across services."
+        },
+        {
+          "topic": "genai",
+          "weight": "aware",
+          "why": "Increasingly asked: know RAG, tool calling and MCP at a high level."
+        }
+      ]
+    },
+    {
+      "id": "architect",
+      "stage_order": [
+        "architect",
+        "senior",
+        "mid",
+        "fresher"
+      ],
+      "label": "Architect or lead",
+      "range": "12+ years, leads design and teams",
+      "title": "Lead with design and judgement",
+      "expect": "Interviewers test your judgement: what you would build, what you would refuse to build, and why. Expect open design problems, trade-offs, migrations, cost and how you influence teams. They rarely ask for detailed code, but they still check the basics quickly, and a weak answer there hurts badly.",
+      "advice": "Most of your time goes to Design. Keep a short Basics list and revise it with the 60-second answers. Practise out loud, and always state the trade-off, the numbers and what you'd do differently.",
+      "quota": {
+        "fresher": 1,
+        "mid": 3,
+        "senior": 8,
+        "architect": 12
+      },
+      "focus": [
+        {
+          "topic": "architecture",
+          "weight": "core",
+          "why": "The centre of the interview: open design problems, scaling and trade-offs."
+        },
+        {
+          "topic": "microservices",
+          "weight": "core",
+          "why": "Expect service boundaries, consistency, migrations and resilience at scale."
+        },
+        {
+          "topic": "cloud-devops",
+          "weight": "core",
+          "why": "Expect deployment strategy, availability, disaster recovery and cost."
+        },
+        {
+          "topic": "leadership",
+          "weight": "core",
+          "why": "Conflict, mentoring, estimates and technical decisions can decide this role."
+        },
+        {
+          "topic": "performance",
+          "weight": "also",
+          "why": "Expect capacity planning and how you'd set targets across teams."
+        },
+        {
+          "topic": "kafka",
+          "weight": "also",
+          "why": "Event-driven design at scale: ordering, delivery guarantees and recovery."
+        },
+        {
+          "topic": "production",
+          "weight": "also",
+          "why": "Expect incidents you've led, and how you prevented repeats."
+        },
+        {
+          "topic": "genai",
+          "weight": "also",
+          "why": "Increasingly asked of architects: reference architecture, guardrails and cost."
+        },
+        {
+          "topic": "rest-api",
+          "weight": "also",
+          "why": "API strategy: versioning, contracts and governance across teams."
+        },
+        {
+          "topic": "sql",
+          "weight": "also",
+          "why": "Data modelling and scaling decisions."
+        },
+        {
+          "topic": "nosql",
+          "weight": "also",
+          "why": "Be able to justify the choice of data store for a design."
+        },
+        {
+          "topic": "splunk-observability",
+          "weight": "aware",
+          "why": "Know what you would require teams to monitor."
+        },
+        {
+          "topic": "testing",
+          "weight": "aware",
+          "why": "Focus on testing strategy and quality gates across teams."
+        },
+        {
+          "topic": "spring-boot",
+          "weight": "aware",
+          "why": "Quick depth checks on the framework your teams use."
+        },
+        {
+          "topic": "java-core",
+          "weight": "aware",
+          "why": "Short but sharp checks that you still know the language."
+        }
       ]
     }
   ]
