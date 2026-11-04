@@ -10,7 +10,9 @@
     "/19-resume",
     "Why Nagarro",
     "equivalent to your",
-    "from your hackathon"
+    "from your hackathon",
+    "Tell me about yourself",
+    "what should a Lead say"
   ],
   "weights": {
     "core": 1.0,
