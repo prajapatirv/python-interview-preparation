@@ -8,24 +8,11 @@ import os
 import sys
 from pathlib import Path
 
+from prepkit.env import load_dotenv
+
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-
-def _load_dotenv(path: Path) -> None:
-    """Minimal KEY=VALUE loader. Real environment variables always win."""
-    if not path.is_file():
-        return
-    for raw in path.read_text(encoding="utf-8").splitlines():
-        line = raw.strip()
-        if not line or line.startswith("#") or "=" not in line:
-            continue
-        key, _, value = line.partition("=")
-        value = value.strip().strip('"').strip("'")
-        if value:
-            os.environ.setdefault(key.strip(), value)
-
-
-_load_dotenv(BASE_DIR / ".env")
+load_dotenv(BASE_DIR / ".env")                    # real environment variables always win
 
 # Folder that contains 01_python_core/, 02_concurrency/ ... (python-interview-prep/)
 PREP_ROOT = (BASE_DIR / os.getenv("PREP_ROOT", "../python-interview-prep")).resolve()

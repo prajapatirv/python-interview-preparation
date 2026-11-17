@@ -7,10 +7,11 @@
 
 ``AI_MODE=auto`` (default) uses claude when ANTHROPIC_API_KEY / ANTHROPIC_AUTH_TOKEN is set;
 ``claude`` or ``mock`` force one (``claude`` also works with an ``ant auth login`` profile).
+The rule is shared with pyprep-live: ``prepkit.llm.pick_provider``.
 """
-import asyncio
-import os
 import re
+
+from prepkit import llm
 
 from .. import config
 from . import bank, retrieve
@@ -72,11 +73,7 @@ Optionally add a final **Minimal config** section with at most 5 lines in a fenc
 
 
 def mode() -> str:
-    wanted = config.AI_MODE
-    has_key = bool(os.getenv("ANTHROPIC_API_KEY") or os.getenv("ANTHROPIC_AUTH_TOKEN"))
-    if wanted == "mock" or (wanted == "auto" and not has_key):
-        return "mock"
-    return "claude"
+    return llm.pick_provider(config.AI_MODE, keyless_claude=True)
 
 
 def status() -> dict:
@@ -289,10 +286,8 @@ def mock_answer(req: dict, ctx: dict) -> str:
 
 
 async def _stream_mock(req, ctx):
-    text = mock_answer(req, ctx)
-    for i in range(0, len(text), 48):
-        yield text[i:i + 48]
-        await asyncio.sleep(0.008)
+    async for chunk in llm.stream_text(mock_answer(req, ctx), 48, 0.008):
+        yield chunk
 
 
 # ---------------------------------------------------------------- claude provider

@@ -1,0 +1,9 @@
+# The build context is the whole workspace root; send only what the image needs.
+**
+!shared/prepkit/pyproject.toml
+!shared/prepkit/prepkit
+!interview-coach/requirements.txt
+!interview-coach/app
+!interview-coach/static
+!interview-coach/evals
+**/__pycache__

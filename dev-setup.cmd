@@ -12,6 +12,8 @@ if "%~1"=="--no-checks" exit /b 0
 set PY=%cd%\.venv\Scripts\python.exe
 set FAIL=0
 echo == ruff & "%PY%" -m ruff check . || set FAIL=1
+echo == prepkit & pushd shared\prepkit & "%PY%" -m pytest -q || set FAIL=1
+popd
 echo == interview-coach & pushd interview-coach & "%PY%" -m pytest -q || set FAIL=1
 popd
 echo == pyprep-live & pushd python\pyprep-live & "%PY%" -m pytest -q || set FAIL=1

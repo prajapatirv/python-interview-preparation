@@ -1,7 +1,8 @@
 @echo off
 rem Starts the Interview Coach in the background and opens the browser.
-rem   start.cmd              creates .venv, installs deps, runs uvicorn
-rem   start.cmd --install    force re-install of dependencies
+rem   start.cmd              native (default): creates .venv, installs deps, runs uvicorn
+rem   start.cmd docker       optional local Docker: docker compose up -d --build
+rem   start.cmd --install    force re-install of dependencies (native)
 rem Env (or .env): PORT (8100), ANTHROPIC_API_KEY, AI_MODE (auto|claude|mock), ANTHROPIC_MODEL, AI_EFFORT.
 rem With no API key the coach runs in offline mock mode.
 setlocal EnableExtensions EnableDelayedExpansion
@@ -9,11 +10,27 @@ cd /d "%~dp0"
 if "%PORT%"=="" set PORT=8100
 set "URL=http://127.0.0.1:%PORT%"
 set FORCE=0
-for %%A in (%*) do if /i "%%A"=="--install" set FORCE=1
+set MODE=native
+for %%A in (%*) do (
+  if /i "%%A"=="--install" set FORCE=1
+  if /i "%%A"=="docker" set MODE=docker
+)
 
 if not exist ".env" if exist ".env.example" (
   copy /y ".env.example" ".env" >nul
   echo Created .env from .env.example - put your ANTHROPIC_API_KEY there for the real AI coach.
+)
+
+if /i "%MODE%"=="docker" (
+  docker info >nul 2>&1 || (echo ERROR: Docker is not running. Start Docker Desktop, or run start.cmd without "docker". & exit /b 1)
+  echo Building and starting the container ^(first build takes a few minutes^)...
+  docker compose up -d --build || (echo ERROR: docker compose failed & exit /b 1)
+  powershell -NoProfile -Command "for($i=0;$i -lt 60;$i++){ try { Invoke-WebRequest -UseBasicParsing '%URL%/api/status' -TimeoutSec 2 | Out-Null; exit 0 } catch { Start-Sleep -Milliseconds 500 } }; exit 1"
+  if errorlevel 1 (echo ERROR: container did not become ready. & docker compose logs --tail 30 & exit /b 1)
+  echo.
+  echo Ready: %URL%   ^(Docker; stop with stop.cmd^)
+  start "" "%URL%"
+  exit /b 0
 )
 
 if exist ".run\app.pid" (

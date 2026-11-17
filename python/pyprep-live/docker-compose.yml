@@ -4,8 +4,8 @@
 services:
   live-runner:
     build:
-      context: ..
-      dockerfile: pyprep-live/Dockerfile
+      context: ../..                               # the workspace root, so the image can include shared/prepkit
+      dockerfile: python/pyprep-live/Dockerfile
     image: pyprep-live:local
     container_name: pyprep-live
     ports:

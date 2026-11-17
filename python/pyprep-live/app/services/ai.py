@@ -4,13 +4,15 @@
 - **mock**:   offline, deterministic answers built from the example's own source and captured
               log (docstring, outline, EXPERIMENT comments, exit status, errors). No network.
 
-AI_MODE=auto (default) uses claude when a key is present, otherwise mock; `claude` or `mock`
-force one. To add another provider (e.g. Bedrock `converse_stream`), add an async generator
-with the same signature and select it in `mode()`.
+AI_MODE=auto (default) uses claude when a key is present, otherwise mock; `mock` forces the mock,
+and `claude` without a key still falls back to it (shared rule: `prepkit.llm.pick_provider`).
+To add another provider (e.g. Bedrock `converse_stream`), add an async generator with the same
+signature and select it in `mode()`.
 """
-import asyncio
 import os
 import re
+
+from prepkit import llm
 
 from .. import config
 from .catalog import analyse_source
@@ -37,12 +39,8 @@ MODES = {
 
 
 def mode() -> str:
-    """The provider actually in use: 'claude' or 'mock'."""
-    wanted = os.getenv("AI_MODE", "auto").lower()
-    has_key = bool(os.getenv("ANTHROPIC_API_KEY"))
-    if wanted == "mock" or (wanted in ("auto", "claude") and not has_key):
-        return "mock"
-    return "claude"
+    """The provider actually in use: 'claude' or 'mock'. AI_MODE is read at call time (tests set it)."""
+    return llm.pick_provider(os.getenv("AI_MODE", "auto"))
 
 
 def available() -> bool:
@@ -110,10 +108,8 @@ def mock_answer(mode_: str, source: str, output: str, question: str = "") -> str
 
 
 async def _stream_mock(mode_, source, output, question):
-    text = mock_answer(mode_, source, output, question)
-    for i in range(0, len(text), 40):               # chunked so the UI streams like the real thing
-        yield text[i:i + 40]
-        await asyncio.sleep(0.01)
+    async for chunk in llm.stream_text(mock_answer(mode_, source, output, question), 40, 0.01):
+        yield chunk
 
 
 # ---------------------------------------------------------------- claude provider

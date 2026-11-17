@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 # Starts the Interview Coach in the background.
-#   ./start.sh              creates .venv, installs deps, runs uvicorn
-#   ./start.sh --install    force re-install of dependencies
+#   ./start.sh              native (default): creates .venv, installs deps, runs uvicorn
+#   ./start.sh docker       optional local Docker: docker compose up -d --build
+#   ./start.sh --install    force re-install of dependencies (native)
 # Env (or .env): PORT (8100), ANTHROPIC_API_KEY, AI_MODE (auto|claude|mock), ANTHROPIC_MODEL, AI_EFFORT.
 # With no API key the coach runs in offline mock mode.
 set -euo pipefail
@@ -9,16 +10,31 @@ cd "$(dirname "$0")"
 PORT="${PORT:-8100}"
 URL="http://127.0.0.1:${PORT}"
 FORCE=0
+MODE=native
 for arg in "$@"; do
   case "$arg" in
+    docker) MODE=docker ;;
     --install) FORCE=1 ;;
-    *) echo "unknown argument: $arg (use: --install)"; exit 2 ;;
+    *) echo "unknown argument: $arg (use: docker | --install)"; exit 2 ;;
   esac
 done
 
 if [ ! -f .env ] && [ -f .env.example ]; then
   cp .env.example .env
   echo "Created .env from .env.example - put your ANTHROPIC_API_KEY there for the real AI coach."
+fi
+
+if [ "$MODE" = docker ]; then
+  docker info >/dev/null 2>&1 || { echo 'ERROR: Docker is not running. Start it, or run ./start.sh without "docker".' >&2; exit 1; }
+  echo "Building and starting the container (first build takes a few minutes)..."
+  PORT="$PORT" docker compose up -d --build
+  for _ in $(seq 1 60); do
+    if curl -fsS -o /dev/null --max-time 2 "$URL/api/status" 2>/dev/null; then
+      echo; echo "Ready: $URL   (Docker; stop with ./stop.sh)"; exit 0
+    fi
+    sleep 0.5
+  done
+  echo "ERROR: container did not become ready." >&2; docker compose logs --tail 30; exit 1
 fi
 if [ -f .run/app.pid ] && kill -0 "$(cat .run/app.pid)" 2>/dev/null; then
   echo "Already running (PID $(cat .run/app.pid)): $URL   -- run ./stop.sh first to restart."

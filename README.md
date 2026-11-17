@@ -10,9 +10,21 @@ Interview preparation for **Java** and **Python** developers, from freshers to a
 | [`python/python-interview-prep/`](python/python-interview-prep/) | Python content: 14 hands-on topic folders, deep dives, question index |
 | [`python/pyprep-live/`](python/pyprep-live/) | Runs the Python examples in the browser |
 | [`shared/material_ref/`](shared/material_ref/) | Source PDFs |
+| [`shared/prepkit/`](shared/prepkit/) | Code both FastAPI apps share (`.env` loading, Claude or offline mock) |
 | [`scripts/`](scripts/) | Workspace checks: every example runs, `QUESTION_INDEX.md` links resolve |
 
 Plans: [`PLAN_INTERVIEW_COACH.md`](PLAN_INTERVIEW_COACH.md) (the coach and this layout), [`PLAN.md`](PLAN.md) (pyprep-live).
+
+## Running the apps
+
+Each app runs natively by default and needs only Python: `start.cmd` (Windows) or `./start.sh` creates its
+own `.venv` and starts the server; `stop.cmd` / `./stop.sh` stops it. Add `docker` to run the same app in a
+container instead (`start.cmd docker`); Docker is optional for both.
+
+| App | URL |
+|---|---|
+| `interview-coach/` | http://127.0.0.1:8100 |
+| `python/pyprep-live/` | http://127.0.0.1:8000 |
 
 ## Checking everything
 

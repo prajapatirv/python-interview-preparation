@@ -1,7 +1,9 @@
-# The build context is the whole repo root; send only what the image needs.
+# The build context is the whole workspace root; send only what the image needs.
 **
-!pyprep-live/requirements.txt
-!pyprep-live/requirements-examples.txt
-!pyprep-live/app
-!pyprep-live/static
+!shared/prepkit/pyproject.toml
+!shared/prepkit/prepkit
+!python/pyprep-live/requirements.txt
+!python/pyprep-live/requirements-examples.txt
+!python/pyprep-live/app
+!python/pyprep-live/static
 **/__pycache__

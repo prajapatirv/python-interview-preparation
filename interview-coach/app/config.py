@@ -2,22 +2,11 @@
 import os
 from pathlib import Path
 
+from prepkit.env import load_dotenv
+
 BASE_DIR = Path(__file__).resolve().parent.parent            # interview-coach/
 
-
-def _load_dotenv(path: Path) -> None:
-    """Minimal .env support (KEY=value lines); real environment variables win."""
-    if not path.is_file():
-        return
-    for line in path.read_text(encoding="utf-8").splitlines():
-        line = line.strip()
-        if line and not line.startswith("#") and "=" in line:
-            k, v = line.split("=", 1)
-            if v.strip():
-                os.environ.setdefault(k.strip(), v.strip().strip('"').strip("'"))
-
-
-_load_dotenv(BASE_DIR / ".env")
+load_dotenv(BASE_DIR / ".env")                               # real environment variables win
 
 WORKSPACE_ROOT = Path(os.getenv("COACH_ROOT", BASE_DIR.parent)).resolve()   # holds java/ and python/
 SKILLS_DIR = Path(os.getenv("COACH_SKILLS", BASE_DIR / "skills")).resolve()

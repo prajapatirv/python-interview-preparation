@@ -1,0 +1,28 @@
+# Optional local run in Docker (not for hosting): `start.cmd docker` / `./start.sh docker`, or
+#   docker compose up -d --build        (from this folder)
+# The default is the native run (start.cmd / ./start.sh) and needs no Docker.
+# Compose reads ./.env automatically for ${ANTHROPIC_API_KEY} etc. With no key the coach runs in mock mode.
+services:
+  interview-coach:
+    build:
+      context: ..                                  # the workspace root, so the image can include shared/prepkit
+      dockerfile: interview-coach/Dockerfile
+    image: interview-coach:local
+    container_name: interview-coach
+    ports:
+      - "127.0.0.1:${PORT:-8100}:8100"             # localhost only
+    volumes:
+      - ..:/content                                # java/, python/ and interview-coach/skills (saves write here)
+      - ./data:/data                               # attempts and saved answers (SQLite), same file as a native run
+    environment:
+      AI_MODE: "${AI_MODE:-auto}"
+      ANTHROPIC_API_KEY: "${ANTHROPIC_API_KEY:-}"
+      ANTHROPIC_MODEL: "${ANTHROPIC_MODEL:-claude-sonnet-5-5}"
+      AI_EFFORT: "${AI_EFFORT:-medium}"
+      COACH_ALLOW_SAVE: "${COACH_ALLOW_SAVE:-1}"
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request as u; u.urlopen('http://127.0.0.1:8100/api/status', timeout=3)"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    restart: "no"

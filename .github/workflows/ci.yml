@@ -28,6 +28,9 @@ jobs:
       - run: python -m pip install -r requirements-dev.txt
       - name: ruff
         run: ruff check .
+      - name: shared prepkit tests
+        working-directory: shared/prepkit
+        run: python -m pytest -q
       - name: interview-coach tests
         working-directory: interview-coach
         run: python -m pytest -q

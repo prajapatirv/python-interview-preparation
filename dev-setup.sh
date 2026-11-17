@@ -14,6 +14,7 @@ fi
 fail=0
 step() { echo "== $1"; shift; "$@" || fail=1; }
 step ruff                  "$PY" -m ruff check .
+step prepkit               bash -c "cd shared/prepkit && '$PY' -m pytest -q"
 step interview-coach       bash -c "cd interview-coach && '$PY' -m pytest -q"
 step pyprep-live           bash -c "cd python/pyprep-live && '$PY' -m pytest -q"
 step python-interview-prep bash -c "cd python/python-interview-prep && '$PY' -m pytest -q"

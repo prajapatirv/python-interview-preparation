@@ -15,6 +15,7 @@ java/javaprep-live/           zero-dependency Java runner for the Java examples
 python/python-interview-prep/ Python content: 14 topic folders, deep_dive/, QUESTION_INDEX.md
 python/pyprep-live/           FastAPI runner for the Python examples
 shared/material_ref/          source PDFs (read-only)
+shared/prepkit/               code both FastAPI apps share: .env loading, Claude/mock provider choice, mock streaming
 scripts/                      workspace checks: verify_examples.py, check_content.py
 PLAN.md                       design doc for pyprep-live   PLAN_INTERVIEW_COACH.md  design doc for the coach
 ```
@@ -41,6 +42,14 @@ override that. The sections below use project names
   See "Interview Coach" near the end of this file.
 - **`shared/material_ref/`** — the source interview-prep PDFs the notes are distilled from. Read-only
   reference; see `shared/material_ref/README.md` for which three of the six actually contain content.
+- **`shared/prepkit/`** — stdlib-only package used by `interview-coach` and `pyprep-live`. A local run
+  needs no install: each app's `app/__init__.py` adds this folder to `sys.path` when `prepkit` is not
+  importable. Docker images `pip install` it, which is why both Dockerfiles build from the **workspace
+  root**. Change provider rules in `prepkit/llm.py` once, not per app; `pick_provider(...,
+  keyless_claude=True)` is the coach's deliberate difference (an `ant auth login` profile works there).
+  Tests: `cd shared/prepkit && ../../.venv/Scripts/python.exe -m pytest -q`.
+- **Running the apps:** native is the default (`start.cmd` / `./start.sh`, own `.venv`, ports 8000 and
+  8100). Docker is optional for both (`start.cmd docker`); `stop` handles either.
 - The old scratch files (`scratch/`, `python-interview-prep/legacy_examples/`) and the
   `shared/java-interview-prep.zip` archive were removed on 2026-11-17; they remain in git history.
 - **`PLAN.md`** (workspace root) — the design document for `pyprep-live`: findings, options
