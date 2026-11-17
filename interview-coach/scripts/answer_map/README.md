@@ -31,10 +31,10 @@ pin the old id first with a `qid:` line (see the coach README, "Scenario answer 
 ## What is reviewed, and what changed since
 
 ```bash
-.venv/Scripts/python.exe scripts/review_status.py          # add --all for every bank file
+.venv/Scripts/python.exe scripts/review_status.py --changed   # add --all for every bank file
 ```
 
-Per bank file: how many answers are in a `reviewed/` batch, and `STALE` when the file was committed
-after the batch that reviewed its answers, so a read answer may have changed. Re-read that file's
-diff since the batch, then list the re-read ids in a new `reviewed/batchN.json` (the build ignores
-duplicates) and commit it to clear the flag.
+Per bank file: how many answers are in a `reviewed/` batch, and how many of those differ from their
+text at the commit of the batch that reviewed them. `--changed` lists them by id and title, and the
+script exits 1 while any exist. Re-read each one, then list the re-read ids in a new
+`reviewed/batchN.json` (the build ignores duplicates) and commit it to clear them.

@@ -392,7 +392,7 @@ below, or `Ctrl+F` for a specific keyword.
 - **Q:** What are `/` and `*` in a signature for?
   **A:** `/` ends positional-only parameters; `*` starts keyword-only ones. Keyword-only is how you keep
   a public API changeable and call sites readable — every boolean flag should be keyword-only.
-  → [14_python_basics_essentials.py:137](01_python_core/14_python_basics_essentials.py#L137)
+  → [14_python_basics_essentials.py:156](01_python_core/14_python_basics_essentials.py#L156)
 - **Q:** Why is `+=` on strings in a loop a performance bug?
   **A:** Strings are immutable, so each `+=` allocates and copies — O(n^2). Accumulate in a list and
   `"".join()` once, or use `io.StringIO`.
@@ -405,11 +405,11 @@ below, or `Ctrl+F` for a specific keyword.
 - **Q:** Are type hints enforced?
   **A:** Not at runtime. mypy/pyright enforce them in CI; Pydantic enforces them at the **boundary**
   (request bodies, config, events). Validate at the edges, trust inside.
-  → [14_python_basics_essentials.py:252](01_python_core/14_python_basics_essentials.py#L252)
+  → [14_python_basics_essentials.py:256](01_python_core/14_python_basics_essentials.py#L256)
 - **Q:** What does `-7 // 2` give, and why does it matter?
   **A:** `-4` — Python floors toward negative infinity (Java truncates to `-3`), and `%` takes the
   **divisor's** sign. It matters the moment you port a hash-based sharding or partitioning function.
-  → [14_python_basics_essentials.py:276](01_python_core/14_python_basics_essentials.py#L276)
+  → [14_python_basics_essentials.py:286](01_python_core/14_python_basics_essentials.py#L286)
 
 **`15_nested_exception_handling.py`**
 
@@ -524,7 +524,7 @@ below, or `Ctrl+F` for a specific keyword.
   **A:** No. `_name` is a convention; `__name` only NAME-MANGLES to `_Class__name` (to avoid
   accidental collisions in subclasses) and stays fully reachable. Python has no access control --
   the answer is a leading underscore and code review, not the compiler.
-  → [17_java_to_python_advanced.py:299](01_python_core/17_java_to_python_advanced.py#L299)
+  → [17_java_to_python_advanced.py:102](01_python_core/17_java_to_python_advanced.py#L102)
 - **Q:** What is the equivalent of a `sealed interface` plus an exhaustive `switch`?
   **A:** A union type alias (`Shape = Circle | Square`) plus `match`/`case`. `match` is real
   structural pattern matching (it destructures and binds), but there is no RUNTIME exhaustiveness
@@ -1018,7 +1018,7 @@ below, or `Ctrl+F` for a specific keyword.
 - **Q:** What's the actual pipeline shape of RAG, end to end?
   **A:** `embed(query)` → similarity search a vector DB for top-k chunks → inject them into the
   prompt → LLM generates grounded in that context, with citations back to the source chunks.
-  → [02_rag_pipeline_concept.py:79](10_genai_llm_patterns/02_rag_pipeline_concept.py#L79)
+  → [02_rag_pipeline_concept.py:66](10_genai_llm_patterns/02_rag_pipeline_concept.py#L66)
 - **Q:** What's the single most effective anti-hallucination prompt instruction?
   **A:** Explicitly telling the model it's ALLOWED to say "I don't have information about this" —
   removing the implicit pressure to always sound confident.
@@ -1189,7 +1189,7 @@ below, or `Ctrl+F` for a specific keyword.
   **A:** SIGTERM -> fail readiness (and sleep a few seconds so the LB notices) -> finish in-flight work ->
   flush the producer, commit offsets, close the pool -> exit 0, all inside
   `terminationGracePeriodSeconds`. Skip it and every deploy costs 502s and **lost** unflushed events.
-  → [01_zero_downtime_change.py:233](13_system_design_scenarios/01_zero_downtime_change.py#L233)
+  → [01_zero_downtime_change.py:316](13_system_design_scenarios/01_zero_downtime_change.py#L316)
 
 **`02_observability_pillars.py`**
 
@@ -1197,7 +1197,7 @@ below, or `Ctrl+F` for a specific keyword.
   **A:** Monitoring checks known signals against known thresholds — it answers questions you wrote in
   advance. Observability lets you answer **new** questions from the data you already emit, without
   shipping code.
-  → [02_observability_pillars.py:36](13_system_design_scenarios/02_observability_pillars.py#L36)
+  → [02_observability_pillars.py:520](13_system_design_scenarios/02_observability_pillars.py#L520)
 - **Q:** What are the three pillars, and why do you need all three?
   **A:** Metrics say *that* it is broken, logs say *what happened to this request*, traces say *where the
   time went*. And cardinality forces the split: a user ID cannot be a metric label, so high-cardinality
@@ -1232,7 +1232,7 @@ below, or `Ctrl+F` for a specific keyword.
   **A:** RED (Rate, Errors, Duration) for services; USE (Utilization, Saturation, Errors) for resources.
   **Saturation** is the leading indicator: a pool at 100% utilization with 0 waiters is fine, with 50
   waiters you are already failing and the latency graph has not caught up.
-  → [02_observability_pillars.py:259](13_system_design_scenarios/02_observability_pillars.py#L259)
+  → [02_observability_pillars.py:477](13_system_design_scenarios/02_observability_pillars.py#L477)
 
 **`03_capacity_scaling_tps.py`**
 
@@ -1444,7 +1444,7 @@ below, or `Ctrl+F` for a specific keyword.
   **A:** A branch skips everything downstream that is NOT reachable from the chosen branch
   (`skip_all_except`), and with the default `all_success` that skip CASCADES into the join. Give the
   join `trigger_rule="none_failed_min_one_success"`: tolerate the skip, still refuse on a failure.
-  → [04_failures_retries_and_trigger_rules.py:121](14_airflow_orchestration/04_failures_retries_and_trigger_rules.py#L121)
+  → [01_dag_anatomy_and_operators.py:175](14_airflow_orchestration/01_dag_anatomy_and_operators.py#L175)
 - **Q:** How do you alert, and how does an SLA actually behave?
   **A:** `on_failure_callback`/`on_retry_callback` in `default_args`, or a provider Notifier. An
   `sla` means "done within X OF THE DATA INTERVAL END", not X after the task started; it does not
