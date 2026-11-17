@@ -1,7 +1,12 @@
 """Phase B: both Store implementations satisfy one contract. The Supabase store runs against a small fake of
 PostgREST (filters ``eq.``/``gte.``, ``order``, ``Prefer: return=representation``), so request shapes are
-checked without a live project."""
+checked without a live project.
+
+The same tests also run against a real project when ``SUPABASE_TEST_URL`` and ``SUPABASE_TEST_SERVICE_KEY``
+are set (skipped otherwise). Use a throwaway project with ``supabase/schema.sql`` applied and no data: the tests
+expect empty tables, refuse to start when they are not, and delete every row afterwards."""
 import json
+import os
 
 import httpx
 import pytest
@@ -62,16 +67,28 @@ class FakePostgrest:
         raise AssertionError(request.method)
 
 
-@pytest.fixture(params=["sqlite", "supabase"])
+@pytest.fixture(params=["sqlite", "supabase", "supabase-live"])
 def store(request, tmp_path):
     if request.param == "sqlite":
-        return SqliteStore(tmp_path / "t.db")
-    fake = FakePostgrest()
-    client = httpx.Client(base_url="https://x.supabase.co/rest/v1", transport=httpx.MockTransport(fake),
-                          headers={"apikey": "k", "Authorization": "Bearer k"})
-    s = SupabaseStore("https://x.supabase.co", "k", client=client)
-    s.fake = fake
-    return s
+        yield SqliteStore(tmp_path / "t.db")
+    elif request.param == "supabase":
+        fake = FakePostgrest()
+        client = httpx.Client(base_url="https://x.supabase.co/rest/v1", transport=httpx.MockTransport(fake),
+                              headers={"apikey": "k", "Authorization": "Bearer k"})
+        s = SupabaseStore("https://x.supabase.co", "k", client=client)
+        s.fake = fake
+        yield s
+    else:
+        url, key = os.getenv("SUPABASE_TEST_URL", ""), os.getenv("SUPABASE_TEST_SERVICE_KEY", "")
+        if not (url and key):
+            pytest.skip("live Supabase: set SUPABASE_TEST_URL and SUPABASE_TEST_SERVICE_KEY")
+        s = SupabaseStore(url, key)
+        if s.all_attempts() or s.submissions():
+            pytest.fail("SUPABASE_TEST_URL has data; these tests delete every row, so use an empty project")
+        try:
+            yield s
+        finally:
+            s._call("DELETE", "attempts", params={"id": "gte.0"}, returning=False)   # cascades to submissions
 
 
 CHECK = {"claims": [{"text": "a", "verdict": "incorrect", "correction": "b", "source": "knowledge"}],

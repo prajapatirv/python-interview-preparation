@@ -4,6 +4,7 @@ Needs: pip install confluent-kafka, and a broker reachable at localhost:9092.
 Run me: python 02_consumer_basics.py   (run 01_producer_basics.py first, or concurrently)
 """
 import json
+import time
 
 try:
     from confluent_kafka import Consumer
@@ -11,6 +12,7 @@ except ImportError:
     Consumer = None
 
 
+# ---------------------------------------------------------------- consumer config: group, manual commit
 def build_consumer(group_id="order-processor"):
     return Consumer({
         "bootstrap.servers": "localhost:9092",
@@ -21,12 +23,14 @@ def build_consumer(group_id="order-processor"):
     })
 
 
+# ---------------------------------------------------------------- processing (must be idempotent)
 def process_order(order: dict):
     print(f"  processing order {order['order_id']} for {order['customer_id']} (${order['total']})")
     # ... real business logic would go here: charge payment, update inventory, etc.
     # If this raises, we must NOT commit the offset below -- see 03_delivery_semantics.py.
 
 
+# ---------------------------------------------------------------- poll loop, commit after processing
 def main():
     if Consumer is None:
         print("confluent-kafka not installed -- run `pip install confluent-kafka` to execute this.")
@@ -37,7 +41,6 @@ def main():
 
     print("polling for up to 10s (Ctrl+C to stop earlier)...")
     try:
-        import time
         deadline = time.time() + 10
         while time.time() < deadline:
             msg = consumer.poll(1.0)

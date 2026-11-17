@@ -7,8 +7,8 @@ policies in ``supabase/schema.sql`` protect the same tables if a browser ever ta
 Timestamps are epoch seconds (double precision) so rows are identical to the SQLite ones and
 ``scripts/migrate_sqlite_to_supabase.py`` can copy them unchanged.
 
-NOT exercised against a live project in this repo's tests (needs credentials): ``tests/test_supabase_store.py``
-checks the request shapes against a fake transport.
+``tests/test_stores.py`` checks it against a fake PostgREST transport, and against a real project when
+``SUPABASE_TEST_URL`` / ``SUPABASE_TEST_SERVICE_KEY`` point at an empty throwaway one (skipped otherwise).
 """
 import time
 

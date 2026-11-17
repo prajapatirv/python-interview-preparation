@@ -323,7 +323,7 @@ below, or `Ctrl+F` for a specific keyword.
   **A:** It leaks between tests, `+= 1` is not thread-safe, and it does not survive scaling out — an
   in-process rate limiter becomes 4 limiters on 4 pods. Module level is for immutable constants; use a
   `ContextVar` for per-request state.
-  → [12_variable_scope_namespaces.py:240](01_python_core/12_variable_scope_namespaces.py#L240)
+  → [12_variable_scope_namespaces.py:90](01_python_core/12_variable_scope_namespaces.py#L90)
 
 **`13_abstract_base_classes.py`**
 
@@ -605,11 +605,11 @@ below, or `Ctrl+F` for a specific keyword.
 - **Q:** Why isn't `counter += 1` safe across threads, and how do you fix it?
   **A:** It's a read-modify-write, not atomic — another thread can interleave between the read
   and the write. Fix with `threading.Lock`.
-  → [01_threading_demo.py:15](02_concurrency/01_threading_demo.py#L15) (fixed: [line 40](02_concurrency/01_threading_demo.py#L40))
+  → [01_threading_demo.py:15](02_concurrency/01_threading_demo.py#L15) (fixed: [line 68](02_concurrency/01_threading_demo.py#L68))
 - **Q:** How much does a `ThreadPoolExecutor` actually help with 10 blocking I/O calls?
   **A:** ~10x — the GIL is released during blocking I/O, so 10× 0.3s calls complete in ~0.3s
   total instead of 3s.
-  → [01_threading_demo.py:62](02_concurrency/01_threading_demo.py#L62)
+  → [01_threading_demo.py:101](02_concurrency/01_threading_demo.py#L101)
 
 **`02_multiprocessing_demo.py`**
 
@@ -759,11 +759,11 @@ below, or `Ctrl+F` for a specific keyword.
   **A:** The key is hashed to a partition — Kafka only guarantees ordering WITHIN a partition, so
   same-key messages (e.g. one customer's orders) always land on the same partition and stay
   ordered relative to each other.
-  → [01_producer_basics.py:35](06_kafka/01_producer_basics.py#L35)
+  → [01_producer_basics.py:51](06_kafka/01_producer_basics.py#L51)
 - **Q:** Why must you disable `enable.auto.commit` for a reliable consumer?
   **A:** Auto-commit fires on a timer regardless of whether your handler finished — commit
   manually AFTER successful processing instead (the at-least-once shape).
-  → [02_consumer_basics.py:30](06_kafka/02_consumer_basics.py#L30)
+  → [02_consumer_basics.py:21](06_kafka/02_consumer_basics.py#L21)
 - **Q:** At-most-once vs. at-least-once — where exactly does the commit go, and what fails each way?
   **A:** Commit BEFORE processing = at-most-once (a crash mid-processing LOSES the message
   forever); commit AFTER processing = at-least-once (a crash before commit causes a

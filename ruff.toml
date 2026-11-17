@@ -1,0 +1,39 @@
+# Lint for the whole workspace: run `ruff check .` from the root (CI does).
+# Rules are chosen to catch real bugs, not to restyle code. Many examples demonstrate a bug on
+# purpose (the mutable default, return-in-finally, shadowed built-ins), so their folder relaxes the
+# rules that would flag the lesson itself.
+target-version = "py312"
+line-length = 120
+
+[lint]
+select = [
+    "E9",     # syntax errors
+    "F",      # pyflakes: undefined names, unused imports and variables, redefinitions
+    "B",      # bugbear: likely bugs
+    "PLE",    # pylint errors
+]
+ignore = [
+    "F541",   # f-string without placeholders: style, harmless
+    "B007",   # unused loop variable: style
+    "B905",   # zip() without strict=: style here; lengths are equal by construction
+]
+
+[lint.per-file-ignores]
+# Teaching examples: unused names and redefinitions make a point; some bugs are the lesson.
+"python/python-interview-prep/**" = [
+    "F401",   # imported to show it exists
+    "F811",   # redefined to show the before/after
+    "F823",   # UnboundLocalError on purpose (12_variable_scope_namespaces)
+    "F841",   # assigned to show a value that is not used
+    "B006",   # the mutable default argument bug
+    "B008",   # FastAPI's Depends()/Header() in defaults
+    "B012",   # return in finally (08_exception_handling)
+    "B018",   # a bare expression evaluated for its side effect or to raise (descriptors, exceptions)
+    "B019",   # lru_cache on a method, shown with its trade-off
+    "B023",   # late-binding closures in loops (12_variable_scope_namespaces)
+    "B904",   # raise inside except without `from`, shown next to the chained version
+    "PLE0643",# an index error raised on purpose (15_nested_exception_handling)
+]
+# FastAPI apps: Depends()/Query() in argument defaults are the framework's idiom.
+"interview-coach/app/**" = ["B008"]
+"python/pyprep-live/app/**" = ["B008"]

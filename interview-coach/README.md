@@ -76,6 +76,16 @@ tags: rebalancing, static-membership, kip-848
 
 Levels: `fresher`, `mid`, `senior`, `architect` (crib levels basic/intermediate/advanced/design map onto them).
 
+A question's id is a hash of its stack, file, label and title, so retitling it resets browser progress and
+breaks any `reviewed/` entry for the Answer Map. To retitle without losing either, first pin the current id with
+an optional `qid:` line next to `tags:` (lowercase letters, digits and hyphens, 3-64 characters):
+
+```markdown
+### Q12 [senior] How do you handle consumer-group rebalancing in production?
+tags: rebalancing, static-membership, kip-848
+qid: 3f9a1c2b7d40
+```
+
 ## Architecture
 
 ```text

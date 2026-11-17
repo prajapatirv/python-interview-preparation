@@ -1,0 +1,10 @@
+# One environment that runs every Python check in the workspace:
+#   the three test suites, the example verifier, the content checks and ruff.
+# Created by dev-setup.cmd / dev-setup.sh, and used by CI (.github/workflows/ci.yml).
+# Each app still has its own requirements.txt for running it on its own.
+-r interview-coach/requirements-dev.txt
+-r python/pyprep-live/requirements-dev.txt
+-r python/pyprep-live/requirements-examples.txt
+
+pytest-cov>=5.0         # pytest --cov in python-interview-prep (see its README)
+ruff>=0.6               # lint; config in ruff.toml

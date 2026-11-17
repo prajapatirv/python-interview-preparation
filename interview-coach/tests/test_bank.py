@@ -55,3 +55,13 @@ def test_index_bullets():
 
 def test_stable_id_is_deterministic():
     assert bank.stable_id("a", "b") == bank.stable_id("a", "b") != bank.stable_id("a", "c")
+
+
+def test_pinned_qid_is_read_in_either_order_and_kept_out_of_the_body():
+    text = ("### Q1 [senior] First?\nqid: kafka-lag-spike\ntags: kafka, lag\n\n**The live scenario**\nx\n\n"
+            "### Q2 [mid] Second?\ntags: a\n\nbody\n\n"
+            "### Q3 [mid] Third?\nqid: Not Valid!\n\nbody\n")
+    q1, q2, q3 = bank.parse_questions(text)[2]
+    assert q1["qid"] == "kafka-lag-spike" and q1["tags"] == ["kafka", "lag"] and "qid" not in q1["body"]
+    assert "qid" not in q2
+    assert "qid" not in q3 and q3["body"].startswith("qid: Not Valid!")   # malformed: left as text, not an id

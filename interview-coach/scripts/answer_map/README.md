@@ -25,4 +25,16 @@ company-specific text that suits the coach but not a page other people will read
 The build prints what to check: plan anchors without an answer, dead in-page links and leftover
 words. All three lists should be empty or match what you expect. Private words to check for go in
 `out/banned.txt`, one per line, which git ignores. Retitling a question changes its
-id, so `tests/test_real_repo.py` fails until the id in `reviewed/` is updated.
+id, so `tests/test_real_repo.py` fails until the id in `reviewed/` is updated. To retitle without that,
+pin the old id first with a `qid:` line (see the coach README, "Scenario answer format").
+
+## What is reviewed, and what changed since
+
+```bash
+.venv/Scripts/python.exe scripts/review_status.py          # add --all for every bank file
+```
+
+Per bank file: how many answers are in a `reviewed/` batch, and `STALE` when the file was committed
+after the batch that reviewed its answers, so a read answer may have changed. Re-read that file's
+diff since the batch, then list the re-read ids in a new `reviewed/batchN.json` (the build ignores
+duplicates) and commit it to clear the flag.

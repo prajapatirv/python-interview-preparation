@@ -7,7 +7,6 @@ Needs: pip install confluent-kafka, and a broker reachable at localhost:9092
 Run me: python 01_producer_basics.py
 """
 import json
-import time
 
 try:
     from confluent_kafka import Producer
@@ -15,6 +14,7 @@ except ImportError:
     Producer = None  # allows this file to be read/imported without the dependency installed
 
 
+# ---------------------------------------------------------------- producer config: idempotence, batching
 def build_producer():
     return Producer({
         "bootstrap.servers": "localhost:9092",
@@ -24,6 +24,7 @@ def build_producer():
     })
 
 
+# ---------------------------------------------------------------- delivery callbacks
 def on_delivery(err, msg):
     """Called from inside producer.poll()/flush() -- NOT synchronously from produce()."""
     if err:
@@ -32,6 +33,7 @@ def on_delivery(err, msg):
         print(f"  delivered to {msg.topic()} [partition {msg.partition()}] @ offset {msg.offset()}")
 
 
+# ---------------------------------------------------------------- keyed produce + flush
 def main():
     if Producer is None:
         print("confluent-kafka not installed -- run `pip install confluent-kafka` to execute this.")

@@ -262,7 +262,7 @@ class Library:
         for q in qs:
             q.update(kind=kind, stack=stack.id, topic=t.id, source=rel,
                      level=q["level"] or KIND_LEVEL_DEFAULT[kind],
-                     id=bank.stable_id(stack.id, rel, q["label"], q["title"]))
+                     id=q.get("qid") or bank.stable_id(stack.id, rel, q["label"], q["title"]))
             t.questions.append(q)
         if count_source:
             stack.sources.append({"path": rel, "kind": kind, "topic": t.id, "questions": len(qs)})

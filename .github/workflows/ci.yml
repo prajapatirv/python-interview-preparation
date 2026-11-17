@@ -1,0 +1,56 @@
+# Runs every check the workspace has, on each push to main and on pull requests.
+# Locally, the same steps are: dev-setup.cmd (or ./dev-setup.sh), then the commands below.
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  python:
+    # Windows on purpose: the cp1252 output encoding and the runner's process groups are Windows behaviour.
+    runs-on: windows-latest
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.14"
+          cache: pip
+          cache-dependency-path: |
+            requirements-dev.txt
+            interview-coach/requirements*.txt
+            python/pyprep-live/requirements*.txt
+      - run: python -m pip install -r requirements-dev.txt
+      - name: ruff
+        run: ruff check .
+      - name: interview-coach tests
+        working-directory: interview-coach
+        run: python -m pytest -q
+      - name: pyprep-live tests
+        working-directory: python/pyprep-live
+        run: python -m pytest -q
+      - name: python-interview-prep tests
+        working-directory: python/python-interview-prep
+        run: python -m pytest -q
+      - name: stdlib examples exit 0 with cp1252 output
+        run: python scripts/verify_examples.py
+      - name: QUESTION_INDEX line links
+        run: python scripts/check_content.py
+
+  java:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+      - name: Java examples exit 0
+        run: bash java/java-interview-prep/verify_examples.sh
+      - name: javaprep-live compiles
+        run: javac -d "$RUNNER_TEMP/javaprep" java/javaprep-live/JavaPrepLive.java

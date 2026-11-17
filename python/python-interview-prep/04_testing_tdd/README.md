@@ -34,7 +34,7 @@ Needs `pytest` (`pip install -r ../requirements.txt`). Run with `pytest` from th
 cd 04_testing_tdd
 pytest -v                      # run everything, verbose
 pytest -v -k "empty"           # run only tests whose name matches "empty"
-pytest --cov=src --cov-report=term-missing   # needs pytest-cov: pip install pytest-cov
+pytest --cov=src --cov-report=term-missing   # pytest-cov is in requirements.txt
 ```
 
 ## Exercise

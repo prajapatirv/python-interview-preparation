@@ -1,6 +1,5 @@
 """Phase E: the improvement dashboard numbers and the checker eval harness."""
 import asyncio
-import json
 
 import pytest
 

@@ -121,7 +121,7 @@ async def ask_ai(req: AiRequest, request: Request):
     try:
         ctx = ai.build_context(lib(request), body)
     except ValueError as e:
-        raise HTTPException(400, str(e))
+        raise HTTPException(400, str(e)) from e
     if req.mode in ("explain", "basics") and ctx["question"] is None:
         raise HTTPException(400, f"{req.mode} needs a question_id")
     refs = [{"id": r["id"], "title": r["title"], "kind": r["kind"], "topic": r["topic"]} for r in ctx["refs"]]
@@ -174,7 +174,7 @@ async def check_my_answer(req: CheckRequest, request: Request, user: auth.User =
     try:
         result = await checker.check_answer(lib(request), req.model_dump())
     except ValueError as e:
-        raise HTTPException(400, str(e))
+        raise HTTPException(400, str(e)) from e
     q = lib(request).question(req.question_id) if req.question_id else None
     return store(request).add_attempt(
         question_id=req.question_id or "free:" + req.text.strip()[:60], stack=req.stack,
@@ -256,7 +256,7 @@ def review(submission_id: int, body: ReviewRequest, request: Request, user: auth
     try:
         path = lib(request).add_alternative(sub["question_id"], body.angle.strip() or sub["angle"], sub["answer_text"])
     except ValueError as e:
-        raise HTTPException(400, str(e))
+        raise HTTPException(400, str(e)) from e
     request.app.state.library.reload()
     return store(request).review_submission(submission_id, "promoted", note=body.note, reviewer_id=user.id,
                                             promoted_to=path)
@@ -301,7 +301,7 @@ def save_question(req: SaveRequest, request: Request):
         path = lib(request).save_question(req.stack, req.topic, q["level"] or "senior", q["title"], q["body"],
                                           q["tags"] + ["ai-draft"])
     except ValueError as e:
-        raise HTTPException(400, str(e))
+        raise HTTPException(400, str(e)) from e
     request.app.state.library.reload()
     return {"saved_to": path}
 

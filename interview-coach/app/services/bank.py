@@ -27,6 +27,8 @@ INDEX_Q_RE = re.compile(r"^\s*-\s+\*\*Q:\*\*\s*(.*)$")
 INDEX_A_RE = re.compile(r"^\s*\*\*A:\*\*\s*(.*)$")
 SECTION_RE = re.compile(r"^\*\*([^*]+?)\*\*\s*(?:\(.*\))?\s*$")
 TAGS_RE = re.compile(r"^tags:\s*(.*)$", re.I)
+# optional pinned id ("qid: kafka-lag-spike"): keeps browser progress when the question is retitled
+QID_RE = re.compile(r"^qid:\s*([a-z0-9][a-z0-9-]{2,63})\s*$")
 
 # Canonical keys for the scenario sections, matched on a prefix of the label.
 SECTION_KEYS = [
@@ -148,8 +150,14 @@ def _finish(q: dict) -> None:
     lines = q.pop("lines")
     while lines and not lines[0].strip():
         lines.pop(0)
-    if lines and (t := TAGS_RE.match(lines[0])):
-        q["tags"] = [s.strip().lower() for s in t.group(1).split(",") if s.strip()]
+    # ``tags:`` and ``qid:`` may follow the heading in either order
+    while lines:
+        if t := TAGS_RE.match(lines[0]):
+            q["tags"] = [s.strip().lower() for s in t.group(1).split(",") if s.strip()]
+        elif m := QID_RE.match(lines[0]):
+            q["qid"] = m.group(1)
+        else:
+            break
         lines.pop(0)
     # a trailing horizontal rule belongs to the file layout, not the answer
     while lines and lines[-1].strip() in ("", "---"):

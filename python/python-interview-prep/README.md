@@ -54,7 +54,6 @@ without any infra when you just want to see the pattern.
 | `14_airflow_orchestration/` | **Airflow**: DAG keywords & operators, data intervals/catchup/backfill, TaskFlow & XCom, dynamic task mapping, trigger rules, retries, sensors, pools — on a stdlib mini-Airflow | Yes |
 | `13_system_design_scenarios/` | **zero-downtime production changes**, **observability** (metrics/logs/traces/SLO), **scaling 100 → 600 TPS**, **AI leverage & customer-impact stories** | Yes |
 | `deep_dive/` | **34 long-form Q&A documents** — the full answers behind every crib sheet | — (reading) |
-| `legacy_examples/` | your original scratch files, kept as-is for reference | — |
 
 ## Source material
 

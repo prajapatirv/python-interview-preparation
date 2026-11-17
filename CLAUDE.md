@@ -14,13 +14,14 @@ java/java-interview-prep/     Java content: examples, deep_dive/, topics/ crib s
 java/javaprep-live/           zero-dependency Java runner for the Java examples
 python/python-interview-prep/ Python content: 14 topic folders, deep_dive/, QUESTION_INDEX.md
 python/pyprep-live/           FastAPI runner for the Python examples
-shared/material_ref/          source PDFs (read-only)      shared/java-interview-prep.zip  archive
-scratch/Java/, scratch/example/   unstructured scratch files
+shared/material_ref/          source PDFs (read-only)
+scripts/                      workspace checks: verify_examples.py, check_content.py
 PLAN.md                       design doc for pyprep-live   PLAN_INTERVIEW_COACH.md  design doc for the coach
 ```
 
-Each live app finds its content as a **sibling folder** (`../python-interview-prep`, `../java-interview-prep`),
-so an app and its content must always move together. The sections below use project names
+Each live app finds its content as a **sibling folder** (`../python-interview-prep`, `../java-interview-prep`)
+by default, so an app and its content move together; `PREP_ROOT`, `JAVAPREP_ROOT` and `COACH_ROOT`
+override that. The sections below use project names
 (`python-interview-prep/`, `pyprep-live/`, ...) relative to their technology folder.
 
 - **`python-interview-prep/`** — the content project: a hands-on Python interview-prep lab with 14
@@ -40,17 +41,16 @@ so an app and its content must always move together. The sections below use proj
   See "Interview Coach" near the end of this file.
 - **`shared/material_ref/`** — the source interview-prep PDFs the notes are distilled from. Read-only
   reference; see `shared/material_ref/README.md` for which three of the six actually contain content.
-- **`scratch/Java/`**, **`python-interview-prep/legacy_examples/`**, **`scratch/example/`** — unstructured
-  scratch files with no build system or tests. Reference material only, not code to maintain to the
-  same standard.
+- The old scratch files (`scratch/`, `python-interview-prep/legacy_examples/`) and the
+  `shared/java-interview-prep.zip` archive were removed on 2026-11-17; they remain in git history.
 - **`PLAN.md`** (workspace root) — the design document for `pyprep-live`: findings, options
   considered, phases. Its section 13 records what was actually built. `pyprep-live/PLAN.md` is the
   project-local copy. **`PLAN_INTERVIEW_COACH.md`** is the plan for the coach and the restructure.
 
 Unless told otherwise, assume `python/python-interview-prep/` is the working root for Python work.
 
-**Windows gotcha:** the filesystem is case-insensitive, so `java/` and the old scratch folder `Java/`
-collide — that is why scratch lives under `scratch/`. Don't create a top-level `Java/` again.
+**Windows gotcha:** the filesystem is case-insensitive, so a top-level `Java/` would collide with
+`java/`. Don't create one.
 
 ## Interpreter: use `py`, not `python`
 
@@ -58,21 +58,33 @@ collide — that is why scratch lives under `scratch/`. Don't create a top-level
 Launcher **`py`** is. The system interpreter is **CPython 3.14**. Several version-sensitive notes
 below depend on that.
 
-**There is no `.venv` in `python-interview-prep/`, and `pytest` is not installed for the system
-interpreter.** Two options:
+**`pytest` is not installed for the system interpreter.** Use the **workspace venv** at the root: one
+environment (`requirements-dev.txt`) that runs all three Python suites, the example verifier and ruff.
 
 ```bash
-# A. create one (what the project README tells a learner to do)
-cd python/python-interview-prep
-py -m venv .venv
-source .venv/Scripts/activate     # Git Bash on Windows
-pip install -r requirements.txt   # see the file for which folder needs which extra
-
-# B. borrow pyprep-live's venv, which already has pytest + fastapi + pandas (fastest for a one-off)
-../pyprep-live/.venv/Scripts/python.exe -m pytest -q
+dev-setup.cmd                  # Windows (./dev-setup.sh in Git Bash): creates .venv, installs, runs every check
+dev-setup.cmd --no-checks      # install only
+.venv/Scripts/python.exe -m pytest -q     # then, from any project folder: ../.venv or ../../.venv
 ```
 
+`dev-setup` runs the same steps as CI (`.github/workflows/ci.yml`: Windows + Python 3.14 for the Python
+checks, Ubuntu + JDK 21 for the Java examples). Each app still has its own `requirements.txt` and
+`start` script for running it on its own.
+
 ## Commands
+
+### Checks for the whole workspace
+
+```bash
+.venv/Scripts/ruff.exe check .               # lint; rules in ruff.toml (bug-finding only, no formatter)
+.venv/Scripts/python.exe scripts/verify_examples.py            # all 59 stdlib examples exit 0
+.venv/Scripts/python.exe scripts/verify_examples.py 06_kafka   # only paths containing the text
+.venv/Scripts/python.exe scripts/check_content.py              # QUESTION_INDEX.md line links
+```
+
+`ruff.toml` relaxes several rules for `python-interview-prep/**` because the lesson *is* the flagged
+code (mutable defaults, return-in-finally, `UnboundLocalError`, late-binding closures). Don't
+"fix" those to quiet ruff; add the rule to the per-file ignores with a comment instead.
 
 ### Tests — `python-interview-prep/`
 
@@ -85,14 +97,14 @@ pytest                                   # the whole suite (folders 04, 05, 11)
 pytest 11_coding_challenges -v
 pytest 11_coding_challenges/01_anagram_grouping.py::test_sorted_key -v   # a single test
 pytest -k "empty"                        # every test whose name matches
-pytest --cov=src --cov-report=term-missing   # needs pytest-cov (not in requirements.txt)
+pytest --cov=src --cov-report=term-missing   # pytest-cov is in requirements.txt and the workspace venv
 ```
 
 ### Tests — `pyprep-live/`
 
 ```bash
 cd python/pyprep-live
-.venv/Scripts/python.exe -m pytest -q          # 32 tests
+.venv/Scripts/python.exe -m pytest -q          # 34 tests
 .venv/Scripts/python.exe -m pytest tests/test_real_repo.py -q   # integration vs the real prep repo
 ```
 
@@ -133,8 +145,6 @@ py 02_consumer_basics.py       # in a second terminal
 docker compose -f docker-compose.kafka.yml down -v
 ```
 
-There is **no lint/format tooling** configured in either project.
-
 ## The cross-project contract
 
 `pyprep-live` builds its catalog by **scanning `python-interview-prep` with `ast` + regex**
@@ -150,10 +160,16 @@ There is **no lint/format tooling** configured in either project.
    `](../folder/file)`. Reformat those tables and every example silently loses its deep-dive link.
 3. **`# ---- section` banners** become the clickable outline in the UI. Files without them fall back
    to parsing `=====` banners out of the log.
-4. **`pyprep-live/tests/test_real_repo.py` hardcodes the topic count** (currently `== 14`). **Adding
-   a numbered folder to the content project breaks that test until you bump it** — it is a
-   deliberate canary against the catalog silently losing a folder, so update it rather than
-   loosening it.
+4. **`pyprep-live/tests/test_real_repo.py` enforces all three**: the catalog's topics must equal the
+   numbered folders on disk (counted without the catalog's regex, floor 14), every `deep_dive/NN_*.md`
+   must have a row that `ROW_RE` parses with links that resolve, and every numbered example must have
+   an outline. Adding a folder needs no test change; a failure means the contract broke, so fix the
+   content rather than loosening the test.
+
+`QUESTION_INDEX.md` links to exact lines (`→ [file.py:42](folder/file.py#L42)`), so **editing an
+example shifts the lines its index entries point at**. `scripts/check_content.py` catches links that
+fall past the end of the file or onto a blank line, but not a link that now points at the wrong
+non-blank line: after editing an example, grep the index for its name and re-check those links.
 
 A file prefixed with `_` (e.g. `14_airflow_orchestration/_mini_airflow.py`) is still listed as an
 example by the catalog, with zero sections. Harmless, but don't be surprised by it.
@@ -185,19 +201,12 @@ container, a mini-Airflow) that mirror the real library's API shape exactly, so 
 visible without provisioning infrastructure. Only `03_pandas_data_handling/`,
 `05_web_apis_fastapi/` and (optionally) `06_kafka/01`–`02` need real external packages or services.
 
-All **59 stdlib-only examples** are expected to exit 0. Verify with:
+All **59 stdlib-only examples** are expected to exit 0. Verify with
+`.venv/Scripts/python.exe scripts/verify_examples.py` (from the workspace root; ~30s, 4 in parallel).
 
-```bash
-cd python/python-interview-prep
-for f in 01_python_core/*.py 02_concurrency/*.py 06_kafka/0[3-8]*.py 07_caching_queues/*.py \
-         08_scaling_production_resilience/*.py 09_aws_lambda_streaming/*.py \
-         10_genai_llm_patterns/*.py 11_coding_challenges/*.py 12_framework_internals/*.py \
-         13_system_design_scenarios/*.py 14_airflow_orchestration/0*.py; do
-  py "$f" >/dev/null 2>&1 && echo "ok   $f" || echo "FAIL $f"
-done
-```
-
-The redirection is the point — it is what catches the cp1252 problem above. Notes:
+It pipes stdout and sets `PYTHONIOENCODING=cp1252`, which is what catches the cp1252 problem above —
+on Linux CI too, where a plain redirect would use UTF-8 and hide it. Its glob list and `EXPECTED = 59`
+live at the top of the script: **adding a stdlib example means raising `EXPECTED`**. Notes:
 
 - `02_concurrency/01_threading_demo.py` and `01_python_core/11_java_to_python_bridge.py` take ~7s
   each, from deliberate `sleep`-driven race demos.
@@ -404,7 +413,8 @@ without a key). Full detail in `interview-coach/README.md`; research notes in `i
 ```bash
 cd interview-coach
 ./start.sh                                  # Windows: start.cmd -> http://127.0.0.1:8100 ; stop: ./stop.sh
-.venv/Scripts/python.exe -m pytest          # 74 tests, incl. tests/test_real_repo.py against the real content
+.venv/Scripts/python.exe -m pytest          # 79 (75 run, 4 live-Supabase skipped), incl. tests/test_real_repo.py
+.venv/Scripts/python.exe scripts/review_status.py   # which answers were read for the Answer Map, and which changed since
 ```
 
 - **Content is file-driven.** `skills/<stack>/_persona.md` (stack, content root, mixed `guides`, Python
@@ -459,7 +469,11 @@ cd interview-coach
   into the bank file as `**Another strong answer (<angle>)**` (`bank.alternatives()`). Evidence lives in SQLite
   (`data/coach.db`, gitignored) or Supabase; **truth stays in Markdown in git**. `scripts/run_eval.py` gates checker
   prompt/model changes on `evals/checker_cases.json`; its case titles must exist in the bank (canary test).
-  Supabase store and auth are tested only against a fake PostgREST, never a live project.
+  The Supabase store's contract tests run against a fake PostgREST, and also against a live project when
+  `SUPABASE_TEST_URL` / `SUPABASE_TEST_SERVICE_KEY` are set (an empty throwaway project: the tests delete every
+  row). Auth is tested only against the fake.
 - AI: `ANTHROPIC_MODEL` defaults to `claude-sonnet-5-5` (the user's choice), `AI_EFFORT=medium`, system prompt
   cached per topic, server-side refusal fallback on. Question ids are a hash of (stack, source, label, title),
-  so browser progress survives re-ordering but not retitling.
+  so browser progress survives re-ordering but not retitling — **unless the question has a `qid:` line** next to
+  `tags:`, which pins the id. Before retitling a question, add `qid: <its current id>` so progress and the
+  Answer Map's `reviewed/` entry survive.
