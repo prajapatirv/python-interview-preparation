@@ -44,7 +44,7 @@ Every file follows the same shape:
 | # | Topic | Runnable companion |
 |---|---|---|
 | [09](09_pandas.md) | **Pandas for data handling** | [`03_pandas_data_handling/`](../03_pandas_data_handling/) |
-| [10](10_web_frameworks.md) | **Django / Flask / FastAPI** (FastAPI in depth) | [`05_web_apis_fastapi/`](../05_web_apis_fastapi/) |
+| [10](10_web_frameworks.md) | **Django / Flask / FastAPI** (FastAPI in depth) | [`05_web_apis_fastapi/`](../05_web_apis_fastapi/) · [`05_jwt_and_password_hashing.py`](../12_framework_internals/05_jwt_and_password_hashing.py) |
 | [11](11_python_framework_development.md) | **Python framework development** | [`12_framework_internals/`](../12_framework_internals/) |
 | [12](12_scaling_applications.md) | **Scaling applications & handling challenges** | [`08_scaling_production_resilience/`](../08_scaling_production_resilience/) |
 | [30](30_large_file_processing.md) | **Handling a 100GB file** — streaming, external sort, dedupe, parallel chunks, resume | [`03_large_file_processing.py`](../09_aws_lambda_streaming/03_large_file_processing.py) |

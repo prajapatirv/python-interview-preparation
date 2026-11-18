@@ -485,6 +485,13 @@ async def delete_order(oid: int, user=Depends(require_role("admin"))):
 - **For enterprise SSO** (Cognito, Keycloak, Azure AD, Auth0) you don't hold a shared secret — fetch
   the IdP's **JWKS**, cache it, and verify with the matching public key by `kid`.
 - **Validate `exp`, `aud` and `iss`**, not just the signature.
+- **Store passwords with a slow, salted hash** (argon2, bcrypt, scrypt, or PBKDF2 at 600,000
+  iterations), never plain SHA-256, and re-hash on login when you raise the cost.
+
+To see every one of these happen, run
+[`05_jwt_and_password_hashing.py`](../12_framework_internals/05_jwt_and_password_hashing.py): a JWT signed
+and verified with the standard library, five attacks rejected one by one, and password hashes timed against
+plain SHA-256. It is the Python twin of the Java Spring Security example.
 
 **The `Header(...)` gotcha this repo documents** — and it catches people in interviews: a required
 `Header(...)` with no default fails **FastAPI's own validation with 422** if the header is *missing

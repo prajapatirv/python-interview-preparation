@@ -1155,6 +1155,50 @@ below, or `Ctrl+F` for a specific keyword.
   **A:** A missing `DB_URL` or a typo'd `WORKER=8` should crash the process at boot, in staging,
   with a message naming the problem — not silently use a default and surface at 3am.
 
+**`05_jwt_and_password_hashing.py`**
+
+- **Q:** Is a JWT encrypted? What does the signature actually protect?
+  **A:** No: header and payload are only Base64URL-encoded, so anyone can read them. The HMAC (or
+  RSA/EC) signature proves the token was not edited and was issued by a key holder. Never put
+  secrets or personal data in the payload.
+  → [05_jwt_and_password_hashing.py:47](12_framework_internals/05_jwt_and_password_hashing.py#L47)
+- **Q:** What is the `alg: none` attack, and how do you stop it?
+  **A:** The attacker rewrites the header to `none` (or swaps RS256 for HS256 with the public key as
+  the secret) and hopes the server trusts the header. Pin the algorithm on the server: with PyJWT,
+  `jwt.decode(token, key, algorithms=["HS256"])`.
+  → [05_jwt_and_password_hashing.py:61](12_framework_internals/05_jwt_and_password_hashing.py#L61)
+- **Q:** Why compare signatures with `hmac.compare_digest` instead of `==`?
+  **A:** `==` stops at the first differing byte, so response timing leaks how much of a forged
+  signature was right. `compare_digest` takes the same time either way (Java: `MessageDigest.isEqual`).
+  → [05_jwt_and_password_hashing.py:64](12_framework_internals/05_jwt_and_password_hashing.py#L64)
+- **Q:** Beyond the signature, what must you verify?
+  **A:** `exp` (and `nbf`), plus `iss` and `aud`, so a valid token for another API or from another
+  issuer is rejected. Check the signature first and trust nothing in the payload until it passes.
+  → [05_jwt_and_password_hashing.py:67](12_framework_internals/05_jwt_and_password_hashing.py#L67)
+- **Q:** HS256 or RS256 between services?
+  **A:** HS256 shares one secret, so every verifier can also mint tokens. RS256/ES256 sign with a
+  private key at the auth server and verify with a public key from its JWKS endpoint; prefer that
+  across teams or services.
+  → [05_jwt_and_password_hashing.py:111](12_framework_internals/05_jwt_and_password_hashing.py#L111)
+- **Q:** How do you log a user out before a stateless JWT expires?
+  **A:** You cannot without state: keep access tokens short (5-15 min), rotate server-side refresh
+  tokens, and keep a deny-list of revoked `jti` values (e.g. in Redis), or use opaque tokens with
+  introspection and pay a lookup per request.
+  → [05_jwt_and_password_hashing.py:117](12_framework_internals/05_jwt_and_password_hashing.py#L117)
+- **Q:** How should passwords be stored?
+  **A:** A slow, salted, memory- or iteration-hard hash: argon2, bcrypt, scrypt or PBKDF2 (OWASP:
+  600,000 iterations for PBKDF2-HMAC-SHA256). Never plain SHA-256: it is built to be fast, so a
+  leaked table is brute-forced. Store algorithm, cost and salt with the hash.
+  → [05_jwt_and_password_hashing.py:165](12_framework_internals/05_jwt_and_password_hashing.py#L165)
+- **Q:** How do you raise the hashing cost later without forcing password resets?
+  **A:** Keep the cost in the stored string, check it on each successful login, and re-hash with
+  the new cost then (`needs_rehash`). Django and Spring's `DelegatingPasswordEncoder` work this way.
+  → [05_jwt_and_password_hashing.py:177](12_framework_internals/05_jwt_and_password_hashing.py#L177)
+- **Q:** 401 or 403?
+  **A:** 401 when the caller is not authenticated or the token is bad (send `WWW-Authenticate`);
+  403 when they are authenticated but not allowed. In FastAPI that is one dependency for each.
+  → [05_jwt_and_password_hashing.py:151](12_framework_internals/05_jwt_and_password_hashing.py#L151)
+
 ### 13 — System Design & Scenario Questions
 
 **`01_zero_downtime_change.py`**
