@@ -106,7 +106,7 @@ checks, Ubuntu + JDK 21 for the Java examples). Each app still has its own `requ
 
 ```bash
 .venv/Scripts/ruff.exe check .               # lint; rules in ruff.toml (bug-finding only, no formatter)
-.venv/Scripts/python.exe scripts/verify_examples.py            # all 60 stdlib examples exit 0
+.venv/Scripts/python.exe scripts/verify_examples.py            # all 61 stdlib examples exit 0
 .venv/Scripts/python.exe scripts/verify_examples.py 06_kafka   # only paths containing the text
 .venv/Scripts/python.exe scripts/check_content.py              # QUESTION_INDEX.md line links
 ```
@@ -230,11 +230,11 @@ container, a mini-Airflow) that mirror the real library's API shape exactly, so 
 visible without provisioning infrastructure. Only `03_pandas_data_handling/`,
 `05_web_apis_fastapi/` and (optionally) `06_kafka/01`–`02` need real external packages or services.
 
-All **60 stdlib-only examples** are expected to exit 0. Verify with
+All **61 stdlib-only examples** are expected to exit 0. Verify with
 `.venv/Scripts/python.exe scripts/verify_examples.py` (from the workspace root; ~30s, 4 in parallel).
 
 It pipes stdout and sets `PYTHONIOENCODING=cp1252`, which is what catches the cp1252 problem above —
-on Linux CI too, where a plain redirect would use UTF-8 and hide it. Its glob list and `EXPECTED = 60`
+on Linux CI too, where a plain redirect would use UTF-8 and hide it. Its glob list and `EXPECTED = 61`
 live at the top of the script: **adding a stdlib example means raising `EXPECTED`**. Notes:
 
 - `02_concurrency/01_threading_demo.py` and `01_python_core/11_java_to_python_bridge.py` take ~7s

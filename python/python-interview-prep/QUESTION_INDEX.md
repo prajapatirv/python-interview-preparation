@@ -658,6 +658,45 @@ below, or `Ctrl+F` for a specific keyword.
   other holds. Fix: always acquire locks in the SAME global order everywhere.
   → [04_sync_primitives.py:60](02_concurrency/04_sync_primitives.py#L60) (fixed: [line 98](02_concurrency/04_sync_primitives.py#L98))
 
+**`05_deadlock_detection_and_fix.py`**
+
+- **Q:** A Python service has hung. How do you find out whether it is a deadlock?
+  **A:** Take a thread dump without restarting it: `py-spy dump --pid <pid>`, or have
+  `faulthandler` dump all threads on a timer or a signal. Take three dumps about ten seconds apart;
+  threads parked on the same `acquire()` line every time are the deadlock.
+  → [05_deadlock_detection_and_fix.py:66](02_concurrency/05_deadlock_detection_and_fix.py#L66)
+- **Q:** How would you detect a deadlock programmatically?
+  **A:** Build a wait-for graph: an edge from each waiting thread to the thread that owns the lock it
+  wants. A cycle is a deadlock. Java's `ThreadMXBean.findDeadlockedThreads()` does this for you;
+  in Python you track lock owners and waiters yourself.
+  → [05_deadlock_detection_and_fix.py:53](02_concurrency/05_deadlock_detection_and_fix.py#L53)
+- **Q:** What are the four conditions for a deadlock?
+  **A:** Mutual exclusion, hold and wait, no preemption, circular wait (Coffman). Break any one and a
+  deadlock cannot happen: lock ordering breaks circular wait, a timeout breaks hold-and-wait.
+  → [05_deadlock_detection_and_fix.py:183](02_concurrency/05_deadlock_detection_and_fix.py#L183)
+- **Q:** What is the standard fix for two transfers that lock two accounts in opposite order?
+  **A:** One global lock order, such as by account id, used by every code path. No cycle can form.
+  → [05_deadlock_detection_and_fix.py:101](02_concurrency/05_deadlock_detection_and_fix.py#L101)
+- **Q:** What if you cannot impose a lock order?
+  **A:** Acquire the second lock with a timeout (`lock.acquire(timeout=...)`, Java's `tryLock`),
+  release the first on failure, and retry after a random delay. Without the jitter both threads can
+  retry in step forever, which is a livelock.
+  → [05_deadlock_detection_and_fix.py:114](02_concurrency/05_deadlock_detection_and_fix.py#L114)
+- **Q:** Can a single thread deadlock itself in Python?
+  **A:** Yes: `threading.Lock` is not reentrant, so acquiring it twice in the same thread blocks
+  forever. Use `threading.RLock` when a method holding the lock calls another that takes it. Java's
+  `synchronized` and `ReentrantLock` are reentrant, so this one surprises Java developers.
+  → [05_deadlock_detection_and_fix.py:206](02_concurrency/05_deadlock_detection_and_fix.py#L206)
+- **Q:** Can asyncio code deadlock if it has only one thread?
+  **A:** Yes. Two tasks taking two `asyncio.Lock`s in opposite order wait on each other forever while
+  the loop keeps running. `asyncio.wait_for` exposes it as a timeout, and lock ordering fixes it.
+  → [05_deadlock_detection_and_fix.py:154](02_concurrency/05_deadlock_detection_and_fix.py#L154)
+- **Q:** What are livelock and starvation?
+  **A:** Livelock: threads keep reacting to each other and make no progress (fix: random back-off).
+  Starvation: a thread never gets the lock; `threading.Lock` makes no FIFO promise. Keep critical
+  sections short and never hold a lock across I/O.
+  → [05_deadlock_detection_and_fix.py:216](02_concurrency/05_deadlock_detection_and_fix.py#L216)
+
 **`benchmark_concurrency_models.py`**
 
 - **Q:** For pure I/O-bound work, how do sequential, threaded, and asyncio approaches actually compare?

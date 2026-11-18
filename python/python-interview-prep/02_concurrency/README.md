@@ -31,6 +31,7 @@ dependent — run the race-condition demo several times, not once, to actually s
 | `02_multiprocessing_demo.py` | `ProcessPoolExecutor` for CPU-bound work, the `__main__` guard |
 | `03_asyncio_demo.py` | coroutines, `gather`, `Semaphore`, timeout/cancellation, producer/consumer `asyncio.Queue` |
 | `04_sync_primitives.py` | `Event`, `Semaphore`, deadlock reproduced then fixed |
+| `05_deadlock_detection_and_fix.py` | deadlock found from a thread dump and a wait-for graph; the four conditions; lock ordering vs timeout + jittered retry under real contention; `Lock` vs `RLock` self-deadlock; asyncio deadlock; livelock and starvation (Python twin of the Java example) |
 | `benchmark_concurrency_models.py` | same I/O-bound task timed sequentially vs threads vs asyncio |
 
 > **Deep dive**: [07 — Concurrency](../deep_dive/07_concurrency.md) — GIL internals, the cost table

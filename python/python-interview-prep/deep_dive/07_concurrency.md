@@ -358,6 +358,13 @@ def transfer(a, b, amount):
         b.balance += amount
 ```
 
+**Finding one in production** is the follow-up: take a thread dump without restarting
+(`py-spy dump --pid <pid>`, or `faulthandler`), three times about ten seconds apart, and look for
+threads parked on the same `acquire()`. Run
+[`05_deadlock_detection_and_fix.py`](../02_concurrency/05_deadlock_detection_and_fix.py) to see a
+deadlock found from a thread dump and a wait-for graph, both fixes under real contention, and the
+two Python-specific cases (a re-acquired `Lock`, and two asyncio tasks).
+
 ---
 
 ### Q9. How does asyncio work? Explain event loop, coroutine, task.

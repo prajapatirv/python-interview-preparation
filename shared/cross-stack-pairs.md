@@ -16,6 +16,7 @@ link means that folder's pytest suite). Separate several links in a cell with ` 
 | Race conditions, atomics and locks | [01_race_volatile_atomic_locks.java](../java/java-interview-prep/examples/04_concurrency/01_race_volatile_atomic_locks.java) | [01_threading_demo.py](../python/python-interview-prep/02_concurrency/01_threading_demo.py) · [04_sync_primitives.py](../python/python-interview-prep/02_concurrency/04_sync_primitives.py) |
 | Thread pools, virtual threads, asyncio and processes | [02_thread_pools_and_sizing.java](../java/java-interview-prep/examples/04_concurrency/02_thread_pools_and_sizing.java) · [03_virtual_threads_java21.java](../java/java-interview-prep/examples/03_java11_and_modern/03_virtual_threads_java21.java) | [03_asyncio_demo.py](../python/python-interview-prep/02_concurrency/03_asyncio_demo.py) · [02_multiprocessing_demo.py](../python/python-interview-prep/02_concurrency/02_multiprocessing_demo.py) |
 | JWT and password hashing | [01_jwt_hs256_and_password_hashing.java](../java/java-interview-prep/examples/10_spring_security/01_jwt_hs256_and_password_hashing.java) | [05_jwt_and_password_hashing.py](../python/python-interview-prep/12_framework_internals/05_jwt_and_password_hashing.py) |
+| Deadlocks: find them and fix them | [03_deadlock_detection_and_fix.java](../java/java-interview-prep/examples/04_concurrency/03_deadlock_detection_and_fix.java) | [05_deadlock_detection_and_fix.py](../python/python-interview-prep/02_concurrency/05_deadlock_detection_and_fix.py) · [04_sync_primitives.py](../python/python-interview-prep/02_concurrency/04_sync_primitives.py) |
 | Composing async work | [04_completable_future.java](../java/java-interview-prep/examples/01_java8_core/04_completable_future.java) | [03_asyncio_demo.py](../python/python-interview-prep/02_concurrency/03_asyncio_demo.py) |
 | Kafka keys, partitions and ordering | [01_partitions_keys_and_ordering.java](../java/java-interview-prep/examples/12_kafka/01_partitions_keys_and_ordering.java) | [01_producer_basics.py](../python/python-interview-prep/06_kafka/01_producer_basics.py) |
 | Kafka consumer groups and commits | [02_consumer_groups_rebalancing_and_lag.java](../java/java-interview-prep/examples/12_kafka/02_consumer_groups_rebalancing_and_lag.java) | [02_consumer_basics.py](../python/python-interview-prep/06_kafka/02_consumer_basics.py) |
@@ -46,7 +47,7 @@ link means that folder's pytest suite). Separate several links in a cell with ` 
 
 - **Python only:** pandas (`03_pandas_data_handling`), Airflow (`14_airflow_orchestration`), AWS Lambda and
   large files (`09_aws_lambda_streaming`), prompt engineering (`10_genai_llm_patterns/01`).
-- **Java only:** JPA N+1 and isolation levels (`09_spring_data_jpa`), NoSQL modelling (`13_nosql`), sagas (`11_microservices/02`), deadlocks
-  (`04_concurrency/03`), linked lists, trees and graphs (`21_coding_interview/03`).
+- **Java only:** JPA N+1 and isolation levels (`09_spring_data_jpa`), NoSQL modelling (`13_nosql`), sagas (`11_microservices/02`),
+  linked lists, trees and graphs (`21_coding_interview/03`).
 
 When you write a twin, add a row above; both runners pick it up on their next catalog load.
