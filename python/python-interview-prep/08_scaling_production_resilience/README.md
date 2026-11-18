@@ -33,6 +33,7 @@ Pure stdlib — every file runs with `py <file>.py`, no dependencies.
 | `03_rate_limiter.py` | sliding-window rate limiter as a decorator, per-caller buckets |
 | `04_health_checks_graceful_shutdown.py` | liveness vs readiness, `signal`-based graceful shutdown |
 | `05_metrics_alerting_simulation.py` | RED metrics, the cardinality trap, Histogram vs Summary, SLO/error budget, multi-window burn-rate alerting |
+| `06_saga_orchestration.py` | saga orchestration: compensate completed steps in reverse, retry an idempotent compensation, orchestration vs choreography, no isolation (Python twin of the Java saga example) |
 
 ## Exercise
 

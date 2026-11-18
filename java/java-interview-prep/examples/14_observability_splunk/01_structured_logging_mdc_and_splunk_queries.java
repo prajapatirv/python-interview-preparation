@@ -100,7 +100,7 @@ class StructuredLoggingMdcAndSplunkQueries {
                         en.getValue().stream().mapToInt(i -> i).average().orElse(0), pct(en.getValue(), 95), pct(en.getValue(), 99)));
         System.out.println("  Averages hide tail latency: always show p95/p99, and compare against the previous period.");
 
-        section("7. SPL: trace one request   index=app correlationId=\"c-42-3\" | sort _time");
+        section("7. SPL: trace one request   index=app correlationId=c-42-3 | sort _time");
         SINK.stream().filter(e -> "c-42-3".equals(e.get("correlationId"))).forEach(e -> System.out.println("  " + toJson(e)));
 
         section("8. SPL: which version introduced the errors?  | stats count by version");

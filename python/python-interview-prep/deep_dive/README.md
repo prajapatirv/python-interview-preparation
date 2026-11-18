@@ -25,7 +25,7 @@ Every file follows the same shape:
 
 | # | Topic | Runnable companion |
 |---|---|---|
-| [01](01_data_structures_collections.md) | **Data structures** (list/tuple/dict/set/frozenset) + `collections` | [`01_data_structures.py`](../01_python_core/01_data_structures.py) |
+| [01](01_data_structures_collections.md) | **Data structures** (list/tuple/dict/set/frozenset) + `collections` | [`01_data_structures.py`](../01_python_core/01_data_structures.py) · [`07_linked_list_tree_graph.py`](../11_coding_challenges/07_linked_list_tree_graph.py) |
 | [02](02_comprehensions_map_filter_reduce.md) | **Comprehensions**, and `map`/`filter`/`reduce` | [`02_comprehensions.py`](../01_python_core/02_comprehensions.py) · [`10_map_filter_reduce.py`](../01_python_core/10_map_filter_reduce.py) |
 | [03](03_decorators.md) | **Writing and using custom decorators** | [`03_decorators.py`](../01_python_core/03_decorators.py) |
 | [04](04_generators_iterators.md) | **Generators, iterators and iterables** | [`04_generators_iterators.py`](../01_python_core/04_generators_iterators.py) |
@@ -46,7 +46,7 @@ Every file follows the same shape:
 | [09](09_pandas.md) | **Pandas for data handling** | [`03_pandas_data_handling/`](../03_pandas_data_handling/) |
 | [10](10_web_frameworks.md) | **Django / Flask / FastAPI** (FastAPI in depth) | [`05_web_apis_fastapi/`](../05_web_apis_fastapi/) · [`05_jwt_and_password_hashing.py`](../12_framework_internals/05_jwt_and_password_hashing.py) |
 | [11](11_python_framework_development.md) | **Python framework development** | [`12_framework_internals/`](../12_framework_internals/) |
-| [12](12_scaling_applications.md) | **Scaling applications & handling challenges** | [`08_scaling_production_resilience/`](../08_scaling_production_resilience/) |
+| [12](12_scaling_applications.md) | **Scaling applications & handling challenges** | [`08_scaling_production_resilience/`](../08_scaling_production_resilience/) · [`05_nosql_modeling_and_quorum.py`](../13_system_design_scenarios/05_nosql_modeling_and_quorum.py) |
 | [30](30_large_file_processing.md) | **Handling a 100GB file** — streaming, external sort, dedupe, parallel chunks, resume | [`03_large_file_processing.py`](../09_aws_lambda_streaming/03_large_file_processing.py) |
 | [34](34_airflow_orchestration.md) | **Airflow & orchestration** — DAG keywords, operators, data intervals, catchup, trigger rules, XCom, dynamic mapping | [`14_airflow_orchestration/`](../14_airflow_orchestration/) |
 

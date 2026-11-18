@@ -3,7 +3,8 @@
 > **Runnable:** [`01_lambdas_functional_interfaces.java`](../examples/01_java8_core/01_lambdas_functional_interfaces.java) ·
 > [`02_streams_collectors.java`](../examples/01_java8_core/02_streams_collectors.java) ·
 > [`03_optional_datetime_default_methods.java`](../examples/01_java8_core/03_optional_datetime_default_methods.java) ·
-> [`04_completable_future.java`](../examples/01_java8_core/04_completable_future.java)
+> [`04_completable_future.java`](../examples/01_java8_core/04_completable_future.java) ·
+> [`05_data_wrangling_with_streams.java`](../examples/01_java8_core/05_data_wrangling_with_streams.java) (the pandas operations in streams)
 > **Crib sheet:** [`topics/01-java-core-collections-java8.md`](../topics/01-java-core-collections-java8.md) · **Guide:** Q11–Q18
 
 ## What interviewers are actually probing

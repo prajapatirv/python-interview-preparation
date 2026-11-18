@@ -54,3 +54,21 @@ def test_save_question_creates_a_bank_for_a_topic_without_one(workspace):
                                         "**The live scenario**\nX.", [])
     assert path.startswith("java/prep/interview-scenarios/")
     assert any(q["kind"] == "scenario" for q in Library.load().questions("java", "java-core"))
+
+
+def test_index_ids_survive_inserting_an_entry_above_them():
+    """parse_index numbers questions by position, so the label must stay out of an index question's id."""
+    from types import SimpleNamespace
+
+    from app.services import bank
+    from app.services.library import Library
+
+    def ids(text):
+        stack, topic = SimpleNamespace(id="python", sources=[]), SimpleNamespace(id="core", questions=[])
+        Library._add(stack, topic, bank.parse_index(text), "python/prep/QUESTION_INDEX.md", "index")
+        return {q["title"]: q["id"] for q in topic.questions}
+
+    before = ids("### 01 - Core\n- **Q:** First?\n  **A:** one\n- **Q:** Second?\n  **A:** two\n")
+    after = ids("### 01 - Core\n- **Q:** New on top?\n  **A:** zero\n- **Q:** First?\n  **A:** one\n"
+                "- **Q:** Second?\n  **A:** two\n")
+    assert after["First?"] == before["First?"] and after["Second?"] == before["Second?"]

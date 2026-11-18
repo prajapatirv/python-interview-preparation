@@ -39,7 +39,7 @@ browser. Stop it with `stop.cmd` / `./stop.sh`. The other apps work the same way
 The Java runner stays in the foreground: stop it with Ctrl+C. It finds Java on PATH, in `JAVA_HOME`, or in
 `~/.jdks` (where IntelliJ installs JDKs).
 
-**Same idea in both languages.** [`shared/cross-stack-pairs.md`](shared/cross-stack-pairs.md) pairs 29 topics
+**Same idea in both languages.** [`shared/cross-stack-pairs.md`](shared/cross-stack-pairs.md) pairs 36 topics
 that have a program in both stacks (Kafka delivery semantics, circuit breakers, 100 to 600 TPS, cache
 stampede, DI, LRU and more). Run both runners and each paired example shows a **Same idea in Java** /
 **Same idea in Python** link that opens its twin in the other runner. The file also lists the topics that

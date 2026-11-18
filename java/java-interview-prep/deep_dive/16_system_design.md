@@ -1,7 +1,8 @@
 # System design for backend engineers: capacity, scaling, caching, zero downtime
 
 > **Runnable:** [`01_capacity_littles_law_100_to_600_tps.java`](../examples/16_system_design/01_capacity_littles_law_100_to_600_tps.java) ·
-> [`02_cache_aside_stampede_and_invalidation.java`](../examples/16_system_design/02_cache_aside_stampede_and_invalidation.java)
+> [`02_cache_aside_stampede_and_invalidation.java`](../examples/16_system_design/02_cache_aside_stampede_and_invalidation.java) ·
+> [`03_large_files_and_serverless.java`](../examples/16_system_design/03_large_files_and_serverless.java) (100 GB files, checkpoints, AWS Lambda patterns)
 > **Crib sheet:** [`topics/15-distributed-systems-system-design.md`](../topics/15-distributed-systems-system-design.md) · **Guide:** Q90, Q93–Q95
 
 ## What interviewers are actually probing

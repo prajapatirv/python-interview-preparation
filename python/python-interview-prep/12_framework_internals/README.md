@@ -53,6 +53,7 @@ actually does** rather than just using it.
 | `03_plugin_architecture.py` | decorator registry vs `__init_subclass__` vs setuptools entry points; startup validation; when *not* to build a plugin system |
 | `04_middleware_and_config.py` | the middleware chain and why order is inverted; the metrics cardinality trap; layered config with `ChainMap`; fail-fast validation |
 | `05_jwt_and_password_hashing.py` | JWT HS256 from scratch: what is signed vs readable, `alg=none`, expiry, issuer/audience, constant-time compare; HS256 vs RS256; revocation; PBKDF2/scrypt password storage and re-hashing; 401 vs 403 (Python twin of the Java Spring Security example) |
+| `06_orm_n_plus_one_and_isolation.py` | the ORM N+1 problem measured on real SQLite (51 queries vs 1-2) and its fixes (`joinedload`, `selectinload`, aggregates); lost updates, optimistic vs pessimistic locking, isolation levels (Python twin of the Java JPA examples) |
 
 ## Suggested order
 

@@ -988,6 +988,26 @@ below, or `Ctrl+F` for a specific keyword.
   too blind (misses a slow 4x burn that sits under the threshold). Requiring a long **and** a
   short window to breach fixes both.
 
+**`06_saga_orchestration.py`**
+
+- **Q:** How do you keep data consistent across services without a distributed transaction (2PC)?
+  **A:** A saga: a sequence of local transactions, each with a compensating action. When a step fails,
+  the steps that already ran are compensated in reverse order.
+  → [06_saga_orchestration.py:87](08_scaling_production_resilience/06_saga_orchestration.py#L87)
+- **Q:** Why compensate in reverse order?
+  **A:** Later steps may depend on earlier ones (a shipment needs a payment); undoing newest-first keeps
+  every intermediate state valid, like unwinding a stack.
+  → [06_saga_orchestration.py:96](08_scaling_production_resilience/06_saga_orchestration.py#L96)
+- **Q:** What if a compensation itself fails?
+  **A:** Retry it with backoff until it succeeds, and make it idempotent so a retry or a redelivered
+  message cannot refund twice. After the retries run out, park it for a human with an alert.
+  → [06_saga_orchestration.py:102](08_scaling_production_resilience/06_saga_orchestration.py#L102)
+- **Q:** Orchestration or choreography?
+  **A:** Orchestration: one coordinator calls each step and owns the state (Temporal, Step Functions);
+  easy to follow and monitor. Choreography: services react to each other's events; looser, but
+  the overall flow is hard to see. A saga also gives NO isolation: others see half-done state.
+  → [06_saga_orchestration.py:151](08_scaling_production_resilience/06_saga_orchestration.py#L151)
+
 ### 09 — AWS Lambda & Streaming Large Files
 
 - **Q:** Why initialize clients OUTSIDE the Lambda handler function?
@@ -1142,6 +1162,35 @@ below, or `Ctrl+F` for a specific keyword.
 
 ---
 
+**`07_linked_list_tree_graph.py`**
+
+- **Q:** How do you reverse a linked list, and what is the invariant?
+  **A:** Iteratively: `prev` is the reversed part, `head` the rest; move one node across per step. O(n)
+  time, O(1) space. The recursive version uses O(n) stack and hits Python's recursion limit.
+  → [07_linked_list_tree_graph.py:39](11_coding_challenges/07_linked_list_tree_graph.py#L39)
+- **Q:** How do you detect a cycle in a linked list?
+  **A:** Floyd's two pointers: fast moves two steps, slow one; inside a cycle fast must meet slow. O(1) space.
+  → [07_linked_list_tree_graph.py:56](11_coding_challenges/07_linked_list_tree_graph.py#L56)
+- **Q:** Why is checking each node against its parent the wrong way to validate a BST?
+  **A:** A node deep in the left subtree can be larger than an ancestor. Pass the allowed (low, high)
+  range down instead.
+  → [07_linked_list_tree_graph.py:128](11_coding_challenges/07_linked_list_tree_graph.py#L128)
+- **Q:** How do you find the kth smallest value in a BST?
+  **A:** An in-order traversal visits values in sorted order; stop at the kth. Use an explicit stack so
+  deep trees do not hit the recursion limit.
+  → [07_linked_list_tree_graph.py:149](11_coding_challenges/07_linked_list_tree_graph.py#L149)
+- **Q:** How do you count islands in a grid?
+  **A:** Scan every cell; each unvisited land cell starts a BFS flood fill that marks its island. O(rows x cols).
+  → [07_linked_list_tree_graph.py:191](11_coding_challenges/07_linked_list_tree_graph.py#L191)
+- **Q:** How do you order tasks with dependencies, and detect a cycle?
+  **A:** Kahn's algorithm: repeatedly take nodes with no incoming edges. If some nodes never come out,
+  they sit on a cycle.
+  → [07_linked_list_tree_graph.py:209](11_coding_challenges/07_linked_list_tree_graph.py#L209)
+- **Q:** Shortest path in a grid: BFS or Dijkstra?
+  **A:** BFS when every step costs the same; Dijkstra (a heap) when edges have weights. Use a deque for BFS:
+  `list.pop(0)` is O(n) and turns BFS into O(n^2).
+  → [07_linked_list_tree_graph.py:231](11_coding_challenges/07_linked_list_tree_graph.py#L231)
+
 ### 12 — Framework Internals
 
 **`01_repository_pattern.py`**
@@ -1237,6 +1286,35 @@ below, or `Ctrl+F` for a specific keyword.
   **A:** 401 when the caller is not authenticated or the token is bad (send `WWW-Authenticate`);
   403 when they are authenticated but not allowed. In FastAPI that is one dependency for each.
   → [05_jwt_and_password_hashing.py:151](12_framework_internals/05_jwt_and_password_hashing.py#L151)
+
+**`06_orm_n_plus_one_and_isolation.py`**
+
+- **Q:** What is the N+1 query problem?
+  **A:** Loading N parents, then touching a lazy relationship on each, runs 1 + N queries (51 for 50
+  authors here). Latency grows with the data, and it is invisible in the code.
+  → [06_orm_n_plus_one_and_isolation.py:66](12_framework_internals/06_orm_n_plus_one_and_isolation.py#L66)
+- **Q:** How do you fix N+1 in SQLAlchemy?
+  **A:** `joinedload` (one JOIN), `selectinload` (one extra `IN (...)` query, no row explosion), or query
+  only the aggregate or columns you need. JPA: `JOIN FETCH`, `@BatchSize`, DTO projections.
+  → [06_orm_n_plus_one_and_isolation.py:70](12_framework_internals/06_orm_n_plus_one_and_isolation.py#L70)
+- **Q:** How do you catch N+1 before production?
+  **A:** Count queries in tests (an event listener on the engine, or a fixture asserting a maximum), and
+  set `lazy="raise"` on relationships so an accidental lazy load fails loudly.
+  → [06_orm_n_plus_one_and_isolation.py:25](12_framework_internals/06_orm_n_plus_one_and_isolation.py#L25)
+- **Q:** What is a lost update and how does optimistic locking prevent it?
+  **A:** Two users read the same row and both write: one change silently disappears. Add a version
+  column and update `WHERE version = <the version I read>`; zero rows changed means a conflict to
+  retry. SQLAlchemy: `version_id_col`; JPA: `@Version`.
+  → [06_orm_n_plus_one_and_isolation.py:129](12_framework_internals/06_orm_n_plus_one_and_isolation.py#L129)
+- **Q:** Optimistic or pessimistic locking?
+  **A:** Optimistic when conflicts are rare (forms, carts): no blocking, retry on conflict. Pessimistic
+  (`SELECT ... FOR UPDATE`) for hot rows with frequent conflicts; hold it briefly.
+  → [06_orm_n_plus_one_and_isolation.py:187](12_framework_internals/06_orm_n_plus_one_and_isolation.py#L187)
+- **Q:** What do the isolation levels prevent?
+  **A:** READ COMMITTED (Postgres default) stops dirty reads; REPEATABLE READ (MySQL default) gives one
+  snapshot; SERIALIZABLE behaves as if serial and aborts conflicts you must retry. A
+  read-modify-write still loses an update on MySQL REPEATABLE READ; Postgres aborts it instead.
+  → [06_orm_n_plus_one_and_isolation.py:204](12_framework_internals/06_orm_n_plus_one_and_isolation.py#L204)
 
 ### 13 — System Design & Scenario Questions
 
@@ -1391,6 +1469,33 @@ below, or `Ctrl+F` for a specific keyword.
   → [04_ai_leverage_and_impact.py:183](13_system_design_scenarios/04_ai_leverage_and_impact.py#L183)
 
 ---
+
+**`05_nosql_modeling_and_quorum.py`**
+
+- **Q:** Why is a document-store query slow, and what does an index change?
+  **A:** Without an index the store scans every document (100,000 examined here); with one it reads only
+  the matches (20). Index the queries you run; put the selective field first in a compound index.
+  → [05_nosql_modeling_and_quorum.py:38](13_system_design_scenarios/05_nosql_modeling_and_quorum.py#L38)
+- **Q:** Embed or reference in a document model?
+  **A:** Embed bounded children always read with the parent (an order's lines); reference shared or
+  unbounded data (the customer). Model for how the data is read.
+  → [05_nosql_modeling_and_quorum.py:122](13_system_design_scenarios/05_nosql_modeling_and_quorum.py#L122)
+- **Q:** How does Cassandra decide which nodes store a row?
+  **A:** The partition key is hashed onto a consistent-hash ring; the next RF distinct nodes own it.
+  Virtual nodes spread the load, and adding a node moves only nearby keys.
+  → [05_nosql_modeling_and_quorum.py:68](13_system_design_scenarios/05_nosql_modeling_and_quorum.py#L68)
+- **Q:** What does R + W > N mean?
+  **A:** If the replicas read plus the replicas written exceed the replication factor, every read
+  overlaps the latest write. QUORUM + QUORUM (2 + 2 > 3) is consistent; ONE + ONE is not.
+  → [05_nosql_modeling_and_quorum.py:143](13_system_design_scenarios/05_nosql_modeling_and_quorum.py#L143)
+- **Q:** What is read repair?
+  **A:** A read that sees replicas disagree returns the newest value (by timestamp) and writes it back
+  to the stale replicas, so inconsistency heals as data is read.
+  → [05_nosql_modeling_and_quorum.py:95](13_system_design_scenarios/05_nosql_modeling_and_quorum.py#L95)
+- **Q:** What are the Cassandra modelling anti-patterns?
+  **A:** Designing for joins instead of one table per query, hot partitions, unbounded partitions, ALLOW
+  FILTERING scans, and mass deletes that leave tombstones.
+  → [05_nosql_modeling_and_quorum.py:177](13_system_design_scenarios/05_nosql_modeling_and_quorum.py#L177)
 
 ### 14 — Airflow & Orchestration
 
@@ -1585,7 +1690,7 @@ leadership).
   framework (routing/transformation/protocol bridging). They complement each other — a Camel
   route often consumes from Kafka, transforms, and produces to another system.
 
-### Couchbase
+### Couchbase — modelling, indexes and quorum NOW COVERED HANDS-ON by `13_system_design_scenarios/05_nosql_modeling_and_quorum.py`
 
 - **Q:** What is Couchbase, and when would you reach for it over Redis or a relational DB?
   **A:** A distributed multi-model NoSQL database combining key-value storage with a JSON

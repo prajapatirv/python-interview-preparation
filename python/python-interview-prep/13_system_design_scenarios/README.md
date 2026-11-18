@@ -46,6 +46,7 @@ Pure stdlib, no infrastructure.
 | `01_zero_downtime_change.py` | fixing production with zero downtime — kill switch, rolling vs blue/green, canary with automated abort, expand/migrate/contract, connection draining |
 | `02_observability_pillars.py` | the three pillars built from scratch — correlation IDs in `ContextVar`, structured JSON logs, a metrics registry with percentiles, a tracer with a span waterfall, RED/USE, SLO burn-rate alerting, log sampling |
 | `03_capacity_scaling_tps.py` | 100 → 600 TPS — Little's Law, Amdahl's Law, the utilization cliff, a bottleneck analyser, cache/pool/partition sizing, a load test that collapses, and the cost comparison |
+| `05_nosql_modeling_and_quorum.py` | document-store query cost with and without an index, embed vs reference, one-document atomicity; a consistent-hash ring, R + W > N, stale reads and read repair, CAP, query-first modelling (Python twin of the Java NoSQL examples) |
 | `04_ai_leverage_and_impact.py` | the two behavioural-but-technical questions — an AI use-case scorecard with guardrails and measured pilot results, plus a STAR story builder that rejects a story with no measured result |
 
 ## How to use this folder

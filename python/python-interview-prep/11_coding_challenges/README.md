@@ -13,6 +13,7 @@ The classic live-coding-round problems, each with multiple solutions and a compl
 | `04_reverse_string.py` | in-place two-pointer string reversal, plus the immutable-string subtlety in Python |
 | `05_retry_decorator.py` | a retry decorator with a retry limit, exponential backoff, jitter, a time budget, an async variant — and an **injectable `sleep`** so the tests are instant |
 | `06_nested_dict_search.py` | search a keyword in a nested dict and return the key **and the path** — recursive, generator, substring, iterative (no `RecursionError`), and a prebuilt index |
+| `07_linked_list_tree_graph.py` | linked lists (reverse, cycle, middle, merge), BST (validate, LCA, kth smallest, level order, serialize), graphs (islands, topological order, grid BFS) - with tests (Python twin of the Java coding example) |
 
 ## How to use this folder
 

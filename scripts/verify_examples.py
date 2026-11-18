@@ -26,7 +26,7 @@ PATTERNS = [
     "11_coding_challenges/*.py", "12_framework_internals/*.py", "13_system_design_scenarios/*.py",
     "14_airflow_orchestration/0*.py",
 ]
-EXPECTED = 61           # a drop means a glob above stopped matching files; raise it when examples are added
+EXPECTED = 65           # a drop means a glob above stopped matching files; raise it when examples are added
 TIMEOUT_S = 180
 
 

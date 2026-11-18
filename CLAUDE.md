@@ -106,7 +106,7 @@ checks, Ubuntu + JDK 21 for the Java examples). Each app still has its own `requ
 
 ```bash
 .venv/Scripts/ruff.exe check .               # lint; rules in ruff.toml (bug-finding only, no formatter)
-.venv/Scripts/python.exe scripts/verify_examples.py            # all 61 stdlib examples exit 0
+.venv/Scripts/python.exe scripts/verify_examples.py            # all 65 stdlib examples exit 0
 .venv/Scripts/python.exe scripts/verify_examples.py 06_kafka   # only paths containing the text
 .venv/Scripts/python.exe scripts/check_content.py              # QUESTION_INDEX.md line links
 ```
@@ -118,7 +118,7 @@ code (mutable defaults, return-in-finally, `UnboundLocalError`, late-binding clo
 ### Tests — `python-interview-prep/`
 
 `pytest.ini` at the project root governs discovery (`testpaths = 04_testing_tdd/tests
-05_web_apis_fastapi/tests 11_coding_challenges`). **68 tests total**, 54 of them in folder 11.
+05_web_apis_fastapi/tests 11_coding_challenges`). **73 tests total**, 59 of them in folder 11.
 
 ```bash
 cd python/python-interview-prep
@@ -230,11 +230,11 @@ container, a mini-Airflow) that mirror the real library's API shape exactly, so 
 visible without provisioning infrastructure. Only `03_pandas_data_handling/`,
 `05_web_apis_fastapi/` and (optionally) `06_kafka/01`–`02` need real external packages or services.
 
-All **61 stdlib-only examples** are expected to exit 0. Verify with
+All **65 stdlib-only examples** are expected to exit 0. Verify with
 `.venv/Scripts/python.exe scripts/verify_examples.py` (from the workspace root; ~30s, 4 in parallel).
 
 It pipes stdout and sets `PYTHONIOENCODING=cp1252`, which is what catches the cp1252 problem above —
-on Linux CI too, where a plain redirect would use UTF-8 and hide it. Its glob list and `EXPECTED = 61`
+on Linux CI too, where a plain redirect would use UTF-8 and hide it. Its glob list and `EXPECTED = 65`
 live at the top of the script: **adding a stdlib example means raising `EXPECTED`**. Notes:
 
 - `02_concurrency/01_threading_demo.py` and `01_python_core/11_java_to_python_bridge.py` take ~7s
@@ -299,8 +299,8 @@ and explain that the bug hides until the critical section contains a function ca
   errors with `ModuleNotFoundError` on the second one collected.
 - `11_coding_challenges/` files are named by topic (`01_anagram_grouping.py`, not
   `test_anagram_grouping.py`) because each doubles as a standalone runnable demo. `pytest.ini` lists
-  these **six** filenames explicitly in `python_files` so their embedded `test_*` functions are still
-  discovered. **A seventh challenge file must be added to that list or it won't be collected.**
+  these **seven** filenames explicitly in `python_files` so their embedded `test_*` functions are still
+  discovered. **An eighth challenge file must be added to that list or it won't be collected.**
 - None of the challenge files `import pytest` — deliberately, so `py 05_retry_decorator.py` stays
   dependency-free while pytest still discovers plain `test_*` functions. That also means
   `pytest.raises` is unavailable in them; they use `try/except` + `raise AssertionError` instead.
@@ -330,7 +330,7 @@ backwards and an auth test asserts the wrong status code.
 
 Each file computes the numbers you would quote in a system-design round (Little's Law and the
 utilization cliff, a bottleneck table, an SLO burn rate, a canary abort threshold) rather than
-describing them. All four are stdlib-only, with no sleeps longer than a few milliseconds.
+describing them. All five are stdlib-only, with no sleeps longer than a few milliseconds.
 
 Two things here are easy to break:
 
@@ -410,7 +410,7 @@ There is no Maven/Gradle in this environment, so nothing here uses a build tool.
 ```bash
 cd java/java-interview-prep
 java examples/12_kafka/02_consumer_groups_rebalancing_and_lag.java   # single-file source launch
-./verify_examples.sh                  # all 53 examples, stdout redirected, expects exit 0 (~2 min)
+./verify_examples.sh                  # all 56 examples, stdout redirected, expects exit 0 (~2 min)
 ./verify_examples.sh 12_kafka         # one chapter
 
 cd ../javaprep-live
@@ -432,7 +432,7 @@ start.cmd                             # or ./start.sh -> http://127.0.0.1:8090 ;
 - Examples that are intentionally non-deterministic or "demonstrate a bug" (`02_streams_collectors` section 9
   parallel `ArrayList::add`, `15_testing` last assertion) must still **exit 0**; keep them that way.
 - `01_java8_core/04_completable_future` and `03_java11_and_modern/03_virtual_threads_java21` take several seconds
-  (deliberate sleeps / a 200-thread-pool comparison). `10_spring_security/01` spends ~0.5 s per PBKDF2 hash on purpose.
+  (deliberate sleeps / a 200-thread-pool comparison). `10_spring_security/01` spends ~0.6 s per PBKDF2 hash (600,000 iterations) on purpose.
 
 ## Interview Coach — `interview-coach/`
 

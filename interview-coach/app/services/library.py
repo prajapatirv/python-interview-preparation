@@ -265,9 +265,12 @@ class Library:
     @staticmethod
     def _add(stack: Stack, t: Topic, qs: list[dict], rel: str, kind: str, count_source: bool = True) -> None:
         for q in qs:
+            # An index question's label is its POSITION in the file (parse_index numbers them), so it
+            # stays out of the id: inserting an entry must not change every id after it.
+            label = "" if kind == "index" else q["label"]
             q.update(kind=kind, stack=stack.id, topic=t.id, source=rel,
                      level=q["level"] or KIND_LEVEL_DEFAULT[kind],
-                     id=q.get("qid") or bank.stable_id(stack.id, rel, q["label"], q["title"]))
+                     id=q.get("qid") or bank.stable_id(stack.id, rel, label, q["title"]))
             t.questions.append(q)
         if count_source:
             stack.sources.append({"path": rel, "kind": kind, "topic": t.id, "questions": len(qs)})

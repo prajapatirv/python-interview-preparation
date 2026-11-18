@@ -7,6 +7,7 @@
 > [`04_design_coding_lru_idempotency_concurrency.java`](../examples/21_coding_interview/04_design_coding_lru_idempotency_concurrency.java) ·
 > [`05_dependency_injection_and_token_auth.java`](../examples/21_coding_interview/05_dependency_injection_and_token_auth.java) ·
 > [`06_java_output_trap_questions.java`](../examples/21_coding_interview/06_java_output_trap_questions.java)
+> **Also runnable:** [`10_prompt_engineering_and_structured_output.java`](../examples/21_coding_interview/10_prompt_engineering_and_structured_output.java) (prompt templates, few-shot, grounding, injection, structured output)
 > **Related:** [01 Java 8](01_java8_core.md) · [02 Collections](02_collections.md) · [04 Concurrency](04_concurrency.md) · [06 Spring core](06_spring_core.md) · [08 REST](08_rest_api.md) · [10 Security](10_spring_security.md)
 
 ## What interviewers are actually probing

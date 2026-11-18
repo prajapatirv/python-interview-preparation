@@ -18,6 +18,7 @@ import java.util.*;
 class JwtHs256AndPasswordHashing {
 
     static final Base64.Encoder B64 = Base64.getUrlEncoder().withoutPadding();
+    static final int ITERATIONS = 600_000;          // OWASP's figure for PBKDF2-HMAC-SHA256 (210,000 is its SHA-512 figure)
     static final byte[] SECRET = "change-me-32-bytes-minimum-secret!!".getBytes(StandardCharsets.UTF_8);
 
     static String b64(String s) { return B64.encodeToString(s.getBytes(StandardCharsets.UTF_8)); }
@@ -87,10 +88,10 @@ class JwtHs256AndPasswordHashing {
         byte[] salt1 = new byte[16], salt2 = new byte[16];
         SecureRandom rnd = new SecureRandom(); rnd.nextBytes(salt1); rnd.nextBytes(salt2);
         long t0 = System.nanoTime();
-        byte[] h1 = pbkdf2(pw, salt1, 210_000);
+        byte[] h1 = pbkdf2(pw, salt1, ITERATIONS);
         long ms = (System.nanoTime() - t0) / 1_000_000;
-        byte[] h2 = pbkdf2(pw, salt2, 210_000);
-        System.out.println("  PBKDF2-HMAC-SHA256, 210k iterations: ~" + ms + " ms per hash (deliberately slow)");
+        byte[] h2 = pbkdf2(pw, salt2, ITERATIONS);
+        System.out.println("  PBKDF2-HMAC-SHA256, " + ITERATIONS + " iterations (OWASP's figure for SHA-256): ~" + ms + " ms per hash (deliberately slow)");
         System.out.println("  same password, different salt -> different hashes: " + !Arrays.equals(h1, h2));
         t0 = System.nanoTime();
         for (int i = 0; i < 100_000; i++) MessageDigest.getInstance("SHA-256").digest(("guess" + i).getBytes(StandardCharsets.UTF_8));
