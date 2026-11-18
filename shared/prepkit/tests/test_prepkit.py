@@ -81,3 +81,21 @@ def test_stream_text_rejoins_to_the_original():
     async def collect():
         return [c async for c in llm.stream_text("abcdefghij", size=4, delay=0)]
     assert asyncio.run(collect()) == ["abcd", "efgh", "ij"]
+
+
+def test_pairs_table_parses_ids_for_both_runners():
+    from prepkit import pairs
+    text = ("| Topic | Java | Python |\n|---|---|---|\n"
+            "| Locks | [a.java](../java/java-interview-prep/examples/04_c/01_a.java) | "
+            "[b.py](../python/python-interview-prep/02_c/01_b.py) · [t](../python/python-interview-prep/04_t/) |\n"
+            "| Other | [c.java](../java/java-interview-prep/examples/09_x/01_c.java) | "
+            "[b.py](../python/python-interview-prep/02_c/01_b.py) |\n"
+            "Prose | not | a row\n")
+    rows = pairs.parse(text)
+    assert [r["topic"] for r in rows] == ["Locks", "Other"]
+    assert rows[0]["java"] == ["04_c/01_a.java"]
+    assert rows[0]["python"] == ["02_c/01_b.py", "04_t/::pytest"]
+    assert pairs.twins_of(rows, "python", "02_c/01_b.py") == [
+        {"topic": "Locks", "id": "04_c/01_a.java"}, {"topic": "Other", "id": "09_x/01_c.java"}]
+    assert pairs.twins_of(rows, "java", "04_c/01_a.java")[1]["id"] == "04_t/::pytest"
+    assert pairs.twins_of(rows, "java", "nope.java") == []

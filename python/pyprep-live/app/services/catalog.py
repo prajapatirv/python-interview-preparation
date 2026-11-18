@@ -8,6 +8,8 @@ import re
 import threading
 from dataclasses import asdict, dataclass, field
 
+from prepkit import pairs
+
 from .. import config
 from . import docs
 
@@ -41,6 +43,7 @@ class Example:
     docs: list = field(default_factory=list)          # [{id, title}] deep-dive documents
     needs: list = field(default_factory=list)
     infra: str = ""
+    twins: list = field(default_factory=list)        # [{topic, id}] the same idea in the Java runner
     kind: str = "script"          # script | suite
     lines: int = 0
 
@@ -117,6 +120,7 @@ class Catalog:
         if not root.exists():
             return [], {}, f"PREP_ROOT not found: {root}"
         deep = docs.build_map(root)
+        twin_rows = pairs.load(config.PAIRS_FILE)
         topics, index = [], {}
         for folder in sorted(p for p in root.iterdir() if p.is_dir() and TOPIC_RE.match(p.name)):
             items, any_tests = [], (folder / "tests").is_dir()
@@ -138,6 +142,7 @@ class Catalog:
                     description=f"Runs every test under {folder.name}", needs=["pytest"],
                     docs=docs.docs_for(deep, folder.name, ""), kind="suite"))
             for e in items:
+                e.twins = pairs.twins_of(twin_rows, "python", e.id)
                 index[e.id] = e
             readme = folder / "README.md"
             topics.append({"id": folder.name, "title": _title(folder.name),

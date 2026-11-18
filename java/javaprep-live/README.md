@@ -42,6 +42,8 @@ if any fail. Same idea as `java-interview-prep/verify_examples.sh`.
 | `PORT` | `8090` | HTTP port (or `--port N`) |
 | `JAVAPREP_ROOT` | `../java-interview-prep` | Folder that contains `examples/`, `deep_dive/`, `topics/` |
 | `JAVAPREP_TIMEOUT` | `60` | Seconds before a run is killed |
+| `PYPREP_URL` | `http://127.0.0.1:8000` | Where the Python runner listens, for the "Same idea in Python" links |
+| `PAIRS_FILE` | `../../shared/cross-stack-pairs.md` | The Java/Python twins table those links come from |
 
 ## How it works
 

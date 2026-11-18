@@ -10,6 +10,7 @@ Interview preparation for **Java** and **Python** developers, from freshers to a
 | [`python/python-interview-prep/`](python/python-interview-prep/) | Python content: 14 hands-on topic folders, deep dives, question index |
 | [`python/pyprep-live/`](python/pyprep-live/) | Runs the Python examples in the browser |
 | [`shared/material_ref/`](shared/material_ref/) | Source PDFs |
+| [`shared/cross-stack-pairs.md`](shared/cross-stack-pairs.md) | Java and Python programs that teach the same topic |
 | [`shared/prepkit/`](shared/prepkit/) | Code both FastAPI apps share (`.env` loading, Claude or offline mock) |
 | [`scripts/`](scripts/) | Workspace checks: every example runs, `QUESTION_INDEX.md` links resolve |
 
@@ -35,7 +36,15 @@ browser. Stop it with `stop.cmd` / `./stop.sh`. The other apps work the same way
 | Run the Python examples in the browser | `python/pyprep-live/` | http://127.0.0.1:8000 |
 | Run the Java examples in the browser | `java/javaprep-live/` | http://127.0.0.1:8090 |
 
-The Java runner stays in the foreground: stop it with Ctrl+C. Set `PORT` to use another port. Add `docker` (`start.cmd docker`) to run the coach or the Python runner
+The Java runner stays in the foreground: stop it with Ctrl+C. It finds Java on PATH, in `JAVA_HOME`, or in
+`~/.jdks` (where IntelliJ installs JDKs).
+
+**Same idea in both languages.** [`shared/cross-stack-pairs.md`](shared/cross-stack-pairs.md) pairs 27 topics
+that have a program in both stacks (Kafka delivery semantics, circuit breakers, 100 to 600 TPS, cache
+stampede, DI, LRU and more). Run both runners and each paired example shows a **Same idea in Java** /
+**Same idea in Python** link that opens its twin in the other runner. The file also lists the topics that
+exist in only one stack.
+ Set `PORT` to use another port. Add `docker` (`start.cmd docker`) to run the coach or the Python runner
 in a container instead; Docker is optional.
 
 ## AI: offline by default, sign-in optional

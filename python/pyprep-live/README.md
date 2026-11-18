@@ -83,6 +83,8 @@ Environment variables, or a git-ignored `.env` in this folder (copy `.env.exampl
 |---|---|---|
 | `PREP_ROOT` | `../python-interview-prep` | Folder containing `01_python_core/` ... (relative paths resolve against this folder, not the CWD) |
 | `RUN_TIMEOUT_S` | 60 | Kill a run after N seconds |
+| `JAVAPREP_URL` | `http://127.0.0.1:8090` | Where the Java runner listens, for the "Same idea in Java" links |
+| `PAIRS_FILE` | `../../shared/cross-stack-pairs.md` | The Java/Python twins table those links come from |
 | `MAX_OUTPUT_BYTES` | 1000000 | Kill a run that prints more than this |
 | `MAX_PARALLEL_RUNS` | 2 | Concurrent runs |
 | `PREP_ALLOW_EDIT` | 0 | `1` enables "Edit code" + run (localhost only!) |

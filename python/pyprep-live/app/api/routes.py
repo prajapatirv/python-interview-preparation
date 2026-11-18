@@ -39,6 +39,7 @@ def catalog(request: Request):
     return {"topics": cat.topics, "root": str(config.PREP_ROOT), "error": cat.error,
             "features": {"edit": config.ALLOW_EDIT, "ai": ai.available(),
                          "ai_mode": ai.mode(), "ai_auth": ai.credentials(), "timeout": config.RUN_TIMEOUT_S,
+                         "twin_url": config.JAVAPREP_URL,
                          "python": config.PYTHON_VERSION}}
 
 

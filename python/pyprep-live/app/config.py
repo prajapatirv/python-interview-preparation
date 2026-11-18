@@ -22,4 +22,7 @@ MAX_PARALLEL_RUNS = int(os.getenv("MAX_PARALLEL_RUNS", "2"))
 # Editing + running arbitrary code is OFF by default. Only enable on localhost.
 ALLOW_EDIT = os.getenv("PREP_ALLOW_EDIT", "0") == "1"
 ANTHROPIC_MODEL = os.getenv("ANTHROPIC_MODEL", "claude-sonnet-5-5")
+# Java/Python twins (shared/cross-stack-pairs.md) and where the Java runner listens, for "Same idea in Java"
+PAIRS_FILE = (BASE_DIR / os.getenv("PAIRS_FILE", "../../shared/cross-stack-pairs.md")).resolve()
+JAVAPREP_URL = os.getenv("JAVAPREP_URL", "http://127.0.0.1:8090").rstrip("/")
 PYTHON_VERSION = ".".join(map(str, sys.version_info[:3]))

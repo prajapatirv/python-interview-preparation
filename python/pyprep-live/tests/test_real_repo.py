@@ -70,3 +70,14 @@ def test_pandas_example_finds_relative_csv(real):
 def test_repo_pytest_suite_runs(real):
     ev = events(real.post("/api/run", json={"id": "04_testing_tdd/::pytest"}))
     assert ev[-1]["reason"] == "ok" and any("passed" in e.get("line", "") for e in ev)
+
+
+def test_java_twins_come_from_the_shared_pairs_table(real):
+    """shared/cross-stack-pairs.md links paired programs to the Java runner (the 100 -> 600 TPS scenario is in both)."""
+    cat = real.get("/api/catalog").json()
+    ex = {e["id"]: e for t in cat["topics"] for e in t["examples"]}
+    twins = ex["13_system_design_scenarios/03_capacity_scaling_tps.py"]["twins"]
+    assert {"topic": "Capacity: 100 to 600 TPS with Little's Law",
+            "id": "16_system_design/01_capacity_littles_law_100_to_600_tps.java"} in twins
+    assert ex["04_testing_tdd/::pytest"]["twins"]                       # a folder link pairs the suite
+    assert cat["features"]["twin_url"].startswith("http://127.0.0.1:")

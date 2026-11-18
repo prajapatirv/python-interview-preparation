@@ -17,6 +17,7 @@ body{background:var(--bg);color:var(--txt);font:14px/1.5 system-ui,Segoe UI,sans
 .ex:hover{background:#1c232d}.ex.active{background:#1c2733;border-left-color:var(--acc)}
 .tag{font-size:10px;padding:0 5px;border-radius:8px;border:1px solid var(--line);color:var(--dim);white-space:nowrap}
 .tag.infra{color:var(--warn);border-color:var(--warn)}
+#twins{margin-left:6px}.tag.twin{color:var(--ok,#2a8);border-color:currentColor}a.twinlink{font-size:12px;margin-right:6px;color:inherit;text-decoration:underline dotted}
 #main{display:grid;grid-template-rows:auto 1fr 1fr;min-width:0;height:100%}
 #head{padding:10px 16px;border-bottom:1px solid var(--line);display:flex;flex-wrap:wrap;gap:10px;align-items:center}
 #head h2{margin:0;font-size:17px}#head .d{color:var(--dim);flex-basis:100%;font-size:13px}
@@ -58,7 +59,7 @@ button.run{background:#238636;border-color:#2ea043}button.stop{background:#8e2b2
 <main id="main">
   <header id="head">
     <h2 id="title">Select an example</h2><button class="run" id="run" disabled>&#9654; Run</button><button class="stop" id="stop" disabled>&#9632; Stop</button>
-    <button id="edit" style="display:none">Edit code</button><span id="needs"></span><span id="docs"></span><span id="status">idle</span><div class="d" id="desc"></div>
+    <button id="edit" style="display:none">Edit code</button><span id="needs"></span><span id="docs"></span><span id="twins"></span><span id="status">idle</span><div class="d" id="desc"></div>
   </header>
   <div id="codewrap"><div id="codehost" style="min-width:0;min-height:0;display:flex"><pre id="code" style="flex:1"></pre></div><div id="toc"></div></div>
   <div id="bottom">
@@ -122,7 +123,8 @@ async function init(){const r=await fetch("/api/catalog");st.cat=await r.json();
   $("#aimode").textContent=st.features.ai_mode==="claude"?"Claude":"mock";
   $("#aimode").title=st.features.ai_mode==="claude"?"Signed in with: "+(st.features.ai_auth||"?"):"Offline mock. For Claude, run \"ant auth login\" (or set ANTHROPIC_API_KEY) and restart.";
   if(st.cat.error){$("#tree").innerHTML=`<div class=hint>${esc(st.cat.error)}<br>Set PREP_ROOT.</div>`;return}
-  $("#edit").style.display=st.features.edit?"":"none";drawTree();}
+  $("#edit").style.display=st.features.edit?"":"none";drawTree();openFromHash();}
+window.addEventListener("hashchange",()=>{if(!st.ex||location.hash!=="#ex="+encodeURIComponent(st.ex.id))openFromHash()});
 function drawTree(){const f=$("#filter").value.toLowerCase(),tree=$("#tree");tree.innerHTML="";
   st.cat.topics.forEach(t=>{const ex=t.examples.filter(e=>!f||(e.title+e.file+t.title).toLowerCase().includes(f));if(!ex.length)return;
     const h=document.createElement("div");h.className="topic";h.textContent=t.id.replace("_"," ").replace(/_/g," ");tree.appendChild(h);
@@ -136,7 +138,13 @@ async function select(e){if(st.running)stop();st.ex=e;st.editing=false;$("#title
   if(st.ex!==e)return;                       // user clicked another example while this one was loading
   $("#codehost").innerHTML='<pre id="code" style="flex:1"></pre>';
   if(e.kind==="suite"){$("#code").innerHTML='<div class=hint>Runs pytest -v over this folder\'s tests. Output streams below.</div>'}else renderCode();
-  renderToc();renderDocs();fillHist();$("#sum").style.display="none";$("#run").disabled=false;$("#edit").textContent="Edit code";setStatus("idle","");drawTree();clearLog(true);}
+  renderTwins(e);renderToc();renderDocs();fillHist();$("#sum").style.display="none";$("#run").disabled=false;$("#edit").textContent="Edit code";setStatus("idle","");drawTree();clearLog(true);}
+// "Same idea in Java": the twin programs from shared/cross-stack-pairs.md, opened in the Java runner
+function renderTwins(e){const t=e.twins||[];history.replaceState(null,"","#ex="+encodeURIComponent(e.id));
+  $("#twins").innerHTML=t.length?'<span class="tag twin" title="'+esc(t[0].topic)+'">Same idea in Java:</span> '+t.map(x=>
+    `<a class="twinlink" target="_blank" rel="noopener" href="${esc(st.features.twin_url)}/#ex=${encodeURIComponent(x.id)}" title="${esc(x.topic)} (opens the Java runner)">${esc(x.id.split("/").pop().replace(/^\d+_/,"").replace(/\.java$/,"").replace(/_/g," "))}</a>`).join(" "):"";}
+function openFromHash(){const m=location.hash.match(/^#ex=(.+)$/);if(!m)return;const id=decodeURIComponent(m[1]);
+  for(const t of st.cat.topics)for(const e of t.examples)if(e.id===id){select(e);return}}
 function clearLog(hint){$("#log").innerHTML=hint?'<div class="hint">Press Run - output streams here line by line, with timestamps.</div>':"";st.logText="";}
 function addLine(cls,t,text){const log=$("#log");const near=log.scrollTop+log.clientHeight>=log.scrollHeight-40;
   const d=document.createElement("div");d.className="l "+cls;d.innerHTML=`<span class=t>${t==null?"":t.toFixed(2)+"s"}</span><span>${esc(text)}</span>`;log.appendChild(d);if(near)log.scrollTop=log.scrollHeight;}

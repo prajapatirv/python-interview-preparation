@@ -58,6 +58,13 @@ override that. The sections below use project names
 - **Offline first:** the product goal is that the bank answers well without any AI. Python
   `QUESTION_INDEX.md` answers get a "The code that shows it" section built from their line links
   (`bank.code_excerpts`), so keep those links pointing at the demonstrating code.
+- **`shared/cross-stack-pairs.md` is machine-read** by both runners (`prepkit/pairs.py` for pyprep-live, a
+  small parser in `JavaPrepLive.java`): rows `| topic | Java links | Python links |`, links relative to
+  `shared/`, a Python folder link means its `::pytest` suite. Keep the three columns; `check_content.py`
+  (CI) fails on a row missing a side or a link that does not resolve. When writing a twin for a
+  one-stack topic, add a row and remove it from the file's "Only in one stack" list.
+- **`javaprep-live/start.*` find Java** on PATH, then `JAVA_HOME`, then `~/.jdks` (this machine's JDK is
+  IntelliJ's `~/.jdks/openjdk-26.0.1`, not on PATH).
 - **`.cmd` scripts call `%SystemRoot%\System32\find.exe` explicitly**: from Git Bash a bare `find`
   resolves to Unix `find`, and `stop.cmd` silently reported "Nothing was running".
   Tests: `cd shared/prepkit && ../../.venv/Scripts/python.exe -m pytest -q`.

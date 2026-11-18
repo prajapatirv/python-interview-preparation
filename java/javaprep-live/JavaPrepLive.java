@@ -39,6 +39,11 @@ class JavaPrepLive {
     static final Pattern GUIDE_SECTION_RE = Pattern.compile("^#\\s+(\\d+)\\.\\s+(.*)$");
     static final Pattern GUIDE_Q_RE = Pattern.compile("^##\\s+Q(\\d+)\\.\\s+(.*)$");
     static final Pattern SECTION_CALL_RE = Pattern.compile("\\bsection\\(\"([^\"]+)\"\\)");
+    // shared/cross-stack-pairs.md rows: | topic | Java links | Python links |  (see that file)
+    static final Pattern PAIR_ROW_RE = Pattern.compile("^\\|([^|]+)\\|([^|]*)\\|([^|]*)\\|\\s*$");
+    static final Pattern PAIR_LINK_RE = Pattern.compile("\\]\\(([^)\\s]+)\\)");
+    static final String JAVA_PREFIX = "../java/java-interview-prep/examples/", PY_PREFIX = "../python/python-interview-prep/";
+    static String pyprepUrl = "http://127.0.0.1:8000";
     static final Pattern HEADER_TITLE_RE = Pattern.compile("^\\s*\\*\\s+(\\d+)\\s+-\\s+(.*)$");
 
     public static void main(String[] args) throws Exception {
@@ -49,6 +54,7 @@ class JavaPrepLive {
             else if (args[i].equals("--check")) check = true;
         }
         timeoutSeconds = Integer.parseInt(System.getenv().getOrDefault("JAVAPREP_TIMEOUT", "60"));
+        pyprepUrl = System.getenv().getOrDefault("PYPREP_URL", pyprepUrl).replaceAll("/+$", "");
         root = locateRoot();
         appDir = locateAppDir();
         if (check) { System.exit(runCheck()); return; }
@@ -178,7 +184,37 @@ class JavaPrepLive {
         return null;
     }
 
+    /** Java example path -> its Python twins as JSON objects {topic, id}, from shared/cross-stack-pairs.md. */
+    static Map<String, List<String>> twins() throws IOException {
+        String env = System.getenv("PAIRS_FILE");
+        Path file = env != null && !env.isBlank() ? Paths.get(env) : root.resolve("../../shared/cross-stack-pairs.md").normalize();
+        Map<String, List<String>> out = new HashMap<>();
+        if (!Files.isRegularFile(file)) return out;
+        for (String line : Files.readAllLines(file, StandardCharsets.UTF_8)) {
+            Matcher row = PAIR_ROW_RE.matcher(line.trim());
+            if (!row.matches()) continue;
+            String topic = row.group(1).trim();
+            List<String> py = new ArrayList<>();
+            Matcher pl = PAIR_LINK_RE.matcher(row.group(3));
+            while (pl.find()) {
+                String t = pl.group(1);
+                if (!t.startsWith(PY_PREFIX)) continue;
+                String rel = t.substring(PY_PREFIX.length());
+                py.add("{\"topic\":" + q(topic) + ",\"id\":" + q(rel.endsWith("/") ? rel + "::pytest" : rel) + "}");
+            }
+            Matcher jl = PAIR_LINK_RE.matcher(row.group(2));
+            while (jl.find()) {
+                String t = jl.group(1);
+                if (!t.startsWith(JAVA_PREFIX)) continue;
+                List<String> list = out.computeIfAbsent(t.substring(JAVA_PREFIX.length()), k -> new ArrayList<>());
+                for (String x : py) if (!list.contains(x)) list.add(x);
+            }
+        }
+        return out;
+    }
+
     static String catalogJson() throws IOException {
+        Map<String, List<String>> twinMap = twins();
         List<String> chapters = new ArrayList<>();
         int totalExamples = 0;
         for (Path dir : chapterDirs()) {
@@ -207,7 +243,8 @@ class JavaPrepLive {
                 }
                 String rel = folder + "/" + f.getFileName();
                 examples.add("{\"path\":" + q(rel) + ",\"file\":" + q(f.getFileName().toString()) + ",\"title\":" + q(title)
-                        + ",\"summary\":" + q(summary) + ",\"sections\":" + arr(sections) + ",\"lines\":" + lines.size() + "}");
+                        + ",\"summary\":" + q(summary) + ",\"sections\":" + arr(sections) + ",\"lines\":" + lines.size()
+                        + ",\"twins\":" + arr(twinMap.getOrDefault(rel, List.of())) + "}");
                 totalExamples++;
             }
             chapters.add("{\"id\":" + q(folder) + ",\"number\":" + Integer.parseInt(folder.substring(0, 2)) + ",\"label\":" + q(humanize(folder))
@@ -229,7 +266,7 @@ class JavaPrepLive {
         for (String n : new String[]{"README.md", "QUESTION_INDEX.md", "Java_SpringBoot_Kafka_Interview_QA_Guide.md"})
             if (Files.isRegularFile(root.resolve(n))) extra.add("{\"name\":" + q(n) + ",\"title\":" + q(n) + "}");
         return "{\"root\":" + q(root.toString()) + ",\"java\":" + q(Runtime.version().toString()) + ",\"timeoutSeconds\":" + timeoutSeconds
-                + ",\"exampleCount\":" + totalExamples + ",\"chapters\":" + arr(chapters) + ",\"docs\":" + arr(docs) + ",\"extra\":" + arr(extra) + "}";
+                + ",\"exampleCount\":" + totalExamples + ",\"twinUrl\":" + q(pyprepUrl) + ",\"chapters\":" + arr(chapters) + ",\"docs\":" + arr(docs) + ",\"extra\":" + arr(extra) + "}";
     }
 
     // ------------------------------------------------------------------ source + docs

@@ -12,8 +12,11 @@ services:
       - "127.0.0.1:${PORT:-8000}:8000"          # localhost only
     volumes:
       - ../python-interview-prep:/prep           # the examples (edits are picked up; POST /api/reload for new files)
+      - ../../shared/cross-stack-pairs.md:/pairs.md:ro   # the Java/Python twins table
     environment:
       PREP_ROOT: /prep
+      PAIRS_FILE: /pairs.md
+      JAVAPREP_URL: "${JAVAPREP_URL:-http://127.0.0.1:8090}"
       PREP_ALLOW_EDIT: "${PREP_ALLOW_EDIT:-1}"
       RUN_TIMEOUT_S: "${RUN_TIMEOUT_S:-60}"
       AI_MODE: "${AI_MODE:-auto}"

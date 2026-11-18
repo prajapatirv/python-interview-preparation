@@ -235,7 +235,7 @@ $('#theme').onclick = () => {
 
 function openDoc(name) { currentDoc = name; store.set('doc', name); setTab('study'); }
 function openExample(path) {
-  currentEx = path; store.set('ex', path);
+  currentEx = path; store.set('ex', path); history.replaceState(null, '', '#ex=' + encodeURIComponent(path));
   const ch = path.split('/')[0]; openChapters.add(ch); store.set('openChapters', [...openChapters]);
   setTab('labs');
 }
@@ -299,6 +299,10 @@ function renderExample() {
     '<div class="card"><div class="meta">' + String(c.number).padStart(2, '0') + ' &middot; ' + esc(c.label) + ' &middot; ' + esc(e.file) + ' &middot; ' + e.lines + ' lines</div>' +
     '<h2>' + esc(e.title) + '</h2>' +
     (e.summary ? '<p class="sub">Interview angle: ' + esc(e.summary.replace(/^[\s*]+/, '')) + '</p>' : '<p class="sub"></p>') +
+    ((e.twins || []).length ? '<p class="sub twins" title="' + esc(e.twins[0].topic) + '">Same idea in Python: ' + e.twins.map(t =>
+      '<a target="_blank" rel="noopener" href="' + esc(catalog.twinUrl) + '/#ex=' + encodeURIComponent(t.id) + '" title="' + esc(t.topic) +
+      ' (opens the Python runner)">' + esc(t.id.replace('/::pytest', ' tests').split('/').pop().replace(/^\d+_/, '').replace(/\.py$/, '').replace(/_/g, ' ')) +
+      '</a>').join(' &middot; ') + '</p>' : '') +
     '<div class="row"><button class="btn primary" id="run">&#9654; Run</button><button class="btn" id="stop" disabled>Stop</button>' +
     '<button class="btn" id="src">Show source</button>' +
     (c.doc ? '<button class="btn" id="dd">Read the deep dive</button>' : '') +
@@ -471,7 +475,9 @@ function drawQuestions() {
   try {
     catalog = await api('/api/catalog');
     $('#meta').textContent = 'JDK ' + catalog.java + ' · ' + catalog.exampleCount + ' examples';
-    render();
+    const fromHash = () => { const m = location.hash.match(/^#ex=(.+)$/); if (m) openExample(decodeURIComponent(m[1])); else render(); };
+    window.addEventListener('hashchange', () => { if (location.hash !== '#ex=' + encodeURIComponent(currentEx || '')) fromHash(); });
+    fromHash();
   } catch (e) {
     main.innerHTML = '<div class="empty">Could not load the catalog: ' + esc(e.message) + '</div>';
   }

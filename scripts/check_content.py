@@ -10,13 +10,20 @@ and nothing else notices when a link starts pointing at the wrong place. This fa
 
 It cannot tell whether a line is still the *right* one; after editing an example, re-read its links.
 
+It also checks ``shared/cross-stack-pairs.md`` (the Java/Python twins both runners link to): every row
+must name at least one program on each side, and every link must resolve.
+
     py scripts/check_content.py
 """
 import re
 import sys
 from pathlib import Path
 
-PREP = Path(__file__).resolve().parent.parent / "python" / "python-interview-prep"
+WORKSPACE = Path(__file__).resolve().parent.parent
+PREP = WORKSPACE / "python" / "python-interview-prep"
+PAIRS = WORKSPACE / "shared" / "cross-stack-pairs.md"
+sys.path.insert(0, str(WORKSPACE / "shared" / "prepkit"))
+from prepkit import pairs  # noqa: E402
 LINK_RE = re.compile(r"\[([\w.\-]+):(\d+)\]\(([\w./\-]+)#L(\d+)\)")
 
 
@@ -40,14 +47,29 @@ def check_index(index: Path) -> list[str]:
     return problems
 
 
+def check_pairs(path: Path) -> tuple[int, list[str]]:
+    rows, problems = pairs.load(path), []
+    if not rows:
+        return 0, [f"{path.name}: no rows parsed"]
+    for r in rows:
+        if not r["java"] or not r["python"]:
+            problems.append(f"{path.name}: row '{r['topic']}' needs a Java and a Python link")
+        for target in r["targets"]:
+            if not (path.parent / target).exists():
+                problems.append(f"{path.name}: row '{r['topic']}' links missing {target}")
+    return len(rows), problems
+
+
 def main() -> int:
     index = PREP / "QUESTION_INDEX.md"
     problems = check_index(index)
-    for p in problems:
-        print(p)
     links = sum(len(LINK_RE.findall(ln)) for ln in index.read_text(encoding="utf-8").splitlines())
+    n_pairs, pair_problems = check_pairs(PAIRS)
+    for p in problems + pair_problems:
+        print(p)
     print(f"{links} line links checked, {len(problems)} problem(s)")
-    return 1 if problems else 0
+    print(f"{n_pairs} Java/Python pairs checked, {len(pair_problems)} problem(s)")
+    return 1 if problems or pair_problems else 0
 
 
 if __name__ == "__main__":
