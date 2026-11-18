@@ -19,7 +19,7 @@ for %%A in (%*) do (
 
 if not exist ".env" if exist ".env.example" (
   copy /y ".env.example" ".env" >nul
-  echo Created .env from .env.example ^(no API key = mock AI mode^).
+  echo Created .env. Runs offline as is; for the AI coach run "ant auth login" or put a key in .env.
 )
 if not exist "..\python-interview-prep" (
   echo ERROR: ..\python-interview-prep not found. Set PREP_ROOT to the examples folder.
@@ -31,7 +31,7 @@ if /i "%MODE%"=="docker" goto :docker
 rem ------------------------------------------------------------------ native
 if exist ".run\app.pid" (
   set /p OLDPID=<".run\app.pid"
-  tasklist /FI "PID eq !OLDPID!" 2>nul | find " !OLDPID! " >nul && (
+  tasklist /FI "PID eq !OLDPID!" 2>nul | "%SystemRoot%\System32\find.exe" " !OLDPID! " >nul && (
     echo Already running ^(PID !OLDPID!^): %URL%   -- run stop.cmd first to restart.
     exit /b 0
   )

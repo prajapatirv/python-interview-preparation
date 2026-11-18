@@ -46,7 +46,20 @@ override that. The sections below use project names
   needs no install: each app's `app/__init__.py` adds this folder to `sys.path` when `prepkit` is not
   importable. Docker images `pip install` it, which is why both Dockerfiles build from the **workspace
   root**. Change provider rules in `prepkit/llm.py` once, not per app; `pick_provider(...,
-  keyless_claude=True)` is the coach's deliberate difference (an `ant auth login` profile works there).
+  keyless_claude=True)` is the coach's deliberate difference.
+- **AI credentials, in the user's chosen order:** (1) an `ant auth login` profile, recommended for
+  people who clone the repo, no key stored; (2) `ANTHROPIC_API_KEY`; (3) none = fully offline from the
+  bank. `prepkit.llm.credential_source()` mirrors the `anthropic` SDK 1.13+ resolution (key, then token,
+  then the profile under `%APPDATA%\Anthropic` / `~/.config/anthropic`), so `auto` picks Claude after a
+  login alone; both UIs show the source. Both bill the user's Claude Console org. **Do not add claude.ai
+  / Pro-subscription login**: the Agent SDK docs forbid offering it in apps distributed to others unless
+  Anthropic approves. Both apps' `conftest.py` point `ANTHROPIC_CONFIG_DIR` at a temp dir so a
+  developer's real login can't change test outcomes.
+- **Offline first:** the product goal is that the bank answers well without any AI. Python
+  `QUESTION_INDEX.md` answers get a "The code that shows it" section built from their line links
+  (`bank.code_excerpts`), so keep those links pointing at the demonstrating code.
+- **`.cmd` scripts call `%SystemRoot%\System32\find.exe` explicitly**: from Git Bash a bare `find`
+  resolves to Unix `find`, and `stop.cmd` silently reported "Nothing was running".
   Tests: `cd shared/prepkit && ../../.venv/Scripts/python.exe -m pytest -q`.
 - **Running the apps:** native is the default (`start.cmd` / `./start.sh`, own `.venv`, ports 8000 and
   8100). Docker is optional for both (`start.cmd docker`); `stop` handles either.

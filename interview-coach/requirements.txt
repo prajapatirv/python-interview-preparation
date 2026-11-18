@@ -1,4 +1,4 @@
 fastapi>=0.115
 uvicorn[standard]>=0.30
-anthropic>=1.11        # the AI coach; without an API key the app runs in offline mock mode
+anthropic>=1.13        # the AI coach (1.13+ reads `ant auth login` profiles); without credentials it runs offline
 httpx>=0.27            # Supabase store and token verification

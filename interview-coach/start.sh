@@ -21,7 +21,7 @@ done
 
 if [ ! -f .env ] && [ -f .env.example ]; then
   cp .env.example .env
-  echo "Created .env from .env.example - put your ANTHROPIC_API_KEY there for the real AI coach."
+  echo "Created .env. Runs offline as is; for the AI coach run 'ant auth login' or put a key in .env."
 fi
 
 if [ "$MODE" = docker ]; then

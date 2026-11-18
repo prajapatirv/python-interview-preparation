@@ -6,9 +6,20 @@ from prepkit import env, llm
 
 
 @pytest.fixture(autouse=True)
-def no_credentials(monkeypatch):
+def no_credentials(monkeypatch, tmp_path):
     monkeypatch.delenv("ANTHROPIC_API_KEY", raising=False)
     monkeypatch.delenv("ANTHROPIC_AUTH_TOKEN", raising=False)
+    monkeypatch.delenv("ANTHROPIC_PROFILE", raising=False)
+    monkeypatch.setenv("ANTHROPIC_CONFIG_DIR", str(tmp_path / "anthropic"))   # never the real profile on this machine
+
+
+def _login(tmp_path, name="default", active=None):
+    base = tmp_path / "anthropic"
+    for sub in ("configs", "credentials"):
+        (base / sub).mkdir(parents=True, exist_ok=True)
+        (base / sub / f"{name}.json").write_text("{}", encoding="utf-8")
+    if active:
+        (base / "active_config").write_text(active + "\n", encoding="utf-8")
 
 
 def test_dotenv_real_environment_wins_and_empty_values_are_ignored(tmp_path, monkeypatch):
@@ -39,6 +50,31 @@ def test_provider_with_credentials(monkeypatch, var):
     monkeypatch.setenv(var, "x")
     assert llm.pick_provider("auto") == llm.pick_provider(" Claude ") == "claude"
     assert llm.pick_provider("mock") == "mock"         # forced mock even with a key
+
+
+def test_ant_login_profile_counts_as_credentials(tmp_path):
+    assert llm.credential_source() is None
+    _login(tmp_path)
+    assert llm.credential_source() == "login:default"
+    assert llm.pick_provider("auto") == "claude"
+    assert llm.describe(llm.credential_source()) == "ant auth login (default profile)"
+
+
+def test_active_and_named_profiles(tmp_path, monkeypatch):
+    _login(tmp_path, "work", active="work")
+    assert llm.login_profile() == "work"
+    monkeypatch.setenv("ANTHROPIC_PROFILE", "missing")
+    assert llm.login_profile() is None                  # a named profile that does not exist is not used
+    monkeypatch.setenv("ANTHROPIC_PROFILE", "../escape")
+    assert llm.login_profile() is None
+
+
+def test_api_key_wins_over_a_login_like_the_sdk(tmp_path, monkeypatch):
+    _login(tmp_path)
+    monkeypatch.setenv("ANTHROPIC_API_KEY", "sk-test")
+    assert llm.credential_source() == "api-key"
+    monkeypatch.setenv("ANTHROPIC_API_KEY", "")         # empty does not count (the .env loader never sets one)
+    assert llm.credential_source() == "login:default"
 
 
 def test_stream_text_rejoins_to_the_original():

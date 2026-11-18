@@ -15,6 +15,7 @@ Bullet-based format (``parse_index``): the Python ``QUESTION_INDEX.md``
 """
 import hashlib
 import re
+from pathlib import Path
 
 LEVELS = ["fresher", "mid", "senior", "architect"]
 LEVEL_ALIASES = {"basic": "fresher", "intermediate": "mid", "advanced": "senior", "design": "architect",
@@ -143,6 +144,31 @@ def parse_index(text: str) -> list[dict]:
     for q in out:
         q["body"] = "\n".join(q.pop("answer")).strip()
     return out
+
+
+CODE_LINK_RE = re.compile(r"\[([\w.\-]+):(\d+)\]\(([\w./\-]+)#L(\d+)\)")
+
+
+def code_excerpts(body: str, base: Path, max_lines: int = 14) -> str:
+    """The code an index answer links to (``→ [file.py:42](folder/file.py#L42)``), as fenced Markdown.
+
+    Each excerpt starts at the linked line and runs to the next blank line (at most ``max_lines``), so
+    the learner sees the demonstrating code without opening the file or asking the AI."""
+    parts, seen = [], set()
+    for _, _, target, anchor in CODE_LINK_RE.findall(body):
+        path = (base / target).resolve()
+        if (target, anchor) in seen or base.resolve() not in path.parents or not path.is_file():
+            continue
+        seen.add((target, anchor))
+        lines = path.read_text(encoding="utf-8", errors="ignore").splitlines()
+        block = []
+        for line in lines[int(anchor) - 1:int(anchor) - 1 + max_lines]:
+            if block and not line.strip():
+                break
+            block.append(line)
+        if any(x.strip() for x in block):
+            parts.append(f"`{target}` line {anchor}\n\n```python\n" + "\n".join(block) + "\n```")
+    return "\n\n".join(parts)
 
 
 def _finish(q: dict) -> None:

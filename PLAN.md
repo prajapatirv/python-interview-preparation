@@ -343,7 +343,7 @@ code and its tests are written but **[NOT VERIFIED]**. First action on your mach
 ### Restructure
 
 `app/` is now `main.py` + `config.py` + `api/` (routes, schemas) + `services/` (catalog, docs,
-runner, ai). See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md). Requirements split into
+runner, ai). See [docs/ARCHITECTURE.md](python/pyprep-live/docs/ARCHITECTURE.md). Requirements split into
 `requirements.txt` (runtime) and `requirements-dev.txt` (pytest, httpx).
 
 ### Bugs fixed

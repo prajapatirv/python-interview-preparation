@@ -102,6 +102,13 @@ Not a question.
 """
 
 
+
+@pytest.fixture(autouse=True)
+def no_real_ant_login(tmp_path_factory, monkeypatch):
+    """Keep a developer's real `ant auth login` profile out of the provider choice under test."""
+    monkeypatch.setenv("ANTHROPIC_CONFIG_DIR", str(tmp_path_factory.mktemp("ant-config")))
+    monkeypatch.delenv("ANTHROPIC_PROFILE", raising=False)
+
 @pytest.fixture
 def workspace(tmp_path, monkeypatch):
     root = tmp_path

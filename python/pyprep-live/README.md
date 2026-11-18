@@ -46,8 +46,8 @@ CPython 3.13 race-demo note in the repo's `CLAUDE.md`).
 
 | Mode | When | Behaviour |
 |---|---|---|
-| **Claude** | `ANTHROPIC_API_KEY` is set (env var or `.env`) | real streamed answers using the example's source and captured log |
-| **mock** | no key, or `AI_MODE=mock` | offline and free: answers built from the file itself (docstring, outline, `# EXPERIMENT:` comments, exit status, errors, keyword search for *Ask*) |
+| **Claude** | you ran `ant auth login` (recommended), or `ANTHROPIC_API_KEY` is set (env var or `.env`) | real streamed answers using the example's source and captured log |
+| **mock** | no login or key, or `AI_MODE=mock` | offline and free: answers built from the file itself (docstring, outline, `# EXPERIMENT:` comments, exit status, errors, keyword search for *Ask*) |
 
 `AI_MODE=auto` (default) picks Claude when a key exists, otherwise mock. If the `anthropic` package is
 missing, or `AI_MODE=claude` is set without a key, it falls back to mock rather than failing. The badge
@@ -86,7 +86,7 @@ Environment variables, or a git-ignored `.env` in this folder (copy `.env.exampl
 | `MAX_OUTPUT_BYTES` | 1000000 | Kill a run that prints more than this |
 | `MAX_PARALLEL_RUNS` | 2 | Concurrent runs |
 | `PREP_ALLOW_EDIT` | 0 | `1` enables "Edit code" + run (localhost only!) |
-| `ANTHROPIC_API_KEY` | unset | Enables the real Claude coach (otherwise mock mode) |
+| `ANTHROPIC_API_KEY` | unset | Enables the real Claude coach; not needed after `ant auth login` (otherwise mock mode) |
 | `AI_MODE` | auto | `auto`, `claude` or `mock` |
 | `PORT` | 8000 | used by the start scripts and docker compose |
 | `ANTHROPIC_MODEL` | claude-sonnet-5-5 | Confirm against your account |

@@ -18,7 +18,7 @@ for %%A in (%*) do (
 
 if not exist ".env" if exist ".env.example" (
   copy /y ".env.example" ".env" >nul
-  echo Created .env from .env.example - put your ANTHROPIC_API_KEY there for the real AI coach.
+  echo Created .env. Runs offline as is; for the AI coach run "ant auth login" or put a key in .env.
 )
 
 if /i "%MODE%"=="docker" (
@@ -35,7 +35,7 @@ if /i "%MODE%"=="docker" (
 
 if exist ".run\app.pid" (
   set /p OLDPID=<".run\app.pid"
-  tasklist /FI "PID eq !OLDPID!" 2>nul | find " !OLDPID! " >nul && (
+  tasklist /FI "PID eq !OLDPID!" 2>nul | "%SystemRoot%\System32\find.exe" " !OLDPID! " >nul && (
     echo Already running ^(PID !OLDPID!^): %URL%   -- run stop.cmd first to restart.
     exit /b 0
   )

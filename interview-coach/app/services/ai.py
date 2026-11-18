@@ -79,7 +79,7 @@ def mode() -> str:
 def status() -> dict:
     m = mode()
     return {"provider": m, "model": config.ANTHROPIC_MODEL if m == "claude" else "offline mock",
-            "effort": config.AI_EFFORT}
+            "effort": config.AI_EFFORT, "credentials": llm.describe(llm.credential_source())}
 
 
 # ---------------------------------------------------------------- prompt building
@@ -213,7 +213,8 @@ def _scores_line(scores: dict) -> str:
     return "SCORES: " + " ".join(f"{k}={scores[k]}" for k, _ in DIMENSIONS)
 
 
-MOCK_NOTE = "\n\n> Offline mock coach: built from your question bank. Set `ANTHROPIC_API_KEY` for the real AI coach."
+MOCK_NOTE = ("\n\n> Offline mock coach: built from your question bank. For the real AI coach, run `ant auth login` "
+             "(or set `ANTHROPIC_API_KEY`) and restart.")
 
 
 def mock_answer(req: dict, ctx: dict) -> str:
@@ -322,7 +323,8 @@ async def _stream_claude(req, ctx):
         elif final.stop_reason == "max_tokens":
             yield "\n\n> (answer truncated at the token limit)"
     except anthropic.AuthenticationError:
-        yield "\n\n> AI error: the API key was rejected. Check `ANTHROPIC_API_KEY`, or set `AI_MODE=mock`."
+        yield ("\n\n> AI error: the credentials were rejected. Run `ant auth login` again (logins expire), "
+               "check `ANTHROPIC_API_KEY`, or set `AI_MODE=mock`.")
     except anthropic.RateLimitError:
         yield "\n\n> AI error: rate limited by the API. Wait a moment and try again."
     except anthropic.APIStatusError as e:

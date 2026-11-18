@@ -15,16 +15,48 @@ Interview preparation for **Java** and **Python** developers, from freshers to a
 
 Plans: [`PLAN_INTERVIEW_COACH.md`](PLAN_INTERVIEW_COACH.md) (the coach and this layout), [`PLAN.md`](PLAN.md) (pyprep-live).
 
-## Running the apps
+## Getting started on your own machine
 
-Each app runs natively by default and needs only Python: `start.cmd` (Windows) or `./start.sh` creates its
-own `.venv` and starts the server; `stop.cmd` / `./stop.sh` stops it. Add `docker` to run the same app in a
-container instead (`start.cmd docker`); Docker is optional for both.
+You need **Python 3.10 or newer** (and **JDK 21** only for the Java examples runner). Nothing else: no
+Docker, no database, no account.
 
-| App | URL |
-|---|---|
-| `interview-coach/` | http://127.0.0.1:8100 |
-| `python/pyprep-live/` | http://127.0.0.1:8000 |
+```bash
+git clone https://github.com/prajapatirv/python-interview-preparation.git
+cd python-interview-preparation/interview-coach
+start.cmd          # Windows (PowerShell, cmd or Git Bash). macOS / Linux: ./start.sh
+```
+
+The first start creates the app's own `.venv`, installs its packages (a minute or two) and opens the
+browser. Stop it with `stop.cmd` / `./stop.sh`. The other apps work the same way:
+
+| App | Folder | URL |
+|---|---|---|
+| Interview Coach: every question by topic, practice, mock interviews | `interview-coach/` | http://127.0.0.1:8100 |
+| Run the Python examples in the browser | `python/pyprep-live/` | http://127.0.0.1:8000 |
+| Run the Java examples in the browser | `java/javaprep-live/` | http://127.0.0.1:8090 |
+
+The Java runner stays in the foreground: stop it with Ctrl+C. Set `PORT` to use another port. Add `docker` (`start.cmd docker`) to run the coach or the Python runner
+in a container instead; Docker is optional.
+
+## AI: offline by default, sign-in optional
+
+**Everything works offline, at no cost.** Every question has a stored answer, and practice, mock-interview
+scorecards and search all run from the bank on your machine. The AI coach only adds generated material
+(deeper explanations, a model rewrite of your answer, fact-checking).
+
+To turn the AI coach on, pick one:
+
+1. **Recommended: sign in once with the Anthropic CLI.** Install `ant`
+   (macOS: `brew install anthropics/tap/ant`; Windows and Linux: download it from
+   [github.com/anthropics/anthropic-cli/releases](https://github.com/anthropics/anthropic-cli/releases)),
+   then run `ant auth login`, pick your organization in the browser, and restart the app. No key is
+   stored in the repo.
+2. **Or use an API key**: create one at [platform.claude.com](https://platform.claude.com) and put it in
+   the app's `.env` as `ANTHROPIC_API_KEY=...` (the first start creates `.env` for you).
+
+Both bill API usage to your Claude Console organization. A Claude Pro or Max chat subscription does not
+cover them: Anthropic does not allow apps like this one to use a claude.ai login. The AI pill in the
+coach (and the "AI coach" tag in the runner) shows which credential is in use.
 
 ## Checking everything
 

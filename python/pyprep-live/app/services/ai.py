@@ -1,10 +1,11 @@
 """AI coach with two interchangeable providers behind `stream_answer()`.
 
-- **claude**: streams from the Anthropic API (needs ANTHROPIC_API_KEY).
+- **claude**: streams from the Anthropic API. Credentials: an `ant auth login` profile (recommended),
+  or ANTHROPIC_API_KEY / ANTHROPIC_AUTH_TOKEN.
 - **mock**:   offline, deterministic answers built from the example's own source and captured
               log (docstring, outline, EXPERIMENT comments, exit status, errors). No network.
 
-AI_MODE=auto (default) uses claude when a key is present, otherwise mock; `mock` forces the mock,
+AI_MODE=auto (default) uses claude when credentials are present, otherwise mock; `mock` forces the mock,
 and `claude` without a key still falls back to it (shared rule: `prepkit.llm.pick_provider`).
 To add another provider (e.g. Bedrock `converse_stream`), add an async generator with the same
 signature and select it in `mode()`.
@@ -43,6 +44,11 @@ def mode() -> str:
     return llm.pick_provider(os.getenv("AI_MODE", "auto"))
 
 
+def credentials() -> str:
+    """Which credential the SDK will use, for the UI (e.g. 'ant auth login (default profile)')."""
+    return llm.describe(llm.credential_source())
+
+
 def available() -> bool:
     """True when answers come from the real model (the UI shows 'mock' otherwise)."""
     return mode() == "claude"
@@ -65,7 +71,7 @@ def mock_answer(mode_: str, source: str, output: str, question: str = "") -> str
     out_lines = [ln for ln in output.splitlines() if ln.strip()]
     errors = [ln for ln in out_lines if re.search(r"Traceback|Error\b|FAILED", ln)]
     outline = "\n".join(f"  - line {s['line']}: {s['title']}" for s in sections) or "  (no section markers found)"
-    note = "\n\n(mock mode: offline answer built from the source and log. Set ANTHROPIC_API_KEY for the real coach.)"
+    note = "\n\n(mock mode: offline answer built from the source and log. For Claude, run `ant auth login` or set ANTHROPIC_API_KEY.)"
 
     if mode_ == "explain":
         log = (f"The log has {len(out_lines)} non-empty lines." if out_lines

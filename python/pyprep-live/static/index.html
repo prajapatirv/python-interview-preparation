@@ -120,6 +120,7 @@ function setStatus(txt,cls){const s=$("#status");s.textContent=txt;s.className=c
 async function init(){const r=await fetch("/api/catalog");st.cat=await r.json();st.features=st.cat.features;
   $("#pyver").textContent="Python "+(st.features.python||"?");
   $("#aimode").textContent=st.features.ai_mode==="claude"?"Claude":"mock";
+  $("#aimode").title=st.features.ai_mode==="claude"?"Signed in with: "+(st.features.ai_auth||"?"):"Offline mock. For Claude, run \"ant auth login\" (or set ANTHROPIC_API_KEY) and restart.";
   if(st.cat.error){$("#tree").innerHTML=`<div class=hint>${esc(st.cat.error)}<br>Set PREP_ROOT.</div>`;return}
   $("#edit").style.display=st.features.edit?"":"none";drawTree();}
 function drawTree(){const f=$("#filter").value.toLowerCase(),tree=$("#tree");tree.innerHTML="";

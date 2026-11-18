@@ -49,6 +49,20 @@ def test_ai_mode_selection(monkeypatch):
     assert ai.mode() == "mock"                      # claude requested but no key: never fail
 
 
+def test_ant_login_profile_enables_claude_without_a_key(client, monkeypatch, tmp_path):
+    import os
+    monkeypatch.delenv("ANTHROPIC_API_KEY", raising=False)
+    monkeypatch.delenv("ANTHROPIC_AUTH_TOKEN", raising=False)
+    monkeypatch.delenv("AI_MODE", raising=False)
+    base = tmp_path / "ant"
+    for sub in ("configs", "credentials"):
+        os.makedirs(base / sub)
+        (base / sub / "default.json").write_text("{}", encoding="utf-8")
+    monkeypatch.setenv("ANTHROPIC_CONFIG_DIR", str(base))
+    features = client.get("/api/catalog").json()["features"]
+    assert features["ai_mode"] == "claude" and features["ai_auth"] == "ant auth login (default profile)"
+
+
 def test_mock_answers_cover_every_mode():
     from app.services.ai import MODES, mock_answer
     src = "# ------ Part A\nvalue = 1\n# EXPERIMENT: change value\n"

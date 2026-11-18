@@ -10,6 +10,13 @@ from app import config
 from app.main import create_app
 
 
+@pytest.fixture(autouse=True)
+def no_real_ant_login(tmp_path_factory, monkeypatch):
+    """Keep a developer's real `ant auth login` profile out of the provider choice under test."""
+    monkeypatch.setenv("ANTHROPIC_CONFIG_DIR", str(tmp_path_factory.mktemp("ant-config")))
+    monkeypatch.delenv("ANTHROPIC_PROFILE", raising=False)
+
+
 def events(resp):
     """Parse an SSE response body into a list of dicts."""
     return [json.loads(line[6:]) for line in resp.text.splitlines() if line.startswith("data: ")]

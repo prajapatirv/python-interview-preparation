@@ -65,3 +65,14 @@ def test_pinned_qid_is_read_in_either_order_and_kept_out_of_the_body():
     assert q1["qid"] == "kafka-lag-spike" and q1["tags"] == ["kafka", "lag"] and "qid" not in q1["body"]
     assert "qid" not in q2
     assert "qid" not in q3 and q3["body"].startswith("qid: Not Valid!")   # malformed: left as text, not an id
+
+
+def test_code_excerpts_follow_index_links_and_stay_inside_the_content_root(tmp_path):
+    (tmp_path / "01_core").mkdir()
+    (tmp_path / "01_core" / "demo.py").write_text("x = 1\n\ndef f():\n    return 2\n\ny = 3\n", encoding="utf-8")
+    body = ("Short answer.\n→ [demo.py:3](01_core/demo.py#L3)\n→ [demo.py:3](01_core/demo.py#L3)\n"
+            "→ [secret.py:1](../secret.py#L1)")
+    md = bank.code_excerpts(body, tmp_path)
+    assert md.count("```python") == 1                     # duplicate link shown once, escaping link ignored
+    assert "def f():\n    return 2\n```" in md and "y = 3" not in md   # stops at the next blank line
+    assert bank.code_excerpts("no links here", tmp_path) == ""

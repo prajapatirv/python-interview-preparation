@@ -12,8 +12,10 @@ practice, mock interviews and job-description planning on top.
 ```
 
 First run creates `.venv`, installs `requirements-dev.txt` and copies `.env.example` to `.env`.
-Put `ANTHROPIC_API_KEY=...` in `.env` for the real coach; without it the app runs in **offline mock
-mode** (answers and scorecards built from the bank itself).
+With no setup the app runs in **offline mode**: every stored answer, practice, mock-interview scorecards and
+search work from the bank itself, at no cost. For the AI coach, run `ant auth login` once (recommended, no key
+stored) or put `ANTHROPIC_API_KEY=...` in `.env`, then restart; the AI pill shows which one is in use. See the
+workspace README, "AI: offline by default, sign-in optional".
 
 ## What a learner can do
 
@@ -110,7 +112,7 @@ app/main.py -> app/api/routes.py -> app/services/{library, bank, retrieve, ai, c
   checker (error recall, false-alarm rate); needs the Claude provider, the mock is reported as not evaluable.
 - `static/index.html` — single page, no CDN, light/dark, hash routing.
 
-Settings (env or `.env`): `ANTHROPIC_API_KEY`, `AI_MODE` (`auto`|`claude`|`mock`), `ANTHROPIC_MODEL`
+Settings (env or `.env`): an `ant auth login` profile (`ANTHROPIC_PROFILE` picks one) or `ANTHROPIC_API_KEY`, `AI_MODE` (`auto`|`claude`|`mock`), `ANTHROPIC_MODEL`
 (default `claude-sonnet-5-5`), `AI_EFFORT` (`medium`), `AI_MAX_TOKENS`, `AI_FALLBACKS` (1),
 `PORT` (8100), `COACH_ALLOW_SAVE` (1), `COACH_ROOT` (workspace root), `COACH_SKILLS`, `COACH_DATA`,
 `SUPABASE_URL` / `SUPABASE_ANON_KEY` / `SUPABASE_SERVICE_KEY`, `COACH_REVIEWERS`, `GATE_MIN_DEPTH`,

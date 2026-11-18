@@ -183,7 +183,12 @@ class Library:
                                   "questions": sum(1 for t in stack.topics for q in t.questions if q["source"] == rel)})
         if stack.index:
             by_folder = {f[:2]: t for t in stack.topics for f in t.folders}
+            index_dir = (root / stack.index).parent
             for q in bank.parse_index(_read(root / stack.index)):
+                # show the linked example code under the short answer, so it reads well offline
+                if code := bank.code_excerpts(q["body"], index_dir):
+                    q["sections"] = [{"key": "answer", "label": "Answer", "md": q["body"]},
+                                     {"key": "code", "label": "The code that shows it", "md": code}]
                 num = q["section"][:2]
                 t = by_folder.get(num) if num.isdigit() else None
                 t = t or classify(stack.topics, q["title"], q["section"])

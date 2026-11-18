@@ -6,7 +6,7 @@ set STOPPED=0
 
 if exist ".run\app.pid" (
   set /p PID=<".run\app.pid"
-  tasklist /FI "PID eq !PID!" 2>nul | find " !PID! " >nul && (
+  tasklist /FI "PID eq !PID!" 2>nul | "%SystemRoot%\System32\find.exe" " !PID! " >nul && (
     taskkill /F /T /PID !PID! >nul 2>&1
     echo Stopped native server ^(PID !PID!^).
     set STOPPED=1

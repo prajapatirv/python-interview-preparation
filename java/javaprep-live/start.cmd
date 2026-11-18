@@ -15,7 +15,8 @@ if /i "%~1"=="--check" (
   java JavaPrepLive.java --check
   exit /b %errorlevel%
 )
-set PORT=%~1
+rem port: the argument, else the PORT environment variable, else 8090 (same as start.sh)
+if not "%~1"=="" set PORT=%~1
 if "%PORT%"=="" set PORT=8090
 echo Starting Java Prep Live on http://127.0.0.1:%PORT%  ^(Ctrl+C to stop^)
 start "" "http://127.0.0.1:%PORT%"

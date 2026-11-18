@@ -1042,7 +1042,9 @@ async function loadStacks() {
     const pill = $('#ai-pill');
     pill.textContent = S.status.ai.provider === 'claude' ? 'AI: ' + S.status.ai.model : 'AI: offline mock';
     pill.classList.toggle('live', S.status.ai.provider === 'claude');
-    pill.title = S.status.ai.provider === 'claude' ? 'Answers stream from the Claude API' : 'Set ANTHROPIC_API_KEY and restart to use the real AI coach';
+    pill.title = S.status.ai.provider === 'claude'
+      ? 'Answers stream from the Claude API. Signed in with: ' + (S.status.ai.credentials || '?')
+      : 'Offline mock: every stored answer still works. For the AI coach, run "ant auth login" (or set ANTHROPIC_API_KEY) and restart.';
     await loadStacks();
     route();
   } catch (e) {
