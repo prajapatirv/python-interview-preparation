@@ -70,6 +70,23 @@ The requirement profile for this role (Java/J2EE with Java 8 and 11, Spring Boot
 | 24 | [Performance tuning answers: API response time and throughput, CPU and memory efficiency, measurement tools](24_performance_tuning_answers.md) | reuses [05_jvm_gc_performance/](../examples/05_jvm_gc_performance) (no folder of its own) |
 | 25 | [Production, monitoring and performance Q&A in short / technical / deep-dive tiers: high CPU, memory leak, exhausted pools, Kafka lag, probes, Actuator, cardinality, tracing, P1/RCA, alerting, STAR, post-deploy checks](25_production_monitoring_qa.md) | reuses [18_production_troubleshooting/](../examples/18_production_troubleshooting), [23_production_scenarios/](../examples/23_production_scenarios) (no folder of its own) |
 
+## Product Java Backend expanded question bank
+
+[Source PDF](../../InterviewTopic/Product_Java_Backend_Expanded_Question_Bank.pdf). Each chapter follows the original question numbers and opens with a worked example.
+
+| PDF prompts | Answer chapter |
+|---|---|
+| Q1–Q51 | [Coding problems and algorithm reasoning](26_product_backend_algorithms.md) |
+| Q52–Q85 | [Java Streams, collections and generics](27_product_backend_streams.md) |
+| Q86–Q114 | [Core Java, the JVM and concurrency](28_product_backend_java.md) |
+| Q115–Q144 | [Spring Boot, HTTP and persistence](29_product_backend_spring.md) |
+| Q145–Q171 | [Distributed services, Kafka and Redis](30_product_backend_distributed.md) |
+| Q172–Q197 and six project prompts | [AWS backend engineering and project discussion](31_product_backend_aws.md) |
+
+## Architecture and AI-assisted headless systems
+
+[AI-assisted headless architecture](32_ai_headless_architecture.md) covers a React storefront, Spring Boot APIs, CMS publishing and an authenticated shopping assistant, including quote confirmation and recovery after a lost payment response.
+
 ## Question index: the 44-question `.docx` and the supplement
 
 Short answers: [`../Docx_Gap_Supplement_QA.md`](../Docx_Gap_Supplement_QA.md) (Q97-Q114). Long answers, the

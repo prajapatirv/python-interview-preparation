@@ -22,7 +22,7 @@ The interview shape is always: define it, show the problem it removes, give one 
 
 ## Part 1 - Creational patterns (5): how objects are made
 
-### 1. Singleton
+### Q1. How does the Singleton pattern work?
 
 - **Intent:** guarantee exactly one instance of a class and provide a global access point to it.
 - **Problem:** several instances of something that must be unique (configuration, registry, connection pool, cache) cause inconsistent state or wasted resources.
@@ -33,7 +33,7 @@ The interview shape is always: define it, show the problem it removes, give one 
 - **Do not use when:** it is just a convenient global. Use a container-managed singleton bean and inject it.
 - **Follow-ups:** why `volatile` in DCL? how do you break a singleton? Singleton vs static class (a singleton is an object: interfaces, injection, mocking)? Is a Spring singleton the GoF one (no: one per container, not per JVM, and no private constructor)?
 
-### 2. Factory Method
+### Q2. How does the Factory Method pattern work?
 
 - **Intent:** define an interface for creating an object but let subclasses (or the method itself) decide which class to instantiate.
 - **Problem:** callers do `new ConcreteX()` everywhere, so adding a type edits every caller.
@@ -43,7 +43,7 @@ The interview shape is always: define it, show the problem it removes, give one 
 - **Do not use when:** there is one implementation and no variation expected. A static factory method (`Money.of(...)`) is often enough.
 - **Follow-ups:** *Simple factory* is not a GoF pattern (a static method with a `switch`); *Factory Method* uses inheritance; *Abstract Factory* uses composition and produces families.
 
-### 3. Abstract Factory
+### Q3. How does the Abstract Factory pattern work?
 
 - **Intent:** create **families** of related objects without naming their concrete classes.
 - **Problem:** products must be used together (dark theme button with dark theme checkbox; one cloud vendor's queue + storage clients) and mixing them is a bug.
@@ -52,7 +52,7 @@ The interview shape is always: define it, show the problem it removes, give one 
 - **Pros:** consistency across a family, swap an entire family at once. **Cons:** adding a *new product type* means changing every factory.
 - **Follow-up:** Factory Method = one product; Abstract Factory = several related products.
 
-### 4. Builder
+### Q4. How does the Builder pattern work?
 
 - **Intent:** construct a complex object step by step, separating construction from representation.
 - **Problem:** telescoping constructors (`new Pizza(size, true, false, true, ...)`) and JavaBean setters that leave the object half-built and mutable.
@@ -62,7 +62,7 @@ The interview shape is always: define it, show the problem it removes, give one 
 - **Do not use when:** the type has 2-3 required fields: use a record or constructor.
 - **Follow-ups:** Builder vs Factory (Builder: many steps and one product; Factory: one call, picks the type); builder vs telescoping constructors vs records.
 
-### 5. Prototype
+### Q5. How does the Prototype pattern work?
 
 - **Intent:** create new objects by copying an existing instance.
 - **Problem:** construction is expensive (parsing, DB lookups) or the exact configured state is hard to rebuild.
@@ -75,7 +75,7 @@ The interview shape is always: define it, show the problem it removes, give one 
 
 ## Part 2 - Structural patterns (7): how objects are composed
 
-### 6. Adapter
+### Q6. How does the Adapter pattern work?
 
 - **Intent:** convert the interface of a class into the one the client expects.
 - **Problem:** a legacy or third-party API has the right behaviour and the wrong shape.
@@ -84,7 +84,7 @@ The interview shape is always: define it, show the problem it removes, give one 
 - **Pros:** reuse without changing the adaptee, isolates vendor types (anti-corruption layer). **Cons:** an extra layer, many adapters if the vendor API is wide.
 - **Follow-up:** Adapter vs Facade (adapter makes one interface fit another; facade simplifies many classes).
 
-### 7. Bridge
+### Q7. How does the Bridge pattern work?
 
 - **Intent:** decouple an abstraction from its implementation so the two vary independently.
 - **Problem:** subclassing along two dimensions gives a combinatorial explosion (`VectorCircle`, `RasterCircle`, `VectorSquare`, ...).
@@ -93,7 +93,7 @@ The interview shape is always: define it, show the problem it removes, give one 
 - **Pros:** m + n classes instead of m x n, runtime switching. **Cons:** more up-front design.
 - **Follow-up:** Bridge vs Adapter: a bridge is **designed in** before the code exists; an adapter fixes an incompatibility **after the fact**.
 
-### 8. Composite
+### Q8. How does the Composite pattern work?
 
 - **Intent:** compose objects into trees and treat individual objects and groups uniformly.
 - **Problem:** client code keeps branching on "is this a file or a folder?".
@@ -102,7 +102,7 @@ The interview shape is always: define it, show the problem it removes, give one 
 - **Pros:** uniform recursion, easy to add node types. **Cons:** hard to restrict what a composite may contain; the interface can become too general.
 - **Follow-up:** where do `add()/remove()` live (transparency vs safety trade-off)?
 
-### 9. Decorator
+### Q9. How does the Decorator pattern work?
 
 - **Intent:** attach additional responsibilities to an object dynamically by wrapping it, using the same interface.
 - **Problem:** subclassing for every feature combination (`BufferedGzipEncryptedStream`...) explodes.
@@ -111,7 +111,7 @@ The interview shape is always: define it, show the problem it removes, give one 
 - **Pros:** composable at runtime, open/closed. **Cons:** many small objects, order-dependent behaviour, identity (`==`) differs from the wrapped object.
 - **Follow-up:** Decorator vs Proxy vs Adapter, and Decorator vs Chain of Responsibility ([17 Q23](17_design_patterns.md)).
 
-### 10. Facade
+### Q10. How does the Facade pattern work?
 
 - **Intent:** provide one simple interface to a complex subsystem.
 - **Problem:** clients must orchestrate several classes in the right order to do one business thing.
@@ -120,7 +120,7 @@ The interview shape is always: define it, show the problem it removes, give one 
 - **Pros:** fewer dependencies for clients, a stable entry point. **Cons:** can become a god class that accumulates unrelated methods.
 - **Follow-up:** Facade vs Mediator (facade: one-way simplification; mediator: peers communicate through it).
 
-### 11. Flyweight
+### Q11. How does the Flyweight pattern work?
 
 - **Intent:** share fine-grained immutable objects to cut memory.
 - **Problem:** millions of tiny objects (characters in a document, map tiles, `Integer`) with mostly identical state.
@@ -129,7 +129,7 @@ The interview shape is always: define it, show the problem it removes, give one 
 - **Pros:** big memory savings. **Cons:** complexity, extrinsic state handling, shared state must be immutable and thread-safe.
 - **Follow-up:** why `new Integer(5) == new Integer(5)` is false while `Integer.valueOf(5) == Integer.valueOf(5)` is true (see 01/03 examples).
 
-### 12. Proxy
+### Q12. How does the Proxy pattern work?
 
 - **Intent:** provide a surrogate that controls access to another object.
 - **Problem:** you need lazy loading, access checks, caching, remoting or cross-cutting behaviour without changing the real class.
@@ -143,7 +143,7 @@ The interview shape is always: define it, show the problem it removes, give one 
 
 ## Part 3 - Behavioural patterns (11): how objects collaborate
 
-### 13. Chain of Responsibility
+### Q13. How does the Chain of Responsibility pattern work?
 
 - **Intent:** pass a request along a chain of handlers until one handles it.
 - **Problem:** the sender should not know which receiver handles the request, and handlers should be orderable and replaceable.
@@ -152,7 +152,7 @@ The interview shape is always: define it, show the problem it removes, give one 
 - **Pros:** decouples sender and receiver, flexible ordering. **Cons:** no guarantee a request is handled, long chains are hard to debug.
 - **Follow-up:** order matters, so make it explicit; chain vs decorator (a handler may stop the request).
 
-### 14. Command
+### Q14. How does the Command pattern work?
 
 - **Intent:** encapsulate a request as an object so it can be queued, logged, retried or undone.
 - **Problem:** the invoker should not know the operation or its receiver; you need undo or a job queue.
@@ -161,7 +161,7 @@ The interview shape is always: define it, show the problem it removes, give one 
 - **Pros:** queueing, undo/redo, audit trail, macro commands. **Cons:** a class per action (lambdas reduce this).
 - **Follow-up:** command vs event (a command asks for something and has one handler; an event reports a fact).
 
-### 15. Interpreter
+### Q15. How does the Interpreter pattern work?
 
 - **Intent:** define a grammar and an interpreter that evaluates sentences in it.
 - **Problem:** a small, stable language (rules, expressions, filters) must be evaluated repeatedly.
@@ -170,7 +170,7 @@ The interview shape is always: define it, show the problem it removes, give one 
 - **Pros:** easy to extend a tiny grammar. **Cons:** poor for large grammars (class explosion): use a parser generator or library.
 - **Follow-up:** rarely hand-written; say where you have *used* one (SpEL in `@Value`/`@PreAuthorize`, regex).
 
-### 16. Iterator
+### Q16. How does the Iterator pattern work?
 
 - **Intent:** access the elements of a collection sequentially without exposing its representation.
 - **Structure:** Iterable (`iterator()`), Iterator (`hasNext`, `next`, `remove`).
@@ -178,7 +178,7 @@ The interview shape is always: define it, show the problem it removes, give one 
 - **Pros:** uniform traversal, multiple simultaneous traversals, lazy sequences. **Cons:** fail-fast iterators throw `ConcurrentModificationException`; weakly consistent iterators in concurrent collections do not.
 - **Follow-up:** fail-fast vs fail-safe; internal (`forEach`, streams) vs external (`Iterator`) iteration.
 
-### 17. Mediator
+### Q17. How does the Mediator pattern work?
 
 - **Intent:** centralise how a set of objects communicate so they do not reference each other.
 - **Problem:** many-to-many references create a tangle that cannot change.
@@ -187,7 +187,7 @@ The interview shape is always: define it, show the problem it removes, give one 
 - **Pros:** looser coupling, one place for interaction logic. **Cons:** the mediator can become a god object.
 - **Follow-up:** Mediator vs Observer (mediator coordinates two-way interaction; observer broadcasts one-way); vs Facade.
 
-### 18. Memento
+### Q18. How does the Memento pattern work?
 
 - **Intent:** capture and externalise an object's state so it can be restored later, without breaking encapsulation.
 - **Problem:** you need undo, checkpoints or rollback.
@@ -196,7 +196,7 @@ The interview shape is always: define it, show the problem it removes, give one 
 - **Pros:** undo without exposing internals. **Cons:** memory cost for large or frequent snapshots.
 - **Follow-up:** make mementos immutable; combine with Command for undo/redo.
 
-### 19. Observer
+### Q19. How does the Observer pattern work?
 
 - **Intent:** when one object changes state, all dependents are notified automatically.
 - **Problem:** the publisher should not hardcode who needs to react.
@@ -205,7 +205,7 @@ The interview shape is always: define it, show the problem it removes, give one 
 - **Pros:** loose coupling, dynamic subscribers. **Cons:** unexpected cascades, memory leaks if observers are never removed (the **lapsed listener** leak), no ordering guarantee, synchronous by default.
 - **Follow-up:** Observer vs pub/sub (a broker adds durability, async delivery and cross-service reach); `@TransactionalEventListener(AFTER_COMMIT)`.
 
-### 20. State
+### Q20. How does the State pattern work?
 
 - **Intent:** let an object change its behaviour when its internal state changes, appearing to change class.
 - **Problem:** a status field and a growing `switch` in every method.
@@ -214,7 +214,7 @@ The interview shape is always: define it, show the problem it removes, give one 
 - **Pros:** removes conditionals, makes transitions explicit and testable. **Cons:** more classes; overkill for two states.
 - **Follow-up:** State vs Strategy (state transitions itself; the client picks a strategy).
 
-### 21. Strategy
+### Q21. How does the Strategy pattern work?
 
 - **Intent:** define a family of interchangeable algorithms and let the client choose one at runtime.
 - **Problem:** `if (type == ...)` chains for pricing, sorting, parsing, routing.
@@ -223,7 +223,7 @@ The interview shape is always: define it, show the problem it removes, give one 
 - **Pros:** open/closed, testable in isolation, runtime selection. **Cons:** clients must know the options; trivial strategies are just lambdas.
 - **Follow-ups:** Strategy vs State; Strategy vs Template Method (composition vs inheritance).
 
-### 22. Template Method
+### Q22. How does the Template Method pattern work?
 
 - **Intent:** define the skeleton of an algorithm in a base class and let subclasses (or callbacks) fill in steps.
 - **Problem:** several classes repeat the same sequence (open, process, close, handle errors) differing in one step.
@@ -232,7 +232,7 @@ The interview shape is always: define it, show the problem it removes, give one 
 - **Pros:** reuse, enforced order, the "Hollywood principle" (don't call us, we'll call you). **Cons:** inheritance coupling, fragile base class; the callback form avoids it.
 - **Follow-up:** the answer to "which pattern removes connection-closing boilerplate?" ([17 Q19](17_design_patterns.md)).
 
-### 23. Visitor
+### Q23. How does the Visitor pattern work?
 
 - **Intent:** add new operations to a class hierarchy without modifying the classes (double dispatch).
 - **Problem:** many unrelated operations (print, evaluate, validate, export) clutter stable element classes.
@@ -245,19 +245,19 @@ The interview shape is always: define it, show the problem it removes, give one 
 
 ## Beyond GoF - patterns that come up in Java interviews
 
-### Null Object
+### Q24. When would you use a Null Object?
 A do-nothing implementation used instead of `null` so callers need no checks (`Collections.emptyList()`, a no-op logger, `Optional.empty()` as the functional cousin). Pros: removes `if (x != null)`. Cons: can hide a genuinely missing value.
 
-### Dependency Injection and Service Locator
+### Q25. How do Dependency Injection and Service Locator differ?
 DI supplies collaborators from outside (constructor injection preferred); a Service Locator makes the class look them up from a registry, hiding dependencies. Prefer DI; know that `ApplicationContext.getBean` is the locator the container uses internally.
 
-### DAO, Repository, DTO, Value Object, Unit of Work
+### Q26. How do DAO, Repository, DTO, Value Object and Unit of Work fit together?
 DAO = persistence-centric CRUD; Repository = domain-centric collection of aggregates; DTO = data across a boundary with no behaviour; Value Object = immutable, compared by value; Unit of Work = track changes and commit once (JPA persistence context). See [17 Q24](17_design_patterns.md).
 
-### Front Controller and MVC
+### Q27. How does a Front Controller fit into MVC?
 `DispatcherServlet` is the single entry point (Front Controller); MVC is the architectural pattern it implements. See [17 Q17](17_design_patterns.md).
 
-### Concurrency patterns
+### Q28. Which concurrency patterns apply to a Java service?
 Producer-consumer (`BlockingQueue`), thread pool (`ExecutorService`), future/promise (`CompletableFuture`), immutability, thread confinement (`ThreadLocal`), read-write lock. Chapter [04](04_concurrency.md).
 
 ---

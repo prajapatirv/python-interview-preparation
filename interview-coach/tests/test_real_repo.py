@@ -43,6 +43,20 @@ def test_topics_match_the_job_requirement(lib):
             "performance", "genai"} <= java
 
 
+def test_java_deep_dive_decks_have_answer_cards(lib):
+    """A linked document can pass file coverage while supplying zero practice cards."""
+    pdf = lib.questions("java", "product-backend-bank")
+    assert [q["label"] for q in pdf] == (
+        [f"Q{i}" for i in range(1, 198)] + [f"P{i}" for i in range(1, 7)]
+    )
+    headless = lib.questions("java", "headless-architecture")
+    patterns = [q for q in lib.questions("java", "architecture")
+                if q["source"].endswith("/20_design_patterns_catalogue.md")]
+    assert [q["label"] for q in headless] == [f"Q{i}" for i in range(1, 9)]
+    assert [q["label"] for q in patterns] == [f"Q{i}" for i in range(1, 29)]
+    assert all(q["body"].strip() for q in pdf + headless + patterns)
+
+
 def test_scenario_answers_follow_the_format(lib):
     for q in lib.questions("java"):
         if q["kind"] != "scenario":
